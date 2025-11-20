@@ -1,8 +1,10 @@
 import { Router } from "express";
-import exampleRoutes from "./routes.example";
+import brandRoutes from "../routes/brandRoutes"
+import scrapeRoutes from "../routes/scrapeRoutes"
 
 const router = Router();
 
-router.use("/example", exampleRoutes);
+router.use("/scrape", scrapeRoutes)
+router.use("/brand", brandRoutes)
 
 export default router;

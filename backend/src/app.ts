@@ -3,6 +3,7 @@ import logger from './utils/logger'
 import config from './utils/config'
 import mongoose from 'mongoose'
 import middleware from './utils/middleware'
+import routes from "./routes"
 // import cookieParser from 'cookie-parser'
 
 const app = express()
@@ -24,7 +25,7 @@ app.use(express.json())
 app.use(middleware.requestLogger)
 
 // routes
-
+app.use(routes)
 
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
