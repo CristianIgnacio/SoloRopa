@@ -1,6 +1,15 @@
 import mongoose from "mongoose";
 
-const brandSchema = new mongoose.Schema({
+interface IBrand extends Document {
+  name : String,
+  slug : String,
+  description : String,
+  logo : String,
+  website : String,
+  isActive : boolean
+}
+
+const brandSchema = new mongoose.Schema<IBrand>({
   name: {
     type: String,
     required: [true, 'El nombre de la marca es requerido'],

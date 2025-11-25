@@ -1,10 +1,6 @@
 // src/scrapers/index.ts
-import { Freshbrand } from "./brands/freshbrand";
 import Product from "../models/Product";
-
-const stores: { [key: string]: any } = {
-  freshbrand: Freshbrand
-};
+import stores from "./core/brands"
 
 const runScraperFor = async (storeKey: string) => {
   const store = stores[storeKey];
@@ -12,12 +8,12 @@ const runScraperFor = async (storeKey: string) => {
   const items = await store.scrape();
   // Guardar en BD (ejemplo simple: inserta todos sin chequeos)
   const docs = items.map((it: any) => ({
-    store: store.name,
+    brand: store.name,
     title: it.title,
     price: it.price,
     currency: it.currency ?? null,
     url: it.url,
-    image: it.image ?? null,
+    images: it.image ?? [],
     inStock: it.inStock ?? null,
     scrapedAt: new Date(),
     raw: it.raw ?? null

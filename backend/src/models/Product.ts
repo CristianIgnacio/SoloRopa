@@ -1,27 +1,32 @@
-import {model, Schema} from "mongoose"
+import { model, Schema, Document } from "mongoose"
 
 export interface IProduct extends Document {
-  store: string;      // e.g., "freshbrand"
+  brand: string;      // e.g., "freshbrand"
   title: string;
   price: number | null;
   currency?: string | null;
   url: string;
-  image?: string | null;
+  images: { src: string; alt?: string }[];
   inStock?: boolean;
   scrapedAt: Date;
   raw?: any;          // guarda el JSON/HTML bruto si quieres
 }
 
 const ProductSchema = new Schema<IProduct>({
-  store: { type: String, required: true, index: true },
+  brand: { type: String, required: true, index: true },
   title: { type: String, required: true },
   price: { type: Number, required: false },
   currency: { type: String, required: false },
   url: { type: String, required: true, unique: false },
-  image: { type: String, required: false },
+  images: [{
+    src: {type: String, required: true},
+    alt: {type: String, default: ''}
+  }],
   inStock: { type: Boolean, required: false },
   scrapedAt: { type: Date, default: () => new Date() },
   raw: { type: Schema.Types.Mixed }
+}, { 
+  timestamps: true
 });
 
 const ProductModel = model<IProduct>("Product", ProductSchema);
