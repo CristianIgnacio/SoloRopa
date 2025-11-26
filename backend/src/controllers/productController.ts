@@ -3,17 +3,17 @@ import { Response, Request, NextFunction } from "express";
 
 // Obtner todos los productos
 const getAllProducts = async (req : Request, res : Response, next : NextFunction) => {
-    try {
-        const products = await Product.find({})
+  try {
+      const products = await Product.find({}).populate('brand');
 
-        res.status(200).json({
-            success : true,
-            data : products
-        })
-    }
-    catch (err){
-        next(err);
-    }
+      res.status(200).json({
+          success : true,
+          data : products
+      })
+  }
+  catch (err){
+      next(err);
+  }
 }
 
 // Obtener un producto por ID
@@ -33,9 +33,28 @@ const getProductById = async (req : Request, res : Response, next : NextFunction
       data: product
     });
 
-    } catch (err) {
-        next(err);
-    }
+  } catch (err) {
+      next(err);
+  }
+
+};
+
+// Crear un nuevo producto
+export const createProduct = async (req : Request, res : Response, next : NextFunction) => {
+  try {
+
+    const product = await Product.create(req.body);
+    const populatedProduct = await Product.findById(product._id).populate('brand');
+
+    res.status(201).json({
+      success: true,
+      message: 'Producto creado exitosamente',
+      data: populatedProduct
+    });
+
+  } catch (err) {
+      next(err);
+  }
 
 };
 
@@ -156,23 +175,7 @@ export {getAllProducts, getProductById}
 
 // };
 
-// // Crear un nuevo producto
-// export const createProduct = async (req : Request, res : Response, next : NextFunction) => {
-//   try {
-//     const product = await Product.create(req.body);
-//     const populatedProduct = await Product.findById(product._id).populate('brand');
 
-//     res.status(201).json({
-//       success: true,
-//       message: 'Producto creado exitosamente',
-//       data: populatedProduct
-//     });
-
-//     } catch (err) {
-//         next(err);
-//     }
-
-// };
 
 // // Actualizar un producto
 // export const updateProduct = async (req : Request, res : Response, next : NextFunction) => {

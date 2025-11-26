@@ -1,7 +1,7 @@
-import { model, Schema, Document } from "mongoose"
+import mongoose, { model, Schema, Document } from "mongoose"
 
 export interface IProduct extends Document {
-  brand: string;      // e.g., "freshbrand"
+  brand: mongoose.Schema.Types.ObjectId;
   title: string;
   price: number | null;
   currency?: string | null;
@@ -13,7 +13,7 @@ export interface IProduct extends Document {
 }
 
 const ProductSchema = new Schema<IProduct>({
-  brand: { type: String, required: true, index: true },
+  brand: { type: mongoose.Schema.Types.ObjectId, ref:'Brand', required: true, index: true },
   title: { type: String, required: true },
   price: { type: Number, required: false },
   currency: { type: String, required: false },

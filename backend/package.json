@@ -10,7 +10,8 @@
     "build": "tsc",
     "start": "node src/index.js",
     "dev": "ts-node-dev src/index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "any": "ts-node src/scrapers/scripts/test.ts"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",

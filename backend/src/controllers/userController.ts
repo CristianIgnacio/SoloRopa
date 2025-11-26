@@ -32,14 +32,16 @@ export const getUserById = async (req: Request, res: Response, next: NextFunctio
 
 export const createUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { username, password } = req.body;
+        const { username, password, email } = req.body;
 
         const saltRounds = 10;
         const passwordHash = await bcrypt.hash(password, saltRounds);
 
         const user = new UserModel({
             username : username,
-            password : passwordHash
+            password : passwordHash,
+            email : email,
+            role : "user"
         });
 
         const savedUser = await user.save();

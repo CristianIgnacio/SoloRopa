@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import bcrypt from "bcrypt"
 
 const userSchema = new mongoose.Schema({
   username: {
@@ -18,8 +17,7 @@ const userSchema = new mongoose.Schema({
 
   password: {
     type: String,
-    required: true,
-    select: false, // No devolver contraseña en consultas
+    required: true
   },
 
   role: {
@@ -36,18 +34,18 @@ const userSchema = new mongoose.Schema({
   timestamps: true, // crea createdAt y updatedAt
 });
 
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
+// userSchema.pre("save", async function (next) {
+//   if (!this.isModified("password")) return next();
 
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
+//   const salt = await bcrypt.genSalt(10);
+//   this.password = await bcrypt.hash(this.password, salt);
 
-  next();
-});
+//   next();
+// });  
 
-userSchema.methods.comparePassword = function (candidatePassword : string) {
-  return bcrypt.compare(candidatePassword, this.password);
-};
+// userSchema.methods.comparePassword = function (candidatePassword : string) {
+//   return bcrypt.compare(candidatePassword, this.password);
+// };
 
 const UserModel = mongoose.model("User", userSchema);
 

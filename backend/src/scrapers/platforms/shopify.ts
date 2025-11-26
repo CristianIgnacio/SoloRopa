@@ -54,7 +54,7 @@ const scrapeShopifyBase = async (baseUrl: string): Promise<ShopifyProduct[]> => 
                 return { src : i.src, alt : p.title} 
               }) 
                 ?? []);
-          console.log(img)
+                
           allProducts.push({
             title: p.title,
             price,

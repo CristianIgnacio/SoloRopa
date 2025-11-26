@@ -1,14 +1,21 @@
 // src/scrapers/index.ts
+import BrandModel from "../models/Brand";
 import Product from "../models/Product";
 import stores from "./core/brands"
 
 const runScraperFor = async (storeKey: string) => {
   const store = stores[storeKey];
   if (!store) throw new Error("Store no registrada: " + storeKey);
+
   const items = await store.scrape();
+  console.log(store)
+
+  const brand = await BrandModel.findOne({ name: store.name })
+  
+  
   // Guardar en BD (ejemplo simple: inserta todos sin chequeos)
   const docs = items.map((it: any) => ({
-    brand: store.name,
+    brand: brand?._id,
     title: it.title,
     price: it.price,
     currency: it.currency ?? null,
@@ -18,9 +25,12 @@ const runScraperFor = async (storeKey: string) => {
     scrapedAt: new Date(),
     raw: it.raw ?? null
   }));
+  
   // Puedes optar por upsert por URL; aquí haremos insertMany simple:
   if (docs.length === 0) return { ok: true, count: 0 };
+  
   await Product.insertMany(docs);
+  
   return { ok: true, count: docs.length };
 }
 

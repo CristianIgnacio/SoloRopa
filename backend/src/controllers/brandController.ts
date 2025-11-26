@@ -1,5 +1,21 @@
-// import Brand from "../models/Brand"
-// import { Response, Request, NextFunction } from "express";
+import Brand from "../models/Brand"
+import { Response, Request, NextFunction } from "express";
+
+// Obtner todos los productos
+const getAllBrands = async (req : Request, res : Response, next : NextFunction) => {
+  try {
+    const brands = await Brand.find({})
+
+    res.status(200).json({
+      success : true,
+      data : brands
+    })
+  }
+  catch (err){
+    next(err);
+  }
+}
+
 
 // // Obtener todas las marcas
 // const getAllBrands = async (req : Request, res : Response, next : NextFunction) => {
