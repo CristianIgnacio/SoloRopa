@@ -52,7 +52,7 @@ interface propsCard {
 
 const RecipeReviewCard = (props : propsCard) => {
   const [expanded, setExpanded] = React.useState(false);
-  const {brand, images} = props.product
+  const {brand, images, title} = props.product
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
@@ -62,23 +62,21 @@ const RecipeReviewCard = (props : propsCard) => {
     <Card sx={{ maxWidth: 345 }}>
       <CardHeader
         avatar={
-          <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
-            R
-          </Avatar>
+          <Avatar src={brand.logo} alt={brand.name} sx={{ bgcolor: 'black' }} aria-label="recipe"/>
         }
         action={
           <IconButton aria-label="settings">
             <MoreVertIcon />
           </IconButton>
         }
-        title={brand}
+        title={brand.name}
         subheader="September 14, 2016"
       />
       <CardMedia
         component="img"
-        height="194"
+        height="400"
         image={images[0].src ?? ""}
-        alt="Paella dish"
+        alt={images[0].alt ?? title}
       />
       <CardContent>
         <Typography variant="body2" sx={{ color: 'text.secondary' }}>

@@ -4,7 +4,8 @@ import Admin from "./pages/Admin"
 import Profile from "./pages/Profile"
 import Navbar from "./components/Navbar"
 import { Box } from "@mui/material"
-
+import Login from './pages/Login'
+import Register from './pages/Register'
 
 function App() {
 
@@ -16,6 +17,9 @@ function App() {
           <Route path='/' element={<Home />} />
           <Route path='/admin' element={<Admin />} />
           <Route path='/profile/:id' element={<Profile />} />
+          <Route path='/login' element={<Login />} />
+          <Route path='/register' element={<Register />} />
+
         </Routes>
       </Box>
     </Router>
