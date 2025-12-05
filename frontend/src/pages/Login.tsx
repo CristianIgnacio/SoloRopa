@@ -1,6 +1,8 @@
-import {Box, Button,TextField, Typography,Paper, Alert} from "@mui/material";
+import {Box, Button,TextField, Typography,Paper, Alert, Stack, Avatar} from "@mui/material";
 import useForm from "../Hooks/useForm";
 import loginServices  from "../services/login";
+import { useUserStore } from "../Hooks/useStore";
+import { useNavigate } from "react-router-dom";
 
 interface LoginData {
   username: string;
@@ -13,6 +15,10 @@ export default function Login() {
 
     const { username, password } = values;
 
+    const {login : loginState} = useUserStore();
+
+    const navigate = useNavigate();
+
     const onSubmit = async (data : LoginData) => {
         try{
             const credentials = {
@@ -20,8 +26,9 @@ export default function Login() {
                 password: data.password,
             };
 
-
             const userlogin = await loginServices.login(credentials);
+            loginState(userlogin)
+            navigate("/");
             console.log("Login successful:", userlogin);
         }
         catch(error){

@@ -1,14 +1,23 @@
 import {Box, Menu, Tooltip, IconButton, Avatar, MenuItem, Typography, Button} from "@mui/material"
-import React, { useState } from "react"
-import {Link} from "react-router-dom"
-import type { User } from "../Types/Types"
+import { Link as RouterLink, useNavigate } from 'react-router-dom'
+import React from "react"
+import { useUserStore } from "../Hooks/useStore"
+import loginServices from "../services/login"
 
 const settings = ['Profile','Admin', 'Account', 'Logout'];
 const urls = ['/', '/admin', '/account', '/logout'];
 
 const MenuUser = () => {
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
-    const [user, setUser] = useState<User | null>(null)
+
+    const {user, logout : logoutState} = useUserStore();
+
+    console.log("user en MenuUser:", user);
+
+    const UrlBaseServer = "http://localhost:3001" + (user?.avatarUrl || "");
+    console.log("UrlBaseServer en MenuUser:", UrlBaseServer);
+
+    const navigate = useNavigate();
     
     const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorElUser(event.currentTarget);
@@ -18,24 +27,32 @@ const MenuUser = () => {
         setAnchorElUser(null);
     };
 
-    if(!user){
-        return (
-            <Box sx={{ flexGrow: 0, display: 'flex', gap: 1 }} >
-                <Button variant="contained" color="success" component={Link} to="/login">
-                    Login
-                </Button>
-                <Button  variant="contained" color="success" component={Link} to="/register">
-                    Register
-                </Button>
-            </Box>
-        )
-    }
+    const handleMenuClick = async (setting: string) => {
+        handleCloseUserMenu();
+
+        if (setting === "Logout") {
+            await loginServices.logout();
+            logoutState(); // Zustand
+            // Opcional: llamar backend → /logout
+            // await fetch("/logout", { method: "POST", credentials: "include" });
+
+            // window.location.href = "/login"; // redirigir
+            navigate("/login");
+            return;
+        }
+
+        // Para los demás items, redirige con React Router
+        const index = settings.indexOf(setting);
+        const url = urls[index];
+        window.location.href = url;
+    };
+
 
     return ( 
         <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                <Avatar alt="Remy Sharp" src={UrlBaseServer} />
                 </IconButton>
             </Tooltip>
             <Menu
@@ -55,9 +72,9 @@ const MenuUser = () => {
                 onClose={handleCloseUserMenu}
             >
                 {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                    <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
-                </MenuItem>
+                    <MenuItem key={setting} onClick={() => handleMenuClick(setting)}>
+                        <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
+                    </MenuItem>
                 ))}
             </Menu>
         </Box>

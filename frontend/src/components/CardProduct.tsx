@@ -10,7 +10,6 @@ import Avatar from '@mui/material/Avatar';
 import IconButton from '@mui/material/IconButton';
 import type {IconButtonProps} from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import { red } from '@mui/material/colors';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShareIcon from '@mui/icons-material/Share';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -52,7 +51,7 @@ interface propsCard {
 
 const RecipeReviewCard = (props : propsCard) => {
   const [expanded, setExpanded] = React.useState(false);
-  const {brand, images, title} = props.product
+  const {brand, images, title, price} = props.product
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
@@ -62,7 +61,7 @@ const RecipeReviewCard = (props : propsCard) => {
     <Card sx={{ maxWidth: 345 }}>
       <CardHeader
         avatar={
-          <Avatar src={brand.logo} alt={brand.name} sx={{ bgcolor: 'black' }} aria-label="recipe"/>
+          <Avatar src={brand.logo ?? ""} alt={brand.name} sx={{ bgcolor: 'black' }} aria-label="recipe"/>
         }
         action={
           <IconButton aria-label="settings">
@@ -79,10 +78,11 @@ const RecipeReviewCard = (props : propsCard) => {
         alt={images[0].alt ?? title}
       />
       <CardContent>
-        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          This impressive paella is a perfect party dish and a fun meal to cook
-          together with your guests. Add 1 cup of frozen peas along with the mussels,
-          if you like.
+        <Typography variant="body2" sx={{ color: 'text.secondary', height: 40, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          {title}
+        </Typography>
+        <Typography variant="h6" sx={{ marginTop: 2 }}>
+          ${price}
         </Typography>
       </CardContent>
       <CardActions disableSpacing>
@@ -92,16 +92,16 @@ const RecipeReviewCard = (props : propsCard) => {
         <IconButton aria-label="share">
           <ShareIcon />
         </IconButton>
-        <ExpandMore
+        {/* <ExpandMore
           expand={expanded}
           onClick={handleExpandClick}
           aria-expanded={expanded}
           aria-label="show more"
         >
           <ExpandMoreIcon />
-        </ExpandMore>
+        </ExpandMore> */}
       </CardActions>
-      <Collapse in={expanded} timeout="auto" unmountOnExit>
+      {/* <Collapse in={expanded} timeout="auto" unmountOnExit>
         <CardContent>
           <Typography sx={{ marginBottom: 2 }}>Method:</Typography>
           <Typography sx={{ marginBottom: 2 }}>
@@ -129,7 +129,7 @@ const RecipeReviewCard = (props : propsCard) => {
             Set aside off of the heat to let rest for 10 minutes, and then serve.
           </Typography>
         </CardContent>
-      </Collapse>
+      </Collapse> */}
     </Card>
   );
 }

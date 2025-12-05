@@ -12,12 +12,16 @@ import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import MenuUser from './MenuUser';
 import { Link as RouterLink } from 'react-router-dom'
+import { useUserStore } from '../Hooks/useStore';
+import { Link } from 'react-router-dom';
 
 const pages = ['Home', 'Brands', 'Blog'];
 const urls = ['/', '/brands', '/blog'];
 
 function ResponsiveAppBar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
+
+  const { user, isAuthenticated} = useUserStore();
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -28,7 +32,6 @@ function ResponsiveAppBar() {
   };
 
   const SoloRopa = "SoloRopa"
-
 
   return (
     <>
@@ -81,7 +84,7 @@ function ResponsiveAppBar() {
               onClose={handleCloseNavMenu}
               sx={{ display: { xs: 'block', md: 'none' } }}
             >
-              {pages.map((page, index) => (
+              {pages.map((page) => (
                 <MenuItem key={page} onClick={handleCloseNavMenu} component={RouterLink} to={urls[pages.indexOf(page)]} sx={{ textDecoration: 'none',color: 'inherit'}}>
                   <Typography sx={{ textAlign: 'center' }}>{page}</Typography>
                 </MenuItem>
@@ -122,7 +125,28 @@ function ResponsiveAppBar() {
           </Box>
 
           {/* User menu */}
-          <MenuUser />
+          {
+            (isAuthenticated && user) ? (
+              <>
+              <Typography variant="body1" sx={{ marginRight: 2 }}>
+                {`Hello, ${user?.username}`}
+              </Typography>
+              <MenuUser />
+              </>
+
+            ) : (
+              <>
+              <Box sx={{ flexGrow: 0, display: 'flex', gap: 1 }} >
+                <Button variant="contained" color="success" component={Link} to="/login">
+                  Login
+                </Button>
+                <Button  variant="contained" color="success" component={Link} to="/register">
+                  Register
+                </Button>
+              </Box>
+              </>
+            )
+          }
         </Toolbar>
       </Container>
     </AppBar>

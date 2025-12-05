@@ -1,12 +1,15 @@
-import {Box, Button, TextField, Typography, Paper, Alert} from "@mui/material";
+import {Box, Button, TextField, Typography, Paper, Alert, Stack, Avatar} from "@mui/material";
 import useForm from "../Hooks/useForm";
 import loginServices from "../services/login";
+import { use, useState } from "react";
+import { Navigate, useNavigate } from "react-router-dom";
 
 interface RegisterData {
   username: string;
   email: string;
   password: string;
   repeatPassword: string;
+  imagen: File | null;
 }
 
 export default function Register() {
@@ -15,8 +18,11 @@ export default function Register() {
     email: "",
     password: "",
     repeatPassword: "",
+    imagen: null as File | null,
   };
   const { values: form, handleChange, handleSubmit, errors } = useForm<RegisterData>(initialState);
+
+  const navigate = useNavigate()
 
   const onSubmit = async (data : RegisterData) => {
     try {
@@ -24,14 +30,18 @@ export default function Register() {
         username: data.username,
         email: data.email,
         password: data.password,
+        avatarUrl: data.imagen || null,
       }
       const newUser = await loginServices.register(credentials);
+      navigate("/login"); 
       console.log("Register successful:", newUser);
     }
     catch (error) {
       console.error("Register error:", error);
     }
   };
+
+  const previewImage = form.imagen ? URL.createObjectURL(form.imagen) : "";
   
   return (
     <Paper
@@ -48,6 +58,24 @@ export default function Register() {
       </Typography>
 
       <Box component="form" onSubmit={handleSubmit(onSubmit)}>
+        <Stack spacing={2} alignItems="center">
+          <Avatar
+              src={previewImage}
+              sx={{ width: 80, height: 80 }}
+          />
+
+          <Button variant="outlined" component="label">
+              Elegir foto
+              <input
+              type="file"
+              accept="image/*"
+              name="imagen"
+              hidden
+              onChange={handleChange}
+              />
+          </Button>
+        </Stack>
+
         <TextField
           label="Username"
           name="username"

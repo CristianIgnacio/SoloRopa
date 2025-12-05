@@ -14,7 +14,7 @@ export interface Product {
 export interface User {
   username : string,
   email : string,
-  password : string,
+  // password : string,
   role : "admin" | "user",
   avatarUrl? : string,
 }

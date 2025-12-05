@@ -10,7 +10,13 @@ function useForm<T extends Record<string, any>>(initialState: T,validate? :  (va
   const [errors, setErrors] = useState<Validations<T>>({})
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value} =  e.target
+    const { name, value, type} =  e.target
+
+    if (type === "file") {
+      const file = (e.target as HTMLInputElement).files?.[0] || null;
+      setValues((prev) => ({ ...prev, [name]: file }));
+      return;
+    }
 
     setValues(prev => ({ ...prev, [name]: value }))
   } 
