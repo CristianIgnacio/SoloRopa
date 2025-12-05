@@ -6,7 +6,7 @@ export interface ShopifyProduct {
   price: number | null;
   currency?: string | null;
   url: string;
-  image?: string | null;
+  images?: string | null;
   inStock?: boolean;
   raw?: any;
 }
@@ -60,7 +60,7 @@ const scrapeShopifyBase = async (baseUrl: string): Promise<ShopifyProduct[]> => 
             price,
             currency: p?.variants?.[0]?.currency || null,
             url: new URL(`/products/${p.handle}`, baseUrl).toString(),
-            image: img,
+            images: img,
             inStock: p?.variants?.some((v: any) => v?.available) ?? undefined,
             raw: p
           });

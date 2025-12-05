@@ -32,7 +32,13 @@ export const getUserById = async (req: Request, res: Response, next: NextFunctio
 
 export const createUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        console.log("req.body en createUser:", req.body);
         const { username, password, email } = req.body;
+
+        console.log("avatarUrl recibido en backend:", req.file);
+        const avatarUrl = req.file
+        ? `/uploads/avatars/${req.file.filename}`
+        : null;
 
         const saltRounds = 10;
         const passwordHash = await bcrypt.hash(password, saltRounds);
@@ -41,7 +47,8 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
             username : username,
             password : passwordHash,
             email : email,
-            role : "user"
+            role : "user",
+            avatarUrl : avatarUrl || null,
         });
 
         const savedUser = await user.save();

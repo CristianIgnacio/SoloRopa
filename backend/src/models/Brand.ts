@@ -54,8 +54,8 @@ brandSchema.pre('save', function(next) {
 });
 
 // Índices para mejorar búsquedas
-brandSchema.index({ name: 1 });
-brandSchema.index({ slug: 1 });
+// brandSchema.index({ name: 1 });
+// brandSchema.index({ slug: 1 });
 
 const BrandModel = mongoose.model('Brand', brandSchema);
 

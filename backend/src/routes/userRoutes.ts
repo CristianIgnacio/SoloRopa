@@ -1,5 +1,6 @@
 import express from "express";
 import { createUser, getUsers, getUserById } from "../controllers/userController";
+import { upload } from "../middleware/uploadMiddleware";
 
 const router = express.Router();
 
@@ -10,6 +11,6 @@ router.get("/", getUsers);
 router.get("/:id", getUserById);
 
 // Crea un usuario
-router.post("/", createUser);
+router.post("/", upload.single("avatarUrl"), createUser);
 
 export default router;
