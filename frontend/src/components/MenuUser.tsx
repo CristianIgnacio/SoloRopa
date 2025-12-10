@@ -1,22 +1,17 @@
-import {Box, Menu, Tooltip, IconButton, Avatar, MenuItem, Typography, Button} from "@mui/material"
-import { Link as RouterLink, useNavigate } from 'react-router-dom'
+import {Box, Menu, Tooltip, IconButton, Avatar, MenuItem, Typography} from "@mui/material"
+import { useNavigate } from 'react-router-dom'
 import React from "react"
 import { useUserStore } from "../Hooks/useStore"
 import loginServices from "../services/login"
 
-const settings = ['Profile','Admin', 'Account', 'Logout'];
-const urls = ['/', '/admin', '/account', '/logout'];
+const settings = ['Profile','Admin', 'Favorites','Account', 'Logout'];
+const urls = ['/', '/admin', '/favorites', '/account', '/logout'];
 
 const MenuUser = () => {
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
-
     const {user, logout : logoutState} = useUserStore();
 
-    console.log("user en MenuUser:", user);
-
     const UrlBaseServer = "http://localhost:3001" + (user?.avatarUrl || "");
-    console.log("UrlBaseServer en MenuUser:", UrlBaseServer);
-
     const navigate = useNavigate();
     
     const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {

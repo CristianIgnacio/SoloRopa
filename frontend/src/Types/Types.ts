@@ -24,5 +24,5 @@ export interface Brand {
   name : string;
   description? : string;
   website : string;
-  logo? : string;
+  logo? : {src: string, alt?: string, backgroundColor?: string};
 }
