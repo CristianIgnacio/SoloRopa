@@ -1,8 +1,8 @@
 import {Box, Button, TextField, Typography, Paper, Alert, Stack, Avatar} from "@mui/material";
 import useForm from "../Hooks/useForm";
 import loginServices from "../services/login";
-import { use, useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { validateRegister } from "../validations/register";
 
 interface RegisterData {
   username: string;
@@ -20,7 +20,7 @@ export default function Register() {
     repeatPassword: "",
     imagen: null as File | null,
   };
-  const { values: form, handleChange, handleSubmit, errors } = useForm<RegisterData>(initialState);
+  const { values: form, handleChange, handleSubmit, errors } = useForm<RegisterData>(initialState, validateRegister);
 
   const navigate = useNavigate()
 
@@ -81,9 +81,10 @@ export default function Register() {
           name="username"
           fullWidth
           margin="normal"
-          required
           value={form.username}
           onChange={handleChange}
+          error={Boolean(errors.username)}
+          helperText={errors.username || ""}
         />
 
         <TextField
@@ -92,9 +93,10 @@ export default function Register() {
           fullWidth
           margin="normal"
           type="email"
-          required
           value={form.email}
           onChange={handleChange}
+          error={Boolean(errors.email)}
+          helperText={errors.email || ""}
         />
 
         <TextField
@@ -103,9 +105,10 @@ export default function Register() {
           type="password"
           fullWidth
           margin="normal"
-          required
           value={form.password}
           onChange={handleChange}
+          error={Boolean(errors.password)}
+          helperText={errors.password || ""}
         />
 
         <TextField
@@ -114,13 +117,14 @@ export default function Register() {
           type="password"
           fullWidth
           margin="normal"
-          required
           value={form.repeatPassword}
           onChange={handleChange}
+          error={Boolean(errors.repeatPassword)}
+          helperText={errors.repeatPassword || ""}
         />
-        {(errors.email || errors.username || errors.password || errors.repeatPassword) && (
+        {(errors.imagen) && (
           <Alert severity="error" sx={{ mt: 1 }}>
-            {errors.email || errors.username || errors.password || errors.repeatPassword }
+            { errors.imagen}
           </Alert>
         )}
 

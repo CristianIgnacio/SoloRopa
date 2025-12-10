@@ -1,8 +1,9 @@
-import {Box, Button,TextField, Typography,Paper, Alert, Stack, Avatar} from "@mui/material";
+import {Box, Button,TextField, Typography,Paper, Alert } from "@mui/material";
 import useForm from "../Hooks/useForm";
 import loginServices  from "../services/login";
 import { useUserStore } from "../Hooks/useStore";
 import { useNavigate } from "react-router-dom";
+import { validateLogin } from "../validations/login";
 
 interface LoginData {
   username: string;
@@ -11,7 +12,7 @@ interface LoginData {
 
 export default function Login() {
     const initialState: LoginData = { username: "", password: "" };
-    const { values, handleChange, handleSubmit, errors } = useForm<LoginData>(initialState);
+    const { values, handleChange, handleSubmit, errors } = useForm<LoginData>(initialState, validateLogin);
 
     const { username, password } = values;
 
@@ -56,9 +57,10 @@ export default function Login() {
             name="username"
             fullWidth
             margin="normal"
-            required
             value={username}
             onChange={handleChange}
+            error={Boolean(errors.username)}
+            helperText={errors.username || ""}
             />
 
             <TextField
@@ -67,16 +69,17 @@ export default function Login() {
             type="password"
             fullWidth
             margin="normal"
-            required
             value={password}
             onChange={handleChange}
+            error={Boolean(errors.password)}
+            helperText={errors.password || ""}
             />
 
-            {(errors.username || errors.password) && (
+            {/* {(errors.username || errors.password) && (
                 <Alert severity="error" sx={{ mt: 1 }}>
                     {errors.username || errors.password  }
                 </Alert>
-            )}
+            )} */}
 
             <Button
             variant="contained"
