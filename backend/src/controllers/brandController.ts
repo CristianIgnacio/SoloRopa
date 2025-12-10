@@ -247,12 +247,6 @@ const getAllBrands = async (req : Request, res : Response, next : NextFunction) 
 // //   }
 // };
 
-// export {
-//     getAllBrands,
-//     getBrandById,
-//     getBrandBySlug,
-//     createBrand,
-//     updateBrand,
-//     deleteBrand,
-//     toggleBrandStatus,
-// }
+export {
+  getAllBrands
+}

@@ -8,6 +8,8 @@ export interface ShopifyProduct {
   url: string;
   images?: string | null;
   inStock?: boolean;
+  isActive?: boolean;
+  variants?: { title: string; sku?: string; price?: number; comparePrice? : number ; inStock?: boolean }[];
   raw?: any;
 }
 
@@ -54,6 +56,18 @@ const scrapeShopifyBase = async (baseUrl: string): Promise<ShopifyProduct[]> => 
                 return { src : i.src, alt : p.title} 
               }) 
                 ?? []);
+
+          const variants = p?.variants?.map( (v : any) => {
+            return {
+              title: v.option1,
+              sku: v.sku,
+              price: v.price ? Number(v.price) : undefined,
+              comparePrice: v.compare_at_price ? Number(v.compare_at_price) : undefined,
+              inStock: v.available
+            }
+          }) ?? [];
+
+          const isActive = variants.some( (v : any) => v.inStock );
                 
           allProducts.push({
             title: p.title,
@@ -62,6 +76,8 @@ const scrapeShopifyBase = async (baseUrl: string): Promise<ShopifyProduct[]> => 
             url: new URL(`/products/${p.handle}`, baseUrl).toString(),
             images: img,
             inStock: p?.variants?.some((v: any) => v?.available) ?? undefined,
+            isActive,
+            variants,
             raw: p
           });
         }

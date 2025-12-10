@@ -15,6 +15,8 @@ export async function saveOrUpdateProduct(product: IProduct) {
         currency: product.currency ?? null,
         images: product.images ?? null,
         inStock: product.inStock ?? null,
+        isActive: product.isActive ?? null,
+        variants: product.variants ?? null,
         scrapedAt: new Date(),
         raw: product.raw ?? null
       }
@@ -41,6 +43,8 @@ const runScraperFor = async (storeKey: string) => {
       url: item.url,
       images: item.images ?? null,
       inStock: item.inStock ?? null,
+      isActive: item.isActive ?? null,
+      variants: item.variants ?? null,
       scrapedAt: new Date(),
       raw: item.raw ?? null
     } as IProduct);

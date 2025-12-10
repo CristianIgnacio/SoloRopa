@@ -4,6 +4,9 @@ import Brand  from "../../models/Brand"
 import mongoose from "mongoose";
 import config from "../../utils/config";
 
+// intrucciones correr este script:
+// npm run any
+
 const seedBrands = async () => {
   try {
     const MONGODB_URI = config.MONGODB_URI || "mongodb://localhost:27017";
@@ -19,7 +22,11 @@ const seedBrands = async () => {
       slug: "rudeboys",
       description: "Ropa urbana y skate",
       website: "https://www.rudeboys.cl/",
-      logo: "https://www.rudeboys.cl/wp-content/uploads/2021/08/logo_rudeboys_new.png",
+      logo: {
+        src : "https://www.rudeboys.cl/wp-content/uploads/2021/08/logo_rudeboys_new.png",
+        alt : "Logo Rudeboys",
+        backgroundColor : "black"
+      },
       isActive: true
     };
 
@@ -28,7 +35,11 @@ const seedBrands = async () => {
       slug: "freshbrand",
       description: "Ropa urbana y skate",
       website: "https://www.freshbrand.cl/",
-      logo: "https://www.freshbrand.cl/cdn/shop/files/logo-png.png",
+      logo: {
+        src : "https://www.freshbrand.cl/cdn/shop/files/logo-png.png",
+        alt : "Logo Freshbrand",
+        backgroundColor : "black"
+      },
       isActive: true
     };
 
@@ -37,13 +48,28 @@ const seedBrands = async () => {
       slug: "moreamor",
       description: "Ropa urbana y skate",
       website: "https://moreamor.cl/",
-      logo: "https://moreamor.cl/cdn/shop/files/isologo.png",
+      logo: { 
+        src : "https://moreamor.cl/cdn/shop/files/isologo.png",
+        alt : "Logo Moreamor",
+        backgroundColor : "#FFFFFF"
+      },
       isActive: true
     };
 
-    await Brand.insertMany([rudeboys, freshbrand, moreamor]);
+    // Usar updateOne con upsert para insertar si no existe, o actualizar si ya existe
+    // De esta forma solo actualizamos los campos especificados sin borrar otros
+    const brands = [rudeboys, freshbrand, moreamor];
+    
+    for (const brand of brands) {
+      await Brand.updateOne(
+        { slug: brand.slug },  // Filtro por slug (único)
+        { $set: brand },        // Actualizar con los nuevos datos
+        { upsert: true }        // Crear si no existe
+      );
+      console.log(`✅ ${brand.name} procesado (insertado o actualizado)`);
+    }
 
-    console.log("✅ Marcas insertadas correctamente");
+    console.log("✅ Marcas procesadas correctamente");
   } catch (err) {
     console.error("❌ Error:", err);
   } finally {

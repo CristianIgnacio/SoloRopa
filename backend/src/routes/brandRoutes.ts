@@ -1,10 +1,11 @@
 // import {getAllBrands, getBrandById, getBrandBySlug, createBrand, deleteBrand, updateBrand, toggleBrandStatus} from "../controllers/brandController"
 import express from "express";
+import { getAllBrands } from "../controllers/brandController";
 
 const router = express.Router();
 
 // // Rutas públicas
-// router.get('/', getAllBrands);
+router.get('/', getAllBrands);
 // router.get('/:id', getBrandById);
 // router.get('/slug/:slug', getBrandBySlug);
 

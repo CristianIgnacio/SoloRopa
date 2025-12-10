@@ -8,7 +8,7 @@ import userRoutes from "../routes/userRoutes"
 const router = Router();
 
 router.use("/scrape", scrapeRoutes)
-router.use("/api/brand", brandRoutes)
+router.use("/api/brands", brandRoutes)
 router.use("/api/products", productRoutes)
 router.use("/api/auth", authRoutes);
 router.use("/api/user", userRoutes);

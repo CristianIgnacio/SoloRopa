@@ -8,6 +8,8 @@ export interface IProduct extends Document {
   url: string;
   images: { src: string; alt?: string }[];
   inStock?: boolean;
+  isActive?: boolean;
+  variants?: { title: string; sku?: string; price?: number; comparePrice? : number ; inStock?: boolean }[];
   scrapedAt: Date;
   raw?: any;          // guarda el JSON/HTML bruto si quieres
 }
@@ -23,6 +25,14 @@ const ProductSchema = new Schema<IProduct>({
     alt: {type: String, default: ''}
   }],
   inStock: { type: Boolean, required: false },
+  isActive: { type: Boolean, required: false },
+  variants: [{
+    title: { type: String, required: true },
+    sku: { type: String, required: false },
+    price: { type: Number, required: false },
+    comparePrice: { type: Number, required: false },
+    inStock: { type: Boolean, required: false }
+  }],
   scrapedAt: { type: Date, default: () => new Date() },
   raw: { type: Schema.Types.Mixed }
 }, { 

@@ -4,7 +4,11 @@ interface IBrand extends Document {
   name : String,
   slug : String,
   description : String,
-  logo : String,
+  logo : {
+    src: String, // URL de la imagen del logo
+    alt?: String
+    backgroundColor?: String
+  },
   website : String,
   isActive : boolean
 }
@@ -28,7 +32,9 @@ const brandSchema = new mongoose.Schema<IBrand>({
     maxlength: [500, 'La descripción no puede exceder 500 caracteres']
   },
   logo: {
-    type: String, // URL de la imagen del logo
+    src: { type: String, required: true },
+    alt: { type: String, default: ''},
+    backgroundColor: {type: String, default: '#FFFFFF'}
   },
   website: {
     type: String,
