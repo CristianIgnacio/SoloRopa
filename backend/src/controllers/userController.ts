@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import { Request, Response, NextFunction, response } from 'express';
 import UserModel from "../models/User";
+import WishlistModel from "../models/Whishlist";
 
 export const getUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -32,10 +33,8 @@ export const getUserById = async (req: Request, res: Response, next: NextFunctio
 
 export const createUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        console.log("req.body en createUser:", req.body);
         const { username, password, email } = req.body;
 
-        console.log("avatarUrl recibido en backend:", req.file);
         const avatarUrl = req.file
         ? `/uploads/avatars/${req.file.filename}`
         : null;
@@ -50,8 +49,15 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
             role : "user",
             avatarUrl : avatarUrl || null,
         });
-
         const savedUser = await user.save();
+
+        await WishlistModel.create({
+            userId: user._id,
+            name: "Favoritos",
+            visibility: "private",
+            isDefault: true,
+            items: []
+        });
 
         res.status(201).json(savedUser);
 
