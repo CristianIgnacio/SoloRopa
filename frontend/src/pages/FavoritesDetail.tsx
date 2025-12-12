@@ -1,5 +1,5 @@
 // src/pages/FavoritesDetail.tsx
-import { useParams } from "react-router-dom"
+// import { useParams } from "react-router-dom"
 import ProductMasonry from "../components/product/ProductMansory"
 // import type { Wishlist } from "../Types/Types"
 
@@ -11,7 +11,7 @@ const mockWishlist = {
 }
 
 export default function FavoritesDetail() {
-  const { id } = useParams()
+//   const { id } = useParams()
 
   // luego: fetchWishlistById(id)
   const wishlist = mockWishlist
