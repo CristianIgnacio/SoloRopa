@@ -1,70 +1,40 @@
-import { Box, Grid, Typography } from "@mui/material";
-import WishlistItem from "../components/WishlistItem";
-import {getUserWishlists} from "../services/wishlist"
-import { useEffect, useState } from "react";
-import type { Product } from "../Types/Types";
+// src/pages/Favorites.tsx
+import WishlistGrid from "../components/wishlist/WishlistGrid"
+import type { Wishlist } from "../Types/Types"
 
-// Ejemplo de datos (puedes conectarlo con Zustand o API)
-const sampleWishlist = [
+// mock temporal
+const mockWishlists: Wishlist[] = [
   {
-    id: 1,
-    title: "Polera Oversize Negra",
-    price: 19990,
-    brand: "FreshBrand",
-    images: [
-      "/products/shirt1.webp",
-      "/products/shirt1-b.webp"
-    ]
+    id: "1",
+    userId : "1",
+    visibility : "private",
+    name: "Favoritos",
+    isDefault: true,
+    items: [],
+    createdAt: new Date,
   },
   {
-    id: 2,
-    title: "Polerón Premium",
-    price: 34990,
-    brand: "Errante",
-    images: [
-      "/products/hoodie1.webp",
-      "/products/hoodie1.webp",
-    ]
-  }
-];
+    id: "2",
+    userId : "1",
+    visibility : "private",
+    name: "Polerones Invierno",
+    isDefault: false,
+    items: [],
+    createdAt: new Date,
+  },
+]
 
-const WishlistPage = () => {
-  const wishlist = sampleWishlist.concat(sampleWishlist).concat(sampleWishlist).concat(sampleWishlist).concat(sampleWishlist); // ← reemplaza por Zustand o fetch
+export default function Favorites() {
+  return (
+    <section className="mx-auto max-w-7xl px-4 py-6">
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-xl font-semibold">Tus colecciones</h1>
+        <button className="rounded bg-slate-900 px-4 py-2 text-sm text-white">
+          + Nueva colección
+        </button>
+      </div>
 
-    const [favorites, setFavorites] = useState()
-
-    useEffect(() => {
-        const init = async () => {
-            const dataProducts = await getUserWishlists()
-            setFavorites(dataProducts)
-        }
-
-        init()
-    }, [])
-
-    console.log(favorites)
-
-    return (
-        <Box sx={{ width: "100%", px: 2, py: 4 }}>
-        <Typography variant="h4" fontWeight={700} mb={3}>
-            Tu Wishlist ❤️
-        </Typography>
-
-        {wishlist.length === 0 ? (
-            <Typography variant="h6" color="text.secondary">
-            No tienes productos guardados aún.
-            </Typography>
-        ) : (
-            <Grid container spacing={3}>
-            {wishlist.map((product) => (
-                <Grid size={{ xs: 12, sm: 6, md: 4, lg : 3 }} key={product.id}>
-                <WishlistItem product={product} />
-                </Grid>
-            ))}
-            </Grid>
-        )}
-        </Box>
-    );
+      <WishlistGrid wishlists={mockWishlists} />
+    </section>
+  )
 }
-
-export default WishlistPage

@@ -1,42 +1,63 @@
-import {Container, Grid} from "@mui/material"
-import CardProduct from "../components/CardProduct"
-import { useEffect, useState} from "react"
+import { useEffect, useState, useCallback} from "react"
 import productsServices from "../services/products"
 import brandsServices from "../services/brands"
 import type {Product, Brand} from "../Types/Types"
-import BrandCarousel from "../components/BrandCarousel"
+import ProductMasonry from "../components/product/ProductMansory"
+import { productsMock } from "../mocks/products.mocks"
+import { useInfiniteScroll } from "../Hooks/useInfiniteScroll"
+
+const PAGE_SIZE = 20
 
 const Home = () => {
-    const [products, setProducts] = useState<Product[]>()
+    const [products, setProducts] = useState<Product[]>([])
     const [brands, setBrands] = useState<Brand[] | []>([])
+    const [page, setPage] = useState(1)
+    const [loading, setLoading] = useState(false)
 
+    console.log(brands)
 
     useEffect(() => {
         const init = async () => {
-            const dataProducts = await productsServices.getAllProducts()
-            const dataBrands = await brandsServices.getAllBrands()
+            setLoading(true)
 
-            setBrands(dataBrands)
+            const [dataProducts, dataBrands] = await Promise.all([
+                productsServices.getAllProducts(),
+                brandsServices.getAllBrands(),
+            ])
+
+            // setBrands(dataBrands)
             setProducts(dataProducts)
+            setBrands(dataBrands)
+            setLoading(false)
         }
 
         init()
     }, [])
 
-    if(!products) return 
+    const visibleProducts = products.slice(0, page * PAGE_SIZE)
+
+
+    const loadMore = useCallback(() => {
+        if (visibleProducts.length < products.length && !loading) {
+        setPage((prev) => prev + 1)
+        }
+    }, [visibleProducts.length, products.length, loading])
+
+    useInfiniteScroll(loadMore)
+
 
     return (
-        <Container fixed >
-            <BrandCarousel brands={brands}/>
-            <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }}>
-                {products.map( (p) => (
-                    <Grid key={p.id} size={{ xs: 2, sm: 4, md: 4 }}>
-                        <CardProduct product={p}/>
-                    </Grid>
-                ))}
-            </Grid>
-        </Container>
+        <section className="mx-auto max-w-7xl px-4 py-6">
+        <ProductMasonry products={visibleProducts} />
+
+        {visibleProducts.length < productsMock.length && (
+            <p className="mt-6 text-center text-sm text-slate-500">
+            Cargando más productos...
+            </p>
+        )}
+        </section>
     )
+
 }
 
 export default Home
