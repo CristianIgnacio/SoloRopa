@@ -6,6 +6,7 @@ type Props = {
 }
 
 export default function WishlistCard({ wishlist }: Props) {
+
   return (
     <Link
       to={`/favorites/${wishlist.id}`}

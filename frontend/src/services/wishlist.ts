@@ -1,37 +1,59 @@
 import axios from "axios";
+import axiosSecure from "../utils/axiosSecure";
 
-export interface WishlistPayload {
+interface WishlistPayload {
   name?: string;
   userId: string;
   items?: string[];
 }
 
-export const createWishlist = async (payload: WishlistPayload) => {
+const createWishlist = async (payload: WishlistPayload) => {
   const res = await axios.post("/api/wishlist", payload);
   return res.data;
 };
 
-export const deleteWishlist = async (wishlistId: string) => {
+const deleteWishlist = async (wishlistId: string) => {
   const res = await axios.post(`/api/wishlist/${wishlistId}`);
   return res.data;
 };
 
-export const updateWishlist = async (payload: WishlistPayload) => {
+const updateWishlist = async (payload: WishlistPayload) => {
   const res = await axios.put("/api/wishlist", payload);
   return res.data;
 };
 
-export const addItemToWishlist = async (wishlistId: string, productId: string) => {
+const addItemToWishlist = async (wishlistId: string, productId: string) => {
   const res = await axios.post(`/api/wishlist/${wishlistId}/items`,{ productId });
   return res.data;
 };
 
-export const deleteItemToWishlist = async (wishlistId: string,productId: string) => {
-  const res = await axios.delete(`/api/wishlist/${wishlistId}/items/${productId}`);
+const deleteItemToWishlist = async (wishlistId: string, productId: string) => {
+  const res = await axiosSecure.delete(`/api/wishlist/${wishlistId}/items/${productId}`);
   return res.data;
 };
 
-export const getUserWishlists = async () => {
-  const res = await axios.get("/api/wishlist");
+const getUserWishlists = async () => {
+  const res = await axiosSecure.get("/api/wishlist");
   return res.data;
 };
+
+const getWishlistById = async (wishlistId: string,) => {
+  const res = await axiosSecure.get(`/api/wishlist/${wishlistId}`);
+  return res.data;
+};
+
+const toggleFavorite = async (productId: string) => {
+  const res = await axiosSecure.post("/api/wishlist/default/toggle", {productId})
+  return res.data
+}
+
+export default {
+  createWishlist,
+  deleteWishlist,
+  updateWishlist,
+  addItemToWishlist,
+  deleteItemToWishlist,
+  getUserWishlists,
+  toggleFavorite,
+  getWishlistById
+}

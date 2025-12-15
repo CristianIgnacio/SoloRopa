@@ -4,10 +4,14 @@ import { useEffect } from "react"
 import loginServices from "../../services/login"
 import { useNavigate } from "react-router-dom"
 import { useUserStore } from "../../Hooks/useStore"
+import { useWishlistStore } from "../../Hooks/useWishlistStore"
 
 export default function MainLayout() {
   const { login, logout } = useUserStore()
   const navigate = useNavigate()
+  const { loadFavorites, favoriteIds } = useWishlistStore()
+
+  console.log(favoriteIds)
 
   useEffect(() => {
     const init = async () => {
@@ -15,6 +19,7 @@ export default function MainLayout() {
 
       if (storedUser) {
         login(storedUser)
+        await loadFavorites()
       } else {
         logout()
         navigate("/")

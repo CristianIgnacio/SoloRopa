@@ -36,8 +36,8 @@ export interface Brand {
   logo? : {src: string, alt?: string, backgroundColor?: string};
 }
 
-interface WishlistItem {
-  productId: string
+export interface WishlistItem {
+  productId: Product
   addedAt: Date;
   note?: string;          
   tags?: string[];        
