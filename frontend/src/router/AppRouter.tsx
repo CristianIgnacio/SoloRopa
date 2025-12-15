@@ -1,0 +1,38 @@
+import { Routes, Route } from "react-router-dom"
+import MainLayout from "../components/layout/MainLayout"
+
+import Home from "../pages/Home"
+import Admin from "../pages/Admin"
+import Profile from "../pages/Profile"
+import Login from "../pages/Login"
+import Register from "../pages/Register"
+import Favorites from "../pages/Favorites"
+import PrivateRoute from "./PrivateRoute"
+import FavoritesDetail from "../pages/FavoritesDetail"
+
+export default function AppRouter() {
+  return (
+    <Routes>
+      {/* Rutas con layout */}
+      <Route element={<MainLayout />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/profile/:id" element={<Profile />} />
+
+        {/* 🔒 Rutas privadas (user) */}
+        <Route element={<PrivateRoute />}>
+          <Route path="/favorites" element={<Favorites />} />
+          <Route path="/favorites/:id" element={<FavoritesDetail />} />
+        </Route>
+
+        {/* 🔐 Rutas privadas (admin) */}
+        <Route element={<PrivateRoute requireAdmin />}>
+          <Route path="/admin" element={<Admin />} />
+        </Route>
+      </Route>
+
+      {/* Públicas */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+    </Routes>
+  )
+}

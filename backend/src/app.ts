@@ -3,7 +3,8 @@ import logger from './utils/logger'
 import config from './utils/config'
 import mongoose from 'mongoose'
 import middleware from './utils/middleware'
-// import cookieParser from 'cookie-parser'
+import routes from "./routes"
+import cookieParser from 'cookie-parser'
 
 const app = express()
 
@@ -18,13 +19,14 @@ if (config.MONGODB_URI) {
   })
 }
 
+app.use("/uploads", express.static("uploads")); 
 app.use(express.static('dist'))
 app.use(express.json())
-// app.use(cookieParser())
+app.use(cookieParser())
 app.use(middleware.requestLogger)
 
 // routes
-
+app.use(routes)
 
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)

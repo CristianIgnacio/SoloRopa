@@ -10,6 +10,11 @@ const MONGODB_URI
     : process.env.MONGODB_URI
 
 const JWT_SECRET = process.env.JWT_SECRET || 'my_secret'
-const MONGODB_DBNAME = process.env.NODE_ENV === 'test' ? process.env.TEST_MONGODB_DBNAME : process.env.MONGODB_DBNAME || 'postsdb'
+const MONGODB_DBNAME 
+  = process.env.NODE_ENV === 'test' 
+    ? process.env.TEST_MONGODB_DBNAME 
+    : process.env.MONGODB_DBNAME || 'postsdb'
 
-export default { PORT, MONGODB_URI, HOST, JWT_SECRET, MONGODB_DBNAME }
+const SCRAPER_MONGODB_URI = process.env.SCRAPER_MONGODB_URI
+
+export default { PORT, MONGODB_URI, HOST, JWT_SECRET, MONGODB_DBNAME, SCRAPER_MONGODB_URI }
