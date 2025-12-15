@@ -1,9 +1,16 @@
 // src/components/product/ProductCard.tsx
 import type {Product} from "../../Types/Types"
+import FavoriteButton from "../ui/FavoriteButton"
 
 const ProductCard = ({product}: {product : Product}) => {
   return (
-    <div className="overflow-hidden rounded-lg bg-white shadow-sm transition hover:shadow-md">
+    <div className="relative overflow-hidden rounded-lg bg-white shadow-sm transition hover:shadow-md">
+
+      <div className="absolute top-2 right-2 z-10">
+        <FavoriteButton productId={product.id} />
+      </div>
+
+
       <img
         src={product.images[0].src || ""}
         alt={product.title}

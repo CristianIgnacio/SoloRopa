@@ -6,9 +6,18 @@ export interface Product {
   currency?: string | null;
   url: string;
   images: {src : string, alt? : string}[] | [];
+  variants : VariantsProduct[]
   inStock?: boolean;
   scrapedAt: Date;
   raw?: any;          // guarda el JSON/HTML bruto si quieres
+}
+
+interface VariantsProduct { 
+  title: string;
+  sku?: string;
+  price?: number;
+  comparePrice? : number ;
+  inStock?: boolean 
 }
 
 export interface User {
