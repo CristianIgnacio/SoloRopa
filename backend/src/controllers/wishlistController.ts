@@ -20,9 +20,8 @@ const getWishlistById = async( request: Request,response: Response, next: NextFu
   try {
     const userId = request.userId;
     const wishlistId = request.params.id;
-    const wishlist = await Wishlist.findOne({ _id: wishlistId, userId });
+    const wishlist = await Wishlist.findOne({ _id: wishlistId, userId }).populate("items.productId");
     if (!wishlist) throw new Error("Wishlist not found");
-
     response.status(200).json({
       success: true,
       data: wishlist
@@ -155,8 +154,9 @@ const addItemToWishlist = async ( request: Request,response: Response, next: Nex
 const deleteItemToWishlist = async ( request: Request,response: Response, next: NextFunction) => {
   try {
     const userId = request.userId;
+    console.log(request.params)
     const wishlistId = request.params.wishlistId;
-    const itemId = request.params.itemId;
+    const itemId = request.params.productId;
 
     // Validar que itemId es un ObjectId válido
     if (!mongoose.Types.ObjectId.isValid(itemId)) {
@@ -164,11 +164,12 @@ const deleteItemToWishlist = async ( request: Request,response: Response, next: 
     }
 
     // Validar que wishlist existe y pertenece al usuario
-    const wishlist = await Wishlist.findOne({ _id: wishlistId, userId });
+    const wishlist = await Wishlist.findOne({ id: wishlistId, userId });
     if (!wishlist) throw new Error("Wishlist not found");
 
     // Encontrar el índice del item a eliminar
-    const itemIndex = wishlist.items.findIndex((i) => String(i._id) === itemId);
+    console.log(String(wishlist.items[0].productId))
+    const itemIndex = wishlist.items.findIndex((i) => String(i.productId) === itemId);
     if (itemIndex === -1) {
       throw new Error("Item not found in wishlist");
     }
@@ -192,6 +193,63 @@ const deleteItemToWishlist = async ( request: Request,response: Response, next: 
   }
 }
 
+const toggleFavorite = async ( req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.userId
+    const { productId } = req.body
+
+    if (!productId) {
+      return res.status(400).json({ message: "productId requerido" })
+    }
+
+    // 1️⃣ Buscar wishlist default
+    let wishlist = await Wishlist.findOne({
+      userId,
+      isDefault: true,
+    })
+
+    // 2️⃣ Si no existe, crearla (muy importante)
+    if (!wishlist) {
+      wishlist = await Wishlist.create({
+        userId,
+        name: "Favoritos",
+        isDefault: true,
+        items: [],
+      })
+    }
+
+    // 3️⃣ Buscar item existente
+    const itemIndex = wishlist.items.findIndex(
+      (item) => item.productId.toString() === productId
+    )
+
+    // 4️⃣ Toggle
+    if (itemIndex !== -1) {
+      wishlist.items.splice(itemIndex, 1)
+
+      await wishlist.save()
+
+      return res.json({
+        isFavorite: false,
+      })
+    }
+
+    wishlist.items.push({
+      productId,
+      addedAt: new Date(),
+    } as any)
+
+    await wishlist.save()
+
+    return res.json({
+      isFavorite: true,
+    })
+  } catch (error) {
+    console.error(error)
+    return res.status(500).json({ message: "Error al toggle favorite" })
+  }
+}
+
 export {
   getUserWishlists,
   getWishlistById,
@@ -199,5 +257,6 @@ export {
   deleteWishlist,
   updateWishlist,
   addItemToWishlist,
-  deleteItemToWishlist
+  deleteItemToWishlist,
+  toggleFavorite
 }

@@ -48,4 +48,15 @@ WishlistSchema.index({ userId: 1, name: 1 }, { unique: true });
 
 const WishlistModel = mongoose.model<IWishlist>('Wishlist', WishlistSchema);
 
+WishlistSchema.set("toJSON", {
+  transform: (
+    _,
+    returnedObject: { id?: string; _id?: mongoose.Types.ObjectId; __v?: number }
+  ) => {
+    returnedObject.id = returnedObject._id?.toString();
+    delete returnedObject._id;
+    delete returnedObject.__v;
+  },
+});
+
 export default WishlistModel;
