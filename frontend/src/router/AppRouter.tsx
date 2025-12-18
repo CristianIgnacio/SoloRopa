@@ -10,6 +10,7 @@ import Favorites from "../pages/Favorites"
 import PrivateRoute from "./PrivateRoute"
 import FavoritesDetail from "../pages/FavoritesDetail"
 import ProfileEdit from "../pages/ProfileEdit"
+import Explore from "../pages/Explore"
 
 export default function AppRouter() {
   return (
@@ -17,7 +18,8 @@ export default function AppRouter() {
       {/* Rutas con layout */}
       <Route element={<MainLayout />}>
         <Route path="/" element={<Home />} />
-        <Route path="/profile/:id" element={<Profile />} />
+        <Route path="/profile/:username" element={<Profile />} />
+        <Route path="/explore" element={<Explore />} />
 
         {/* 🔒 Rutas privadas (user) */}
         <Route element={<PrivateRoute />}>

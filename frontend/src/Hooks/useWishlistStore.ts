@@ -15,7 +15,7 @@ export const useWishlistStore = create<WishlistState>((set, get) => ({
     favoriteIds: new Set(),
     wishlist : [],
     loadFavorites: async () => {
-        const wishlists = await wishlistServices.getUserWishlists()
+        const wishlists = await wishlistServices.getMeWishlists()
         const findList = wishlists.data.find((w: any) => w.isDefault)
         const defaultList = findList?.items.map( (item : any) => item.productId)
 

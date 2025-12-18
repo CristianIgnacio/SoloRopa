@@ -40,9 +40,6 @@ const handleLogout = async () => {
   }
 }
 
-const baseUrl = "http://localhost:3001"
-
-
 return (
     <header className="fixed top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4">
@@ -68,6 +65,9 @@ return (
             <>
               <Link to="/favorites" className="text-sm hover:underline">
                 Favoritos
+              </Link>
+              <Link to="/explore" className="text-sm hover:underline">
+                Explorar
               </Link>
               {/* Avatar dropdown */}
               <div ref={dropdownRef} className="relative">
@@ -104,13 +104,13 @@ return (
                       Ver perfil
                     </Link>
 
-                    <Link
+                    {/* <Link
                       to="/profile/edit"
                       onClick={() => setOpen(false)}
                       className="block px-4 py-2 text-sm hover:bg-slate-100"
                     >
                       Editar perfil
-                    </Link>
+                    </Link> */}
 
                     <button
                       onClick={handleLogout}

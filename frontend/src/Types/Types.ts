@@ -9,6 +9,8 @@ export interface Product {
   variants : VariantsProduct[]
   inStock?: boolean;
   scrapedAt: Date;
+  createdAt: Date;
+  updateAt: Date;
   raw?: any;          // guarda el JSON/HTML bruto si quieres
 }
 
