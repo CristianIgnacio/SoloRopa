@@ -19,10 +19,10 @@ El enfoque principal de SoloRopa es **producto‑céntrico**: facilitar que una 
 ## 📸 Capturas de pantalla
 
 ### Vista de Home
-![Mapa de Home](./screenshots/Home.png)
+![Mapa de Home](./screenshot/Home.png)
 
 ### Vista de Favoritos
-![Vista de Favoritos](./screenshots/Favoritos.png)
+![Vista de Favoritos](./screenshot/Favoritos.png)
 ---
 
 ## 🛠️ Stack tecnológico
@@ -171,6 +171,7 @@ Este proyecto es de uso académico y personal. Licencia a definir.
 **Cristian Fuentes**
 Ingeniería Civil en Computación
 Proyecto personal – SoloRopa
+
 
 
 
