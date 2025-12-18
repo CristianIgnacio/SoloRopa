@@ -31,6 +31,23 @@ export const getUserById = async (req: Request, res: Response, next: NextFunctio
     }
 };
 
+export const getUserbyUsername = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        // Obtenemos el id del usuario buscado
+        const username = req.params.username;
+        const user = await UserModel.findOne({username : username});
+
+        if (user) {
+            res.json(user);
+        } else {
+            res.status(404).json({ error: "User not found" })
+        }
+
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const createUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { username, password, email } = req.body;

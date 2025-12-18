@@ -1,5 +1,5 @@
 import express from "express"
-import {getUserWishlists, createWishlist, addItemToWishlist, deleteItemToWishlist, deleteWishlist, updateWishlist, getWishlistById, toggleFavorite} from "../controllers/wishlistController"
+import {getMeWishlists, createWishlist, addItemToWishlist, deleteItemToWishlist, deleteWishlist, updateWishlist, getWishlistById, toggleFavorite,getUserWishlists} from "../controllers/wishlistController"
 import {authenticate} from "../middleware/authMiddleware"
 
 const router = express.Router();
@@ -19,10 +19,13 @@ router.post("/:id/items", authenticate, addItemToWishlist);
 // Quitar producto
 router.delete("/:id/items/:productId", authenticate, deleteItemToWishlist);
 
-// Ver wishlist de usuario
-router.get("/", authenticate, getUserWishlists);
+// Obtener wishlist de usuario
+router.get("/", authenticate, getMeWishlists);
 
-// Ver wishlist por id
+// Obtener wishlist de usuario
+router.get("/:username/username", getUserWishlists);
+
+// Obtener wishlist por id
 router.get("/:id", authenticate, getWishlistById);
 
 // Toggle favorite item

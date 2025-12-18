@@ -12,7 +12,7 @@ router.use("/scrape", scrapeRoutes)
 router.use("/api/brands", brandRoutes)
 router.use("/api/products", productRoutes)
 router.use("/api/auth", authRoutes);
-router.use("/api/user", userRoutes);
+router.use("/api/users", userRoutes);
 router.use("/api/wishlist", whislistRoutes)
 
 export default router;

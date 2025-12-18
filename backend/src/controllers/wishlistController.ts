@@ -2,11 +2,26 @@ import Wishlist from "../models/Whishlist";
 import Product from "../models/Product";
 import { Response, Request, NextFunction } from "express";
 import mongoose from "mongoose";
+import UserModel from "../models/User";
 
-const getUserWishlists = async ( request: Request, response: Response, next: NextFunction) => {
+const getMeWishlists = async ( request: Request, response: Response, next: NextFunction) => {
   try {
     const userId = request.userId;
     const wishlists = await Wishlist.find({ userId });
+    response.status(200).json({
+      success: true,
+      data: wishlists
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+const getUserWishlists = async ( request: Request, response: Response, next: NextFunction) => {
+  try {
+    const username = request.params.username;
+    const user = await UserModel.findOne({username})
+    const wishlists = await Wishlist.find({ userId : user?.id });
     response.status(200).json({
       success: true,
       data: wishlists
@@ -251,12 +266,13 @@ const toggleFavorite = async ( req: Request, res: Response, next: NextFunction) 
 }
 
 export {
-  getUserWishlists,
+  getMeWishlists,
   getWishlistById,
   createWishlist,
   deleteWishlist,
   updateWishlist,
   addItemToWishlist,
   deleteItemToWishlist,
-  toggleFavorite
+  toggleFavorite,
+  getUserWishlists
 }
