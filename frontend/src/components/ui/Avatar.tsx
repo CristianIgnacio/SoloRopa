@@ -7,11 +7,14 @@ type Props = {
   size?: number // px
 }
 
+const baseUrl = "http://localhost:3001"
+
+
 export default function Avatar({ username, src, size = 32 }: Props) {
   if (src) {
     return (
       <img
-        src={src}
+        src={baseUrl + src}
         alt={username}
         style={{ width: size, height: size }}
         className="rounded-full object-cover"

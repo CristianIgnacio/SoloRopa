@@ -9,6 +9,7 @@ import Register from "../pages/Register"
 import Favorites from "../pages/Favorites"
 import PrivateRoute from "./PrivateRoute"
 import FavoritesDetail from "../pages/FavoritesDetail"
+import ProfileEdit from "../pages/ProfileEdit"
 
 export default function AppRouter() {
   return (
@@ -22,6 +23,7 @@ export default function AppRouter() {
         <Route element={<PrivateRoute />}>
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/favorites/:id" element={<FavoritesDetail />} />
+          <Route path="/profile/edit" element={<ProfileEdit />} />
         </Route>
 
         {/* 🔐 Rutas privadas (admin) */}

@@ -32,7 +32,7 @@ const deleteItemToWishlist = async (wishlistId: string, productId: string) => {
   return res.data;
 };
 
-const getUserWishlists = async () => {
+const getMeWishlists = async () => {
   const res = await axiosSecure.get("/api/wishlist");
   return res.data;
 };
@@ -41,6 +41,11 @@ const getWishlistById = async (wishlistId: string,) => {
   const res = await axiosSecure.get(`/api/wishlist/${wishlistId}`);
   return res.data;
 };
+
+const getUserWishlists = async (username: string) => {
+  const res = await axios.get(`/api/wishlist/${username}/username`)
+  return res.data
+}
 
 const toggleFavorite = async (productId: string) => {
   const res = await axiosSecure.post("/api/wishlist/default/toggle", {productId})
@@ -55,5 +60,6 @@ export default {
   deleteItemToWishlist,
   getUserWishlists,
   toggleFavorite,
-  getWishlistById
+  getWishlistById,
+  getMeWishlists
 }

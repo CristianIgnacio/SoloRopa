@@ -13,19 +13,19 @@ export default function Navbar() {
   const { user, logout } = useUserStore()
 
   useEffect(() => {
-  const handleClickOutside = (e: MouseEvent) => {
-    if (
-      dropdownRef.current &&
-      !dropdownRef.current.contains(e.target as Node)
-    ) {
-      setOpen(false)
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
+        setOpen(false)
+      }
     }
-  }
 
-  document.addEventListener("mousedown", handleClickOutside)
-  return () => {
-    document.removeEventListener("mousedown", handleClickOutside)
-  }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
 }, [])
 
 const handleLogout = async () => {
@@ -78,16 +78,16 @@ return (
                 >
                   <Avatar
                     username={user.username}
-                    src={baseUrl + user.avatarUrl}
+                    src={user.avatarUrl}
                     size={40}
                   />
                 </button>
 
                 {open && (
-                  <div className="absolute right-0 mt-2 w-56 overflow-hidden rounded-md border bg-white shadow-lg">
+                  <div className="absolute right-0 mt-2 w-56 overflow-hidden rounded-md border bg-white shadow-lg p-1">
                     {/* Header usuario */}
                     <div className="flex items-center gap-3 border-b px-4 py-3">
-                      <Avatar username={user.username} src={baseUrl + user.avatarUrl} size={36} />
+                      <Avatar username={user.username} src={user.avatarUrl} size={36} />
                       <div className="min-w-0">
                         <p className="truncate text-sm font-medium">{user.username}</p>
                         {user.email && (

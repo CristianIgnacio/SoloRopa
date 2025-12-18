@@ -1,7 +1,135 @@
-const Profile = () => {
-    return (
-        <></>
-    )
-}
+// src/pages/Profile.tsx
+import { useParams, Link } from "react-router-dom"
+import { useEffect, useState } from "react"
+import Avatar from "../components/ui/Avatar"
+import wishlistServices from "../services/wishlist"
+import userServices from "../services/users"
+import type { User, Wishlist } from "../Types/Types"
+// import { useUserStore } from "../Hooks/useStore"
 
-export default Profile
+export default function Profile() {
+  const { username } = useParams()
+  const [profile, setProfile] = useState<User | null>(null)
+  const [wishlists, setWishlists] = useState<Wishlist[]>([])
+  const [loading, setLoading] = useState(true)
+  const [notFound, setNotFound] = useState(false)
+
+  useEffect(() => {
+    if (!username) return
+
+    const load = async () => {
+      setLoading(true)
+      setNotFound(false)
+      // 🔹 luego: endpoint real /users/:username
+      try {
+        const [profileData, wishlistData] = await Promise.all([
+          userServices.getPublicProfile(username),
+          wishlistServices.getUserWishlists(username),
+        ])
+
+        setProfile(profileData)
+        setWishlists(wishlistData.data)
+      } catch (err: any) {
+        if (err?.response?.status === 404) {
+          setNotFound(true)
+        }
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    load()
+  }, [username])
+
+
+  if (loading) {
+    return <p className="p-6 text-slate-500">Cargando perfil…</p>
+  }
+
+  if (notFound) {
+    return (
+      <section className="mx-auto max-w-md px-4 py-16 text-center">
+        <h1 className="text-xl font-semibold">
+          Usuario no encontrado
+        </h1>
+        <p className="mt-2 text-sm text-slate-500">
+          El perfil que buscas no existe o fue eliminado.
+        </p>
+
+        <Link
+          to="/"
+          className="mt-6 inline-block rounded-md bg-slate-900 px-4 py-2 text-sm text-white"
+        >
+          Volver al inicio
+        </Link>
+      </section>
+    )
+  }
+
+  if (!profile) {
+    return null
+  }
+
+
+  console.log(wishlists)
+  return (
+    <section className="mx-auto max-w-5xl px-4 py-8">
+      {/* HEADER */}
+      <div className="flex items-center gap-6">
+        <Avatar
+          username={profile.username}
+          src={profile.avatarUrl}
+          size={96}
+        />
+
+        <div>
+          <h1 className="text-xl font-semibold">
+            {profile.username}
+          </h1>
+
+          {profile.role && (
+            <p className="mt-1 text-sm text-slate-500">
+              {profile.role}
+            </p>
+          )}
+
+          <div className="mt-3 flex gap-4 text-sm text-slate-600">
+            <span>
+              <strong>{wishlists.length}</strong> colecciones
+            </span>
+            <span>
+              <strong>{wishlists[0].items.length}</strong> favoritos
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* COLECCIONES */}
+      <div className="mt-10">
+        <h2 className="mb-4 text-lg font-medium">
+          Colecciones
+        </h2>
+
+        {wishlists.length === 0 ? (
+          <p className="text-sm text-slate-500">
+            Aún no hay colecciones públicas
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+            {wishlists.map((w : Wishlist) => (
+              <div
+                key={w.id}
+                className="rounded-lg border bg-white p-4 hover:shadow"
+              >
+                <p className="font-medium">{w.name}</p>
+                <p className="text-sm text-slate-500">
+                  {w.items.length} productos
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  )
+}
