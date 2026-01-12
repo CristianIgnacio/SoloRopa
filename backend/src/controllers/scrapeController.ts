@@ -36,6 +36,7 @@ const scrapeBase = (Brand : string) =>  async (req : Request, res : Response, ne
 const scrapeRudeboys = scrapeBase("rudeboys")
 const scrapeFreshBrand = scrapeBase("freshbrand")
 const scrapeMoreamor = scrapeBase("moreamor")
+const scrapeSubcomplot = scrapeBase("subcomplot")
 
 
-export {scrapeFreshBrand, scrapeMoreamor, scrapeRudeboys, scrapeBase};
+export {scrapeFreshBrand, scrapeMoreamor, scrapeRudeboys, scrapeBase, scrapeSubcomplot};

@@ -1,14 +1,29 @@
 import mongoose, { model, Schema, Document } from "mongoose"
+import { ProductCategory, PRODUCT_CATEGORIES } from "../constants/productCategories";
 
 export interface IProduct extends Document {
-  brand: mongoose.Schema.Types.ObjectId;
+  // info
   title: string;
+  brand: mongoose.Schema.Types.ObjectId;
+  url: string;
+
+  //media
+  images: { src: string; alt?: string }[];
+  
+  // precios
   price: number | null;
   currency?: string | null;
-  url: string;
-  images: { src: string; alt?: string }[];
   inStock?: boolean;
   isActive?: boolean;
+
+  // categorias
+  category : ProductCategory;
+  categoryConfidence: number
+
+  // tags
+  tags : string[],
+
+  // variacion (tallas, color)
   variants?: { title: string; sku?: string; price?: number; comparePrice? : number ; inStock?: boolean }[];
   scrapedAt: Date;
   raw?: any;          // guarda el JSON/HTML bruto si quieres
@@ -26,6 +41,9 @@ const ProductSchema = new Schema<IProduct>({
   }],
   inStock: { type: Boolean, required: false },
   isActive: { type: Boolean, required: false },
+  category : {type : String, enum: PRODUCT_CATEGORIES,default : "otros", lowercase : true},
+  categoryConfidence : {type : Number, defaul: 0},
+  tags : [{type : String, lowercase : true}],
   variants: [{
     title: { type: String, required: true },
     sku: { type: String, required: false },

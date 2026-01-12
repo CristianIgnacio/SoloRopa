@@ -56,9 +56,22 @@ const seedBrands = async () => {
       isActive: true
     };
 
+    const subcomplot = {
+      name: "SubComplot",
+      slug: "subcomplot",
+      description: "Ropa urbana y skate",
+      website: "https://subcomplot.cl/",
+      logo: { 
+        src : "https://i0.wp.com/subcomplot.cl/wp-content/uploads/2021/07/logo-200x200-1.png?fit=200%2C200&ssl=1",
+        alt : "Logo Subcomplot",
+        backgroundColor : "#FFFFFF"
+      },
+      isActive: true
+    };
+
     // Usar updateOne con upsert para insertar si no existe, o actualizar si ya existe
     // De esta forma solo actualizamos los campos especificados sin borrar otros
-    const brands = [rudeboys, freshbrand, moreamor];
+    const brands = [rudeboys, freshbrand, moreamor, subcomplot];
     
     for (const brand of brands) {
       await Brand.updateOne(

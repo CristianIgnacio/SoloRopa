@@ -1,8 +1,8 @@
 import scrapeWooCommerceBase from "../platforms/woocommerce";
 
-export const Rudeboys = {
-    name: "Rudeboys",
-    baseUrl: "https://www.rudeboys.cl",
+export const Subcomplot = {
+    name: "SubComplot",
+    baseUrl: "https://www.subcomplot.cl",
     async scrape() {
         return await scrapeWooCommerceBase(this.baseUrl);
     }

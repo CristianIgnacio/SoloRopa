@@ -1,12 +1,16 @@
 import axios from "axios";
+import { IProduct } from "../../models/Product";
+import { ProductCategory } from "../../constants/productCategories";
 // import * as cheerio from "cheerio";
 
-export interface ShopifyProduct {
+export interface ShopifyProduct extends Partial<IProduct> {
   title: string;
   price: number | null;
   currency?: string | null;
   url: string;
-  images?: string | null;
+  images?: { src: string; alt?: string }[] | [];
+  category : ProductCategory;
+  tags : string[],
   inStock?: boolean;
   isActive?: boolean;
   variants?: { title: string; sku?: string; price?: number; comparePrice? : number ; inStock?: boolean }[];
@@ -68,15 +72,27 @@ const scrapeShopifyBase = async (baseUrl: string): Promise<ShopifyProduct[]> => 
           }) ?? [];
 
           const isActive = variants.some( (v : any) => v.inStock );
+
+          const category = p.product_type || "otros"
+
+          const tags = p.tags || []
                 
           allProducts.push({
             title: p.title,
+            url: new URL(`/products/${p.handle}`, baseUrl).toString(),
+
             price,
             currency: p?.variants?.[0]?.currency || null,
-            url: new URL(`/products/${p.handle}`, baseUrl).toString(),
-            images: img,
             inStock: p?.variants?.some((v: any) => v?.available) ?? undefined,
             isActive,
+            
+            category : category,
+            categoryConfidence : category ? 0.9 : 0.3,
+            
+            tags : tags,
+            
+            images: img,
+
             variants,
             raw: p
           });

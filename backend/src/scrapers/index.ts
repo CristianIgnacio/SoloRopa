@@ -11,12 +11,21 @@ export async function saveOrUpdateProduct(product: IProduct) {
       $set: {
         brand: product.brand,
         title: product.title,
+
         price: product.price,
         currency: product.currency ?? null,
-        images: product.images ?? null,
         inStock: product.inStock ?? null,
         isActive: product.isActive ?? null,
+        
+        images: product.images ?? null,
+        
+        category: product.category ?? "otros",
+        categoryConfidence : product.categoryConfidence ?? 0,
+
+        tags : product.tags ?? [],
+        
         variants: product.variants ?? null,
+        
         scrapedAt: new Date(),
         raw: product.raw ?? null
       }
@@ -31,20 +40,35 @@ const runScraperFor = async (storeKey: string) => {
 
   const scrapedItems  = await store.scrape();
 
+  
   const brand = await BrandModel.findOne({ name: store.name })
   
+  console.log(brand)
+
   let updated = 0;
   for (const item of scrapedItems) {
     await saveOrUpdateProduct({
-      brand: brand?.id,
       title: item.title,
+      brand: brand?.id,
+      url: item.url,
+
       price: item.price,
       currency: item.currency ?? null,
-      url: item.url,
-      images: item.images ?? null,
       inStock: item.inStock ?? null,
       isActive: item.isActive ?? null,
+      
+      
+      category: item.category ?? "otros",
+      categoryConfidence : item.categoryConfidence ?? 0,
+
+      tags : item.tags ?? [],
+      
       variants: item.variants ?? null,
+
+
+      images: item.images ?? null,
+      
+      
       scrapedAt: new Date(),
       raw: item.raw ?? null
     } as IProduct);
