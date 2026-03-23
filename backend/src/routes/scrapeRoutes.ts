@@ -1,11 +1,15 @@
 import {scrapeFreshBrand, scrapeMoreamor, scrapeRudeboys, scrapeSubcomplot} from "../controllers/scrapeController"
 import express from "express"
+import { authenticate, authorizeRole } from "../middleware/authMiddleware"
 
 const router = express.Router()
 
-router.get("/freshbrand", scrapeFreshBrand)
-router.get("/moreamor", scrapeMoreamor)
-router.get("/rudeboys", scrapeRudeboys)
-router.get("/subcomplot", scrapeSubcomplot)
+// const adminOnly = [authenticate, authorizeRole(["admin"])]
+const adminOnly : any[] = []
+
+router.get("/freshbrand", ...adminOnly, scrapeFreshBrand)
+router.get("/moreamor", ...adminOnly, scrapeMoreamor)
+router.get("/rudeboys", ...adminOnly, scrapeRudeboys)
+router.get("/subcomplot", ...adminOnly, scrapeSubcomplot)
 
 export default router

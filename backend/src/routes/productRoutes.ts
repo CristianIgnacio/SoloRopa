@@ -1,10 +1,12 @@
 import express from 'express';
-import {getAllProducts} from '../controllers/productController';
+import {getAllProducts, getTrendingProducts, getNewestProducts} from '../controllers/productController';
 
 const router = express.Router();
 
 // Rutas públicas
 router.get('/', getAllProducts);
+router.get("/trending", getTrendingProducts)
+router.get("/newest", getNewestProducts)
 // router.get('/featured', getFeaturedProducts);
 // router.get('/brand/:brandId', getProductsByBrand);
 // router.get('/:id', getProductById);

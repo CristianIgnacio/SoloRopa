@@ -1,13 +1,13 @@
 import bcrypt from "bcrypt";
-import { Request, Response, NextFunction, response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import UserModel from "../models/User";
-import WishlistModel from "../models/Whishlist";
+import WishlistModel from "../models/Wishlist";
 
 export const getUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const users = await UserModel.find({});
 
-        response.json(users);
+        res.json(users);
 
     } catch (error) {
         next(error);
@@ -35,7 +35,7 @@ export const getUserbyUsername = async (req: Request, res: Response, next: NextF
     try {
         // Obtenemos el id del usuario buscado
         const username = req.params.username;
-        const user = await UserModel.findOne({username : username});
+        const user = await UserModel.findOne({ username: username });
 
         if (user) {
             res.json(user);
@@ -53,18 +53,18 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
         const { username, password, email } = req.body;
 
         const avatarUrl = req.file
-        ? `/uploads/avatars/${req.file.filename}`
-        : null;
+            ? `/uploads/avatars/${req.file.filename}`
+            : null;
 
         const saltRounds = 10;
         const passwordHash = await bcrypt.hash(password, saltRounds);
 
         const user = new UserModel({
-            username : username,
-            password : passwordHash,
-            email : email,
-            role : "user",
-            avatarUrl : avatarUrl || null,
+            username: username,
+            password: passwordHash,
+            email: email,
+            role: "user",
+            avatarUrl: avatarUrl || null,
         });
         const savedUser = await user.save();
 

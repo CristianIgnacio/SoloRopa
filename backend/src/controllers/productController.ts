@@ -1,23 +1,45 @@
 import Product from "../models/Product";
 import { Response, Request, NextFunction } from "express";
 
-// Obtner todos los productos
-const getAllProducts = async (req : Request, res : Response, next : NextFunction) => {
+// Obtener productos paginados
+const getAllProducts = async (req: Request, res: Response, next: NextFunction) => {
   try {
-      const products = await Product.find({}).populate('brand');
+    const page = Math.max(1, Number(req.query.page) || 1)
+    const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20))
+    const sort = (req.query.sort as string) || 'createdAt'
+    const order = req.query.order === 'asc' ? 1 : -1
 
-      res.status(200).json({
-          success : true,
-          data : products
-      })
-  }
-  catch (err){
-      next(err);
+    const skip = (page - 1) * limit
+
+    const allowedSortFields = ['createdAt', 'price', 'trendingScore', 'favoritesCount', 'title']
+    const sortField = allowedSortFields.includes(sort) ? sort : 'createdAt'
+
+    const [products, total] = await Promise.all([
+      Product.find({})
+        .populate('brand')
+        .sort({ [sortField]: order })
+        .skip(skip)
+        .limit(limit),
+      Product.countDocuments({})
+    ])
+
+    const pages = Math.ceil(total / limit)
+
+    res.status(200).json({
+      success: true,
+      data: products,
+      total,
+      page,
+      pages,
+      hasMore: page < pages
+    })
+  } catch (err) {
+    next(err)
   }
 }
 
 // Obtener un producto por ID
-const getProductById = async (req : Request, res : Response, next : NextFunction) => {
+const getProductById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const product = await Product.findById(req.params.id).populate('brand');
 
@@ -34,15 +56,13 @@ const getProductById = async (req : Request, res : Response, next : NextFunction
     });
 
   } catch (err) {
-      next(err);
+    next(err);
   }
-
 };
 
 // Crear un nuevo producto
-export const createProduct = async (req : Request, res : Response, next : NextFunction) => {
+export const createProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
-
     const product = await Product.create(req.body);
     const populatedProduct = await Product.findById(product._id).populate('brand');
 
@@ -53,293 +73,41 @@ export const createProduct = async (req : Request, res : Response, next : NextFu
     });
 
   } catch (err) {
-      next(err);
+    next(err);
   }
-
 };
 
-export {getAllProducts, getProductById}
+const getTrendingProducts = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const limit = Math.min(50, Number(req.query.limit) || 20)
 
-// // Obtener todos los productos
-// export const getAllProducts = async (req : Request, res : Response, next : NextFunction) => {
-//     try {
-//         const {
-//             search,
-//             category,
-//             brand,
-//             minPrice,
-//             maxPrice,
-//             isActive,
-//             isFeatured,
-//             inStock,
-//             sortBy = 'createdAt',
-//             order = 'desc',
-//             page = 1,
-//             limit = 10
-//         } = req.query;
+    const products = await Product.find()
+      .sort({ trendingScore: -1 })
+      .limit(limit)
+      .populate("brand")
 
-//         // Construir filtros
-//         const filter : any = {};
+    res.json({ success: true, data: products })
 
-//         // if (search) {
-//         // filter.$or = [
-//         //     { name: { $regex: search, $options: 'i' } },
-//         //     { description: { $regex: search, $options: 'i' } },
-//         //     { tags: { $in: [new RegExp(String(search), 'i')] } }
-//         // ];
-//         // }
+  } catch (err) {
+    next(err)
+  }
+}
 
-//         // if (category) filter.category = category;
-//         // if (brand) filter.brand = brand;
-//         // if (isActive !== undefined) filter.isActive = isActive === 'true';
-//         // if (isFeatured !== undefined) filter.isFeatured = isFeatured === 'true';
-//         // if (inStock === 'true') filter.stock = { $gt: 0 };
+// Obtener los productos más nuevos (para sección curatorial)
+const getNewestProducts = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const limit = Math.min(50, Number(req.query.limit) || 15)
 
-//         // if (minPrice || maxPrice) {
-//         // filter.price = {};
-//         // if (minPrice) filter.price.$gte = Number(minPrice);
-//         // if (maxPrice) filter.price.$lte = Number(maxPrice);
-//         // }
+    const products = await Product.find()
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .populate("brand")
 
-//         // Paginación
-//         const skip = (Number(page) - 1) * Number(limit);
+    res.json({ success: true, data: products })
 
-//         // Ordenamiento
-//         // const sortOrder = order === 'asc' ? 1 : -1;
-//         // const sortOptions = { sortBy : sortOrder };
+  } catch (err) {
+    next(err)
+  }
+}
 
-//         const products = await Product.find(filter)
-//         .populate('brand', 'name logo slug')
-//         .limit(Number(limit))
-//         .skip(skip)
-//         // .sort(sortOptions);
-
-//         const total = await Product.countDocuments(filter);
-
-//         res.status(200).json({
-//             success: true,
-//             count: products.length,
-//             total,
-//             page: Number(page),
-//             pages: Math.ceil(total / Number(limit)),
-//             data: products
-//         });
-//     } catch (err) {
-//         next(err);
-//     }
-
-// };
-
-// // Obtener un producto por ID
-// export const getProductById = async (req : Request, res : Response, next : NextFunction) => {
-//   try {
-//     const product = await Product.findById(req.params.id).populate('brand');
-
-//     if (!product) {
-//       return res.status(404).json({
-//         success: false,
-//         message: 'Producto no encontrado'
-//       });
-//     }
-
-//     res.status(200).json({
-//       success: true,
-//       data: product
-//     });
-
-//     } catch (err) {
-//         next(err);
-//     }
-
-// };
-
-// // Obtener un producto por slug
-// export const getProductBySlug = async (req : Request, res : Response, next : NextFunction) => {
-//   try {
-//     const product = await Product.findOne({ slug: req.params.slug }).populate('brand');
-
-//     if (!product) {
-//       return res.status(404).json({
-//         success: false,
-//         message: 'Producto no encontrado'
-//       });
-//     }
-
-//     res.status(200).json({
-//       success: true,
-//       data: product
-//     });
-//     } catch (err) {
-//         next(err);
-//     }
-
-// };
-
-
-
-// // Actualizar un producto
-// export const updateProduct = async (req : Request, res : Response, next : NextFunction) => {
-//     try {
-//         const product = await Product.findByIdAndUpdate(
-//         req.params.id,
-//         req.body,
-//         {
-//             new: true,
-//             runValidators: true
-//         }
-//         ).populate('brand');
-
-//         if (!product) {
-//             return res.status(404).json({
-//                 success: false,
-//                 message: 'Producto no encontrado'
-//             });
-//         }
-
-//         res.status(200).json({
-//             success: true,
-//             message: 'Producto actualizado exitosamente',
-//             data: product
-//         });
-        
-//     } catch (err) {
-//         next(err);
-//     }
-
-// };
-
-// // Eliminar un producto
-// export const deleteProduct = async (req : Request, res : Response, next : NextFunction) => {
-//     try {
-//         const product = await Product.findByIdAndDelete(req.params.id);
-
-//         if (!product) {
-//         return res.status(404).json({
-//             success: false,
-//             message: 'Producto no encontrado'
-//         });
-//         }
-
-//         res.status(200).json({
-//             success: true,
-//             message: 'Producto eliminado exitosamente',
-//             data: {}
-//         });
-//     } catch (err) {
-//         next(err);
-//     }
-
-// };
-
-// // Alternar estado activo/inactivo
-// export const toggleProductStatus = async (req : Request, res : Response, next : NextFunction) => {
-//     try {
-//         const product = await Product.findById(req.params.id);
-
-//         if (!product) {
-//         return res.status(404).json({
-//             success: false,
-//             message: 'Producto no encontrado'
-//         });
-//         }
-
-//         product.isActive = !product.isActive;
-//         await product.save();
-
-//         res.status(200).json({
-//         success: true,
-//         message: `Producto ${product.isActive ? 'activado' : 'desactivado'} exitosamente`,
-//         data: product
-//         });
-//     } catch (err) {
-//         next(err);
-//     }
-
-// };
-
-// // Actualizar stock
-// export const updateStock = async (req : Request, res : Response, next : NextFunction) => {
-//     try {
-//         const { stock } = req.body;
-
-//         if (stock === undefined || stock < 0) {
-//         return res.status(400).json({
-//             success: false,
-//             message: 'El stock debe ser un número mayor o igual a 0'
-//         });
-//         }
-
-//         const product = await Product.findByIdAndUpdate(
-//         req.params.id,
-//         { stock },
-//         { new: true, runValidators: true }
-//         );
-
-//         if (!product) {
-//         return res.status(404).json({
-//             success: false,
-//             message: 'Producto no encontrado'
-//         });
-//         }
-
-//         res.status(200).json({
-//         success: true,
-//         message: 'Stock actualizado exitosamente',
-//         data: product
-//         });
-//     } catch (err) {
-//         next(err);
-//     }
-// };
-
-// // Obtener productos por marca
-// export const getProductsByBrand = async (req : Request, res : Response, next : NextFunction) => {
-//     try {
-//         const products = await Product.find({ brand: req.params.brandId })
-//         .populate('brand');
-
-//         res.status(200).json({
-//             success: true,
-//             count: products.length,
-//             data: products
-//         });
-//     } catch (err) {
-//         next(err);
-//     }
-// };
-
-// // Obtener productos destacados
-// export const getFeaturedProducts = async (req : Request, res : Response, next : NextFunction) => {
-//     try {
-//         const { limit = 10 } = req.query;
-
-//         const products = await Product.find({ 
-//         isFeatured: true, 
-//         isActive: true 
-//         })
-//         .populate('brand')
-//         .limit(Number(limit))
-//         .sort({ createdAt: -1 });
-
-//         res.status(200).json({
-//         success: true,
-//         count: products.length,
-//         data: products
-//         });
-
-//     } catch (err) {
-//         next(err);
-//     }
-
-// };
-
-// export default {
-//     getAllProducts,
-//     getFeaturedProducts,
-//     getProductById,
-//     getProductBySlug,
-//     getProductsByBrand,
-//     updateProduct,
-//     createProduct,
-//     deleteProduct,
-// }
+export { getAllProducts, getProductById, getTrendingProducts, getNewestProducts }

@@ -7,8 +7,8 @@ const router = express.Router();
 // Crear wishlist
 router.post("/", authenticate, createWishlist);
 
-// Eliminar whislist
-router.post("/:id", authenticate, deleteWishlist);
+// Eliminar wishlist
+router.delete("/:id", authenticate, deleteWishlist);
 
 // Actualizar whislist
 router.put("/", authenticate, updateWishlist);
