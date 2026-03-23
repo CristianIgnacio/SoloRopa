@@ -1,5 +1,5 @@
 // src/pages/Explore.tsx
-import { useEffect, useMemo, useState, useCallback } from "react"
+import { useEffect, useState, useCallback, useRef } from "react"
 import productsServices from "../services/products"
 import brandsServices from "../services/brands"
 import type { Product, Brand } from "../Types/Types"
@@ -9,31 +9,51 @@ import ProductQuickView from "../components/product/ProductQuickView"
 import ProductMasonry from "../components/product/ProductMansory"
 import { useInfiniteScroll } from "../Hooks/useInfiniteScroll"
 import ProductCardHover from "../components/product/ProductCardHover"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faBolt, faFire } from "@fortawesome/free-solid-svg-icons"
 
 const PAGE_SIZE = 24
 
 export default function Explore() {
-  const [products, setProducts] = useState<Product[]>([])
+  // Secciones curatoriales (cargadas una vez, ligeras)
+  const [newestProducts, setNewestProducts] = useState<Product[]>([])
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([])
   const [brands, setBrands] = useState<Brand[]>([])
-  const [loading, setLoading] = useState(true)
 
-  // quick view product
-  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null)
-  
-  // pages
+  // Grid paginado "Todos los productos"
+  const [products, setProducts] = useState<Product[]>([])
+  const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(true)
+  const [loading, setLoading] = useState(true)
+  const loadingRef = useRef(false)
 
+  // quick view
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null)
+
+  // Carga inicial: secciones curatoriales + primera página del grid
   useEffect(() => {
     const init = async () => {
       setLoading(true)
       try {
-        const [dataProducts, dataBrands] = await Promise.all([
-          productsServices.getAllProducts(),
+        const [newest, featured, dataBrands, gridPage] = await Promise.all([
+          productsServices.getNewestProducts(15),
+          productsServices.getTrendingProducts(15),
           brandsServices.getAllBrands(),
+          productsServices.getProducts(1, PAGE_SIZE),
         ])
-        setProducts(dataProducts)
+
+        setNewestProducts(newest)
+        setFeaturedProducts(featured)
         setBrands(dataBrands)
-        console.log("Brands",dataBrands)
+        setProducts(gridPage.data)
+        setTotal(gridPage.total)
+        setHasMore(gridPage.hasMore)
+
+        console.log("newest", newest)
+        console.log("featured", featured)
+        console.log("brands", dataBrands)
+        console.log("gridPage", gridPage)
       } finally {
         setLoading(false)
       }
@@ -41,28 +61,27 @@ export default function Explore() {
     init()
   }, [])
 
-  // 🆕 Nuevos (asumimos createdAt)
-  const newestProducts = [...products]
-      .sort((a, b) => {
-          const da = new Date(a.createdAt ?? 0).getTime()
-          const db = new Date(b.createdAt ?? 0).getTime()
-          return db - da
-      })
-      .slice(0, 15)
+  // Cargar más páginas del grid
+  const fetchPage = useCallback(async (pageNum: number) => {
+    if (loadingRef.current) return
+    loadingRef.current = true
 
-  // 🔥 Destacados (fallback: orden original o random)
-  const featuredProducts = [...products].slice(0, 15)
-
-  const visibleProducts = useMemo(() => {
-    return products.slice(0, page * PAGE_SIZE)
-  }, [products, page])
-
+    try {
+      const result = await productsServices.getProducts(pageNum, PAGE_SIZE)
+      setProducts((prev) => [...prev, ...result.data])
+      setHasMore(result.hasMore)
+    } finally {
+      loadingRef.current = false
+    }
+  }, [])
 
   const loadMore = useCallback(() => {
-    if (visibleProducts.length < products.length) {
-      setPage((prev) => prev + 1)
+    if (hasMore && !loadingRef.current) {
+      const nextPage = page + 1
+      setPage(nextPage)
+      fetchPage(nextPage)
     }
-  }, [visibleProducts.length, products.length])
+  }, [hasMore, page, fetchPage])
 
   useInfiniteScroll(loadMore)
 
@@ -72,26 +91,32 @@ export default function Explore() {
       <div className="mt-4">
         {loading ? (
           <p className="text-sm text-slate-500">Cargando productos…</p>
-        )  : (
+        ) : (
           <div className="rounded-lg px-4">
             {/* SECCIONES CURATORIALES */}
-            <BrandStrip
-                brands={brands}
-                // activeBrandId={brandId === "all" ? undefined : brandId}
+            <BrandStrip brands={brands} />
+
+            <HorizontalSection
+              title={
+                <div className="flex items-center gap-2">
+                  <FontAwesomeIcon icon={faBolt} className="text-yellow-500" />
+                  <span>Nuevos</span>
+                </div>
+              }
+              products={newestProducts}
+              onProductClick={(product) => setQuickViewProduct(product)}
             />
 
             <HorizontalSection
-                title="🆕 Nuevos"
-                products={newestProducts}
-                onProductClick={(product) => setQuickViewProduct(product)}
+              title={
+                <div className="flex items-center gap-2">
+                  <FontAwesomeIcon icon={faFire} className="text-orange-500" />
+                  <span>Destacados</span>
+                </div>
+              }
+              products={featuredProducts}
+              onProductClick={(product) => setQuickViewProduct(product)}
             />
-    
-            <HorizontalSection
-                title="🔥 Destacados"
-                products={featuredProducts}
-                onProductClick={(product) => setQuickViewProduct(product)}
-            />
-    
           </div>
         )}
       </div>
@@ -109,32 +134,42 @@ export default function Explore() {
             Todos los productos
           </h2>
           <span className="text-sm text-slate-500">
-            {products.length} resultados
+            {total} resultados
           </span>
         </div>
 
-        {visibleProducts.length === 0 ? (
+        {products.length === 0 && !loading ? (
           <div className="rounded-lg border bg-white p-8 text-center">
             <p className="text-sm text-slate-600">
               No encontramos productos con estos filtros.
             </p>
           </div>
         ) : (
-          <ProductMasonry 
-            products={visibleProducts}
+          <ProductMasonry
+            products={products}
             renderItem={(product) => (
-                <ProductCardHover key={product.id} product={product} onClick={() => setQuickViewProduct(product)}/>
-            )} />
+              <ProductCardHover
+                key={product.id}
+                product={product}
+                onClick={() => setQuickViewProduct(product)}
+              />
+            )}
+          />
         )}
 
-        {visibleProducts.length < products.length && (
+        {hasMore && (
           <p className="mt-6 text-center text-sm text-slate-500">
             Cargando más productos…
           </p>
         )}
+
+        {!hasMore && products.length > 0 && (
+          <p className="mt-6 text-center text-sm text-slate-400">
+            Has visto todos los productos 🎉
+          </p>
+        )}
       </section>
     </section>
-
     </>
   )
 }

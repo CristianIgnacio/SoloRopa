@@ -1,37 +1,17 @@
 // src/components/explore/HorizontalSection.tsx
 import type { Product } from "../../Types/Types"
 import ProductCardDots from "../product/ProductCardDots"
-import { useRef } from "react"
+import { useRef, type ReactNode } from "react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons"
 
 type Props = {
-  title: string
+  title: ReactNode
   products: Product[]
   onProductClick?: (product: Product) => void
 }
 
-const ChevronLeft = () => (
-  <svg
-    viewBox="0 0 24 24"
-    className="h-5 w-5"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-  >
-    <path d="M15 18l-6-6 6-6" />
-  </svg>
-)
 
-const ChevronRight = () => (
-  <svg
-    viewBox="0 0 24 24"
-    className="h-5 w-5"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-  >
-    <path d="M9 6l6 6-6 6" />
-  </svg>
-)
 
 export default function HorizontalSection({ title, products, onProductClick }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -59,20 +39,20 @@ export default function HorizontalSection({ title, products, onProductClick }: P
       </div>
 
       {/* Carrusel */}
-      <div className="flex items-stretch gap-2">
+      <div className="flex items-center gap-2">
         {/* Botón izquierda */}
         <button
           onClick={() => scroll("left")}
           className="
-            flex w-10 items-center justify-center
-            rounded-md border-slate-600 bg-white
+            flex h-10 w-10 items-center justify-center
+            rounded-full border border-slate-200 bg-white
             text-slate-600
             transition
             hover:bg-slate-100 hover:text-slate-900
           "
           aria-label="Scroll izquierda"
         >
-          <ChevronLeft/>
+          <FontAwesomeIcon icon={faChevronLeft} className="text-sm" />
         </button>
 
         {/* Contenedor scroll */}
@@ -97,15 +77,15 @@ export default function HorizontalSection({ title, products, onProductClick }: P
         <button
           onClick={() => scroll("right")}
           className="
-            flex w-10 items-center justify-center
-            rounded-md border-slate-600 bg-white
+            flex h-10 w-10 items-center justify-center
+            rounded-full border border-slate-200 bg-white
             text-slate-600
             transition
             hover:bg-slate-100 hover:text-slate-900
           "
           aria-label="Scroll derecha"
         >
-          <ChevronRight/>
+          <FontAwesomeIcon icon={faChevronRight} className="text-sm" />
         </button>
       </div>
     </section>

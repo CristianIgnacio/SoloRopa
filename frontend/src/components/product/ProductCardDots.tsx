@@ -2,7 +2,8 @@
 import { useState } from "react"
 import FavoriteButton from "../ui/FavoriteButton"
 import type { Product } from "../../Types/Types"
-import {preloadImage} from "../../utils/image"
+import { preloadImage } from "../../utils/image"
+import { useProductEvents } from "../../Hooks/useProductEvents"
 
 type Props = {
   product: Product
@@ -12,8 +13,14 @@ type Props = {
 export default function ProductCardDots({ product, onClick }: Props) {
   const [activeImage, setActiveImage] = useState(0)
   const [preloaded, setPreloaded] = useState<Set<number>>(new Set())
+  const { trackClick } = useProductEvents(product.id)
 
   const images = product.images.slice(0, 5) // limit sano
+
+  const handleInternalClick = () => {
+    trackClick()
+    onClick?.()
+  }
 
   const onMouseEnter = (index : number) => {
     // preload solo una vez
@@ -36,7 +43,7 @@ export default function ProductCardDots({ product, onClick }: Props) {
 
   return (
     <div
-      onClick={onClick}
+      onClick={handleInternalClick}
       className="group relative cursor-pointer overflow-hidden rounded-lg bg-white"
       onMouseEnter={onMouseEnterCard}
     >

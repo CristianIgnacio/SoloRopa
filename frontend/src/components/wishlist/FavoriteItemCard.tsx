@@ -1,7 +1,8 @@
 // src/components/wishlist/FavoriteItemCard.tsx
 import { useWishlistStore } from "../../Hooks/useWishlistStore"
 import wishlistServices from "../../services/wishlist"
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faTrashCan } from "@fortawesome/free-solid-svg-icons"
 import type { Product } from "../../Types/Types"
 
 type Props = {
@@ -35,10 +36,10 @@ export default function FavoriteItemCard({ item, wishlistId, onRemoved }: Props)
 
       <button
         onClick={handleRemove}
-        className="absolute right-2 top-2 rounded-full bg-white/80 p-1 text-sm text-red-500 shadow hover:bg-red-50"
+        className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-white/80 text-sm text-red-500 shadow hover:bg-red-50"
         title="Quitar de la colección"
       >
-        ✕
+        <FontAwesomeIcon icon={faTrashCan} />
       </button>
     </div>
   )

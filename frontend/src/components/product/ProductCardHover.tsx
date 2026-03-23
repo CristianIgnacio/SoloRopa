@@ -1,6 +1,7 @@
 // src/components/product/ProductCardHover.tsx
 import FavoriteButton from "../ui/FavoriteButton"
 import type { Product } from "../../Types/Types"
+import { useProductEvents } from "../../Hooks/useProductEvents"
 
 type Props = {
   product: Product
@@ -8,11 +9,18 @@ type Props = {
 }
 
 export default function ProductCardHover({ product, onClick }: Props) {
-  return (
-    <div
-      onClick={onClick}
-      className="group relative cursor-pointer overflow-hidden rounded-lg bg-slate-100"
-    >
+    const { trackClick } = useProductEvents(product.id)
+
+    const handleInternalClick = () => {
+        trackClick()
+        onClick?.()
+    }
+
+    return (
+        <div
+            onClick={handleInternalClick}
+            className="group relative cursor-pointer overflow-hidden rounded-lg bg-slate-100"
+        >
       {/* Imagen */}
       <img
         src={product.images[0].src}

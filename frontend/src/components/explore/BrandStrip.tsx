@@ -1,23 +1,12 @@
-// src/components/explore/BrandCarousel.tsx
 import { useRef } from "react"
 import type { Brand } from "../../Types/Types"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons"
 
 type Props = {
   brands: Brand[]
   onSelect?: (brandId: string) => void
 }
-
-const ChevronLeft = () => (
-  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M15 18l-6-6 6-6" />
-  </svg>
-)
-
-const ChevronRight = () => (
-  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M9 6l6 6-6 6" />
-  </svg>
-)
 
 export default function BrandCarousel({ brands, onSelect }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -36,19 +25,19 @@ export default function BrandCarousel({ brands, onSelect }: Props) {
     <section className="mt-4">
       <h2 className="mb-4 text-lg font-medium">Explorar por marca</h2>
 
-      <div className="flex items-stretch gap-3">
+      <div className="flex items-center gap-3">
         {/* Botón izquierda */}
         <button
           onClick={() => scroll("left")}
           className="
-            flex w-10 items-center justify-center
-            rounded-md bg-white
+            flex h-10 w-10 items-center justify-center
+            rounded-full bg-white
             text-slate-500 transition
             hover:bg-slate-100 hover:text-slate-900
           "
           aria-label="Scroll marcas izquierda"
         >
-          <ChevronLeft />
+          <FontAwesomeIcon icon={faChevronLeft} />
         </button>
 
         {/* Carrusel */}
@@ -71,7 +60,7 @@ export default function BrandCarousel({ brands, onSelect }: Props) {
               <div
                 style={{ backgroundColor: brand.logo?.backgroundColor || "#ffffff" }}
                 className="
-                  flex h-25 w-25 items-center justify-center
+                  flex h-24 w-24 items-center justify-center
                   rounded-full border-2 border-slate-200
                   transition-all duration-200
                   hover:scale-110 hover:border-slate-900 hover:shadow-lg
@@ -96,14 +85,14 @@ export default function BrandCarousel({ brands, onSelect }: Props) {
         <button
           onClick={() => scroll("right")}
           className="
-            flex w-10 items-center justify-center
-            rounded-md bg-white
+            flex h-10 w-10 items-center justify-center
+            rounded-full bg-white
             text-slate-500 transition
             hover:bg-slate-100 hover:text-slate-900
           "
           aria-label="Scroll marcas derecha"
         >
-          <ChevronRight />
+          <FontAwesomeIcon icon={faChevronRight} />
         </button>
       </div>
     </section>

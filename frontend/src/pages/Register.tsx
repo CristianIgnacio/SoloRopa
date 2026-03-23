@@ -3,6 +3,8 @@ import loginServices from "../services/login";
 import { useNavigate, Link } from "react-router-dom";
 import { validateRegister } from "../validations/register";
 import { useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faUser, faEnvelope, faLock, faUserPlus } from "@fortawesome/free-solid-svg-icons"
 
 interface RegisterData {
   username: string;
@@ -36,10 +38,8 @@ export default function Register() {
         password: data.password,
         avatarUrl: data.imagen || null,
       }
-      console.log(credentials)
-      const newUser = await loginServices.register(credentials);
+      await loginServices.register(credentials);
       navigate("/login"); 
-      console.log("Register successful:", newUser);
     }
     catch (error) {
       console.error("Register error:", error);
@@ -77,41 +77,53 @@ export default function Register() {
           />
         </label>
 
+        <div className="relative mb-3">
+        <FontAwesomeIcon icon={faUser} className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400" />
         <input
           type="text"
           placeholder="Username"
           name="username"
-          className="mb-3 w-full rounded border px-3 py-2"
+          className="w-full rounded border py-2 pl-9 pr-3"
           value={username}
           onChange={handleChange}
         />
+        </div>
 
+        <div className="relative mb-3">
+        <FontAwesomeIcon icon={faEnvelope} className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400" />
         <input
           type="email"
           placeholder="Email"
           name="email"
-          className="mb-3 w-full rounded border px-3 py-2"
+          className="w-full rounded border py-2 pl-9 pr-3"
           value={email}
           onChange={handleChange}
         />
+        </div>
 
+        <div className="relative mb-4">
+        <FontAwesomeIcon icon={faLock} className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400" />
         <input
           type="password"
           placeholder="Contraseña"
           name="password"
-          className="mb-4 w-full rounded border px-3 py-2"
+          className="w-full rounded border py-2 pl-9 pr-3"
           value={password}
           onChange={handleChange}
         />
+        </div>
 
+        <div className="relative mb-4">
+        <FontAwesomeIcon icon={faLock} className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400" />
         <input
           type="password"
           placeholder="Repetir Contraseña"
           name="repeatPassword"
-          className="mb-4 w-full rounded border px-3 py-2"
+          className="w-full rounded border py-2 pl-9 pr-3"
           value={repeatPassword}
           onChange={handleChange}
         />
+        </div>
 
         {generalError && (
           <p className="mb-3 rounded bg-red-50 px-3 py-2 text-sm text-red-600">
@@ -122,8 +134,9 @@ export default function Register() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded bg-slate-900 py-2 text-white hover:bg-slate-800 disabled:opacity-50"
+          className="flex w-full items-center justify-center gap-2 rounded bg-slate-900 py-2 text-white hover:bg-slate-800 disabled:opacity-50"
         >
+          <FontAwesomeIcon icon={faUserPlus} />
           {loading ? "Creando..." : "Crear cuenta"}
         </button>
 

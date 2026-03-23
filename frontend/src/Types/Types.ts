@@ -8,6 +8,7 @@ export interface Product {
   images: {src : string, alt? : string}[] | [];
   variants : VariantsProduct[]
   inStock?: boolean;
+  favoritesCount : Number,
   scrapedAt: Date;
   createdAt: Date;
   updateAt: Date;

@@ -3,7 +3,9 @@ import loginServices  from "../services/login";
 import { useUserStore } from "../Hooks/useStore";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { validateLogin } from "../validations/login";
-import {useState} from "react"
+import { useState } from "react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faUser, faLock, faRightToBracket } from "@fortawesome/free-solid-svg-icons"
 
 interface LoginData {
   username: string;
@@ -57,31 +59,38 @@ export default function Login() {
             </p>
             )}
 
+            <div className="relative mb-3">
+            <FontAwesomeIcon icon={faUser} className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400" />
             <input
             type="text"
             name="username"
             placeholder="Username"
-            className="mb-3 w-full rounded border px-3 py-2"
+            className="w-full rounded border py-2 pl-9 pr-3"
             value={username}
             onChange={handleChange}
             required
             />
+            </div>
 
+            <div className="relative mb-4">
+            <FontAwesomeIcon icon={faLock} className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400" />
             <input
             type="password"
             name="password"
             placeholder="Contraseña"
-            className="mb-4 w-full rounded border px-3 py-2"
+            className="w-full rounded border py-2 pl-9 pr-3"
             value={password}
             onChange={handleChange}
             required
             />
+            </div>
 
             <button
             type="submit"
             disabled={loading}
-            className="w-full rounded bg-slate-900 py-2 text-white hover:bg-slate-800 disabled:opacity-50"
+            className="flex w-full items-center justify-center gap-2 rounded bg-slate-900 py-2 text-white hover:bg-slate-800 disabled:opacity-50"
             >
+            <FontAwesomeIcon icon={faRightToBracket} />
             {loading ? "Ingresando..." : "Ingresar"}
             </button>
 

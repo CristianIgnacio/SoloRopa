@@ -1,9 +1,8 @@
-import { useEffect, useState, useCallback} from "react"
+import { useEffect, useState, useCallback, useRef } from "react"
 import productsServices from "../services/products"
-import brandsServices from "../services/brands"
-import type {Product} from "../Types/Types"
+import type { Product } from "../Types/Types"
 import ProductMasonry from "../components/product/ProductMansory"
-import { productsMock } from "../mocks/products.mocks"
+// import { productsMock } from "../mocks/products.mocks"
 import { useInfiniteScroll } from "../Hooks/useInfiniteScroll"
 import ProductQuickView from "../components/product/ProductQuickView"
 // import ProductCardDots from "../components/product/ProductCardDots"
@@ -14,47 +13,54 @@ const PAGE_SIZE = 20
 
 const Home = () => {
     const [products, setProducts] = useState<Product[]>([])
-    // const [brands, setBrands] = useState<Brand[] | []>([])
     const [page, setPage] = useState(1)
+    const [hasMore, setHasMore] = useState(true)
     const [loading, setLoading] = useState(false)
-
     const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null)
 
-    useEffect(() => {
-        const init = async () => {
-            setLoading(true)
+    // Evitar peticiones duplicadas simultáneas
+    const loadingRef = useRef(false)
 
-            const [dataProducts, dataBrands] = await Promise.all([
-                productsServices.getAllProducts(),
-                brandsServices.getAllBrands(),
-            ])
+    // Función para cargar una página
+    const fetchPage = useCallback(async (pageNum: number) => {
+        if (loadingRef.current) return
+        loadingRef.current = true
+        setLoading(true)
 
-            // setBrands(dataBrands)
-            setProducts(dataProducts)
-            // setBrands(dataBrands)
+        try {
+            const result = await productsServices.getProducts(pageNum, PAGE_SIZE)
+
+            setProducts((prev) =>
+                pageNum === 1 ? result.data : [...prev, ...result.data]
+            )
+            setHasMore(result.hasMore)
+        } finally {
             setLoading(false)
+            loadingRef.current = false
         }
-
-        init()
     }, [])
 
-    const visibleProducts = products.slice(0, page * PAGE_SIZE)
+    // Carga inicial
+    useEffect(() => {
+        fetchPage(1)
+    }, [fetchPage])
 
-
+    // Cargar más al hacer scroll
     const loadMore = useCallback(() => {
-        if (visibleProducts.length < products.length && !loading) {
-        setPage((prev) => prev + 1)
+        if (hasMore && !loadingRef.current) {
+            const nextPage = page + 1
+            setPage(nextPage)
+            fetchPage(nextPage)
         }
-    }, [visibleProducts.length, products.length, loading])
+    }, [hasMore, page, fetchPage])
 
     useInfiniteScroll(loadMore)
-
 
     return (
         <>
         <section className="mx-auto max-w-7xl px-4 py-6">
             <ProductMasonry
-                products={visibleProducts}
+                products={products}
                 renderItem={(product) => (
                     <>
                     {/* <ProductCard key={product.id} product={product} /> */}
@@ -64,11 +70,17 @@ const Home = () => {
                 )}
             />
 
-        {visibleProducts.length < productsMock.length && (
-            <p className="mt-6 text-center text-sm text-slate-500">
-            Cargando más productos...
-            </p>
-        )}
+            {loading && (
+                <p className="mt-6 text-center text-sm text-slate-500">
+                    Cargando más productos...
+                </p>
+            )}
+
+            {!hasMore && products.length > 0 && (
+                <p className="mt-6 text-center text-sm text-slate-400">
+                    Has visto todos los productos 🎉
+                </p>
+            )}
         </section>
 
         <ProductQuickView
@@ -78,7 +90,6 @@ const Home = () => {
         />
         </>
     )
-
 }
 
 export default Home

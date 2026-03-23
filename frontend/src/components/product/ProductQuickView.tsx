@@ -1,9 +1,11 @@
 // src/components/product/ProductQuickView.tsx
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Modal from "../ui/Modal"
 import FavoriteButton from "../ui/FavoriteButton"
 import type { Product } from "../../Types/Types"
-import { useNavigate} from "react-router-dom"
+import { useProductEvents } from "../../Hooks/useProductEvents"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faXmark, faArrowTrendDown, faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons"
 
 type Props = {
   product: Product | null
@@ -12,10 +14,17 @@ type Props = {
 }
 
 export default function ProductQuickView({ product, open, onClose }: Props) {
-    const navigate = useNavigate()
     const [activeImage, setActiveImage] = useState(0)
     const [selectedVariant, setSelectedVariant] = useState<Product["variants"][number] | null>(null)
 
+    const { trackView, trackClick } = useProductEvents(product?.id)
+
+    useEffect(() => {
+        if (product?.id && open) {
+            trackView()
+        }
+    }, [product?.id, open])
+    
     if (!product) return null
 
     const images = product.images
@@ -35,9 +44,9 @@ export default function ProductQuickView({ product, open, onClose }: Props) {
         {/* Botón cerrar */}
         <button
             onClick={handleClose}
-            className="absolute right-3 top-3 rounded-full p-1 text-slate-500 hover:bg-slate-100"
+            className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100"
         >
-            ✕
+            <FontAwesomeIcon icon={faXmark} />
         </button>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -149,18 +158,21 @@ export default function ProductQuickView({ product, open, onClose }: Props) {
 
             {/* Placeholder comparador */}
             <p className="text-sm text-green-600">
-                ▼ Bajó 8% en los últimos 30 días
+                <FontAwesomeIcon icon={faArrowTrendDown} className="mr-1" />
+                Bajó 8% en los últimos 30 días
             </p>
 
             <button
                 onClick={() => {
-                handleClose
-                navigate(`/producto/${product.id}`)
-            }}
+                    trackClick()
+                    handleClose()
+                    // navigate(`/producto/${product.id}`) // Comentado si usamos el link directo
+                }}
                 className="mt-4 rounded bg-slate-900 px-4 py-2 text-sm text-white"
             >
-                <a href={product.url}>
+                <a href={product.url} target="_blank" rel="noopener noreferrer">
                     Ver detalle completo
+                    <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="ml-1.5 text-xs" />
                 </a>
             </button>
             </div>
