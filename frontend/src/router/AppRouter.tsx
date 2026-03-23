@@ -11,6 +11,7 @@ import PrivateRoute from "./PrivateRoute"
 import FavoritesDetail from "../pages/FavoritesDetail"
 import ProfileEdit from "../pages/ProfileEdit"
 import Explore from "../pages/Explore"
+import ProductDetail from "../pages/ProductDetail"
 
 export default function AppRouter() {
   return (
@@ -20,6 +21,7 @@ export default function AppRouter() {
         <Route path="/" element={<Home />} />
         <Route path="/profile/:username" element={<Profile />} />
         <Route path="/explore" element={<Explore />} />
+        <Route path="/producto/:id" element={<ProductDetail />} />
 
         {/* 🔒 Rutas privadas (user) */}
         <Route element={<PrivateRoute />}>

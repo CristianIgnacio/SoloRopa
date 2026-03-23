@@ -1,7 +1,9 @@
 // src/components/product/ProductQuickView.tsx
 import { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 import Modal from "../ui/Modal"
 import FavoriteButton from "../ui/FavoriteButton"
+import HoverImageZoom from "../ui/HoverImageZoom"
 import type { Product } from "../../Types/Types"
 import { useProductEvents } from "../../Hooks/useProductEvents"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -16,6 +18,7 @@ type Props = {
 export default function ProductQuickView({ product, open, onClose }: Props) {
     const [activeImage, setActiveImage] = useState(0)
     const [selectedVariant, setSelectedVariant] = useState<Product["variants"][number] | null>(null)
+    const navigate = useNavigate()
 
     const { trackView, trackClick } = useProductEvents(product?.id)
 
@@ -53,11 +56,12 @@ export default function ProductQuickView({ product, open, onClose }: Props) {
             {/* GALERÍA */}
             <div>
             {/* Imagen principal */}
-            <div className="aspect-3/4 overflow-hidden rounded bg-slate-100">
-                <img
-                src={images[activeImage].src}
-                alt={images[activeImage].alt}
-                className="h-full w-full object-cover"
+            <div className="aspect-3/4 overflow-hidden rounded bg-slate-100 cursor-zoom-in group relative">
+                <HoverImageZoom
+                    src={images[activeImage].src}
+                    alt={images[activeImage].alt || product.title}
+                    className="h-full w-full"
+                    zoomScale={1.8}
                 />
             </div>
 
@@ -157,24 +161,34 @@ export default function ProductQuickView({ product, open, onClose }: Props) {
                 )}
 
             {/* Placeholder comparador */}
-            <p className="text-sm text-green-600">
+            <p className="text-sm text-green-600 mb-2">
                 <FontAwesomeIcon icon={faArrowTrendDown} className="mr-1" />
-                Bajó 8% en los últimos 30 días
+                Buen precio detectado
             </p>
 
-            <button
-                onClick={() => {
-                    trackClick()
-                    handleClose()
-                    // navigate(`/producto/${product.id}`) // Comentado si usamos el link directo
-                }}
-                className="mt-4 rounded bg-slate-900 px-4 py-2 text-sm text-white"
-            >
-                <a href={product.url} target="_blank" rel="noopener noreferrer">
-                    Ver detalle completo
-                    <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="ml-1.5 text-xs" />
-                </a>
-            </button>
+            <div className="mt-2 flex flex-col gap-3 sm:flex-row">
+                <button
+                    onClick={() => {
+                        handleClose()
+                        navigate(`/producto/${product.id}`)
+                    }}
+                    className="flex-1 rounded border-2 border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+                >
+                    Ver en detalle
+                </button>
+
+                <button
+                    onClick={() => {
+                        trackClick()
+                        handleClose()
+                        window.open(product.url, "_blank", "noopener,noreferrer")
+                    }}
+                    className="flex-1 rounded bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
+                >
+                    Comprar en tienda
+                    <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="ml-1.5 text-xs opacity-70" />
+                </button>
+            </div>
             </div>
         </div>
         </Modal>
