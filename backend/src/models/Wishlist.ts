@@ -46,8 +46,6 @@ const WishlistSchema = new mongoose.Schema<IWishlist>({
 // Un usuario no puede tener 2 wishlists con el mismo nombre
 WishlistSchema.index({ userId: 1, name: 1 }, { unique: true });
 
-const WishlistModel = mongoose.model<IWishlist>('Wishlist', WishlistSchema);
-
 WishlistSchema.set("toJSON", {
   transform: (
     _,
@@ -58,5 +56,7 @@ WishlistSchema.set("toJSON", {
     delete returnedObject.__v;
   },
 });
+
+const WishlistModel = mongoose.model<IWishlist>('Wishlist', WishlistSchema);
 
 export default WishlistModel;

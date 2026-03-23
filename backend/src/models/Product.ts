@@ -1,5 +1,6 @@
 import mongoose, { model, Schema, Document } from "mongoose"
 import { ProductCategory, PRODUCT_CATEGORIES } from "../constants/productCategories";
+import type {CanonicalTags} from "../scrapers/domain/Tag"
 
 export interface IProduct extends Document {
   // info
@@ -22,9 +23,23 @@ export interface IProduct extends Document {
 
   // tags
   tags : string[],
+  canonicalTags?: CanonicalTags
 
   // variacion (tallas, color)
   variants?: { title: string; sku?: string; price?: number; comparePrice? : number ; inStock?: boolean }[];
+
+  // Metricas de tendencia
+  viewsCount : number,
+  favoritesCount : number,
+  clicksCount : number,
+
+  viewsLastNDays : number,
+  favoritesLastNDays : number,
+  clicksLastNDays : number,
+
+  trendingScore : number,
+  lastUpdateScore : Date,
+  
   scrapedAt: Date;
   raw?: any;          // guarda el JSON/HTML bruto si quieres
 }
@@ -44,6 +59,11 @@ const ProductSchema = new Schema<IProduct>({
   category : {type : String, enum: PRODUCT_CATEGORIES,default : "otros", lowercase : true},
   categoryConfidence : {type : Number, defaul: 0},
   tags : [{type : String, lowercase : true}],
+  canonicalTags: {
+    type: Schema.Types.Mixed,
+    required: false,
+    default: {}
+  },
   variants: [{
     title: { type: String, required: true },
     sku: { type: String, required: false },
@@ -51,13 +71,25 @@ const ProductSchema = new Schema<IProduct>({
     comparePrice: { type: Number, required: false },
     inStock: { type: Boolean, required: false }
   }],
+  viewsCount : { type : Number, default : 0, required : true},
+  favoritesCount : { type : Number, default : 0, required : true},
+  clicksCount : { type : Number, default : 0, required : true},
+  viewsLastNDays : { type : Number, default : 0, required : true},
+  favoritesLastNDays : { type : Number, default : 0, required : true},
+  clicksLastNDays : { type : Number, default : 0, required : true},
+  trendingScore : { type : Number, default : 0, required : true},
+  lastUpdateScore : { type : Date, default: () => new Date(), required : true},
   scrapedAt: { type: Date, default: () => new Date() },
   raw: { type: Schema.Types.Mixed }
 }, { 
   timestamps: true
 });
 
-const ProductModel = model<IProduct>("Product", ProductSchema);
+// Índices para mejorar el rendimiento de búsquedas
+ProductSchema.index({ brand: 1 });
+ProductSchema.index({ category: 1 });
+ProductSchema.index({ trendingScore: -1 });
+ProductSchema.index({ title: 'text' });
 
 ProductSchema.set("toJSON", {
   transform: (
@@ -69,6 +101,8 @@ ProductSchema.set("toJSON", {
     delete returnedObject.__v;
   },
 });
+
+const ProductModel = model<IProduct>("Product", ProductSchema);
 
 export default ProductModel
 

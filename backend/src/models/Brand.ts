@@ -60,10 +60,8 @@ brandSchema.pre('save', function(next) {
 });
 
 // Índices para mejorar búsquedas
-// brandSchema.index({ name: 1 });
-// brandSchema.index({ slug: 1 });
-
-const BrandModel = mongoose.model('Brand', brandSchema);
+brandSchema.index({ name: 1 });
+brandSchema.index({ slug: 1 });
 
 brandSchema.set("toJSON", {
   transform: (
@@ -75,5 +73,7 @@ brandSchema.set("toJSON", {
     delete returnedObject.__v;
   },
 });
+
+const BrandModel = mongoose.model('Brand', brandSchema);
 
 export default BrandModel

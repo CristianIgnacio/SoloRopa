@@ -1,6 +1,8 @@
 import axios from "axios";
 import { IProduct } from "../../models/Product";
 // import * as cheerio from "cheerio";
+import { processProduct } from "../tag-engine";
+import { wooToRawProduct } from "../adapters/wooToRawProduct";
 
 export interface WooCommerceProduct extends Partial<IProduct> {
   title: string;
@@ -58,6 +60,9 @@ const scrapeWooCommerceBase = async (baseUrl: string): Promise<WooCommerceProduc
           const tags = p.categories.map( (c : any) => c.name.toLowerCase())
 
           const category = tags[0]
+
+          const rawProduct = wooToRawProduct(p, baseUrl);
+          const normalized = processProduct(rawProduct);
           
           const tallasNombre = ["size", "talla"]
           const sizeMap = new Map<string, {
@@ -113,10 +118,12 @@ const scrapeWooCommerceBase = async (baseUrl: string): Promise<WooCommerceProduc
             inStock: p.is_in_stock || false,
             isActive : p.is_in_stock || false,
 
-            category : category,
+            // category : category,
+            category: normalized.tags.category,
             categoryConfidence : category ? 0.9 : 0.3,
-
+            
             tags : tags,
+            canonicalTags: normalized.tags,
             
             images: img,
 
@@ -133,13 +140,10 @@ const scrapeWooCommerceBase = async (baseUrl: string): Promise<WooCommerceProduc
     } catch (err) {
         console.error(`❌ Error scraping página ${page}:`, err);
         break
-      // console.warn("products.json no disponible:", err.message);
 
       // break;
     }
-
   }
-
   console.log(`✨ Total productos encontrados: ${allProducts.length}`);
   return allProducts;
 
