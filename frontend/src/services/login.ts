@@ -51,4 +51,14 @@ const logout = async () => {
     return response.data;
 }
 
-export default { login, register, logout, restoreLogin };
+const forgotPassword = async (email: string) => {
+    const response = await axios.post("/api/auth/forgot-password", { email });
+    return response.data;
+};
+
+const resetPassword = async (token: string, password: string) => {
+    const response = await axios.post(`/api/auth/reset-password/${token}`, { password });
+    return response.data;
+};
+
+export default { login, register, logout, restoreLogin, forgotPassword, resetPassword };

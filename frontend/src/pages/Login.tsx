@@ -85,6 +85,12 @@ export default function Login() {
             />
             </div>
 
+            <div className="mb-4 text-right">
+                <Link to="/forgot-password" className="text-sm text-slate-500 hover:text-slate-900 hover:underline">
+                    ¿Olvidaste tu contraseña?
+                </Link>
+            </div>
+
             <button
             type="submit"
             disabled={loading}

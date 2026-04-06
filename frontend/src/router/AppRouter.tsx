@@ -12,6 +12,8 @@ import FavoritesDetail from "../pages/FavoritesDetail"
 import ProfileEdit from "../pages/ProfileEdit"
 import Explore from "../pages/Explore"
 import ProductDetail from "../pages/ProductDetail"
+import ForgotPassword from "../pages/ForgotPassword"
+import ResetPassword from "../pages/ResetPassword"
 
 export default function AppRouter() {
   return (
@@ -39,6 +41,8 @@ export default function AppRouter() {
       {/* Públicas */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password/:token" element={<ResetPassword />} />
     </Routes>
   )
 }
