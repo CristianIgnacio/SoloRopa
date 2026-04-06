@@ -10,8 +10,8 @@ router.post("/", authenticate, createWishlist);
 // Eliminar wishlist
 router.delete("/:id", authenticate, deleteWishlist);
 
-// Actualizar whislist
-router.put("/", authenticate, updateWishlist);
+// Actualizar wishlist (usa :id en la ruta)
+router.put("/:id", authenticate, updateWishlist);
 
 // Agregar producto
 router.post("/:id/items", authenticate, addItemToWishlist);

@@ -2,6 +2,35 @@ import { NextFunction, Request, Response } from 'express'
 import logger from './logger'
 // import jwt from 'jsonwebtoken'
 
+const SENSITIVE_KEYS = new Set([
+  'password',
+  'repeatPassword',
+  'token',
+  'resetPasswordToken',
+  'csrfToken',
+  'x-csrf-token',
+])
+
+const sanitizeLogValue = (value: unknown): unknown => {
+  if (Array.isArray(value)) {
+    return value.map(sanitizeLogValue)
+  }
+
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>).map(([key, entryValue]) => {
+        if (SENSITIVE_KEYS.has(key)) {
+          return [key, '***OCULTA***']
+        }
+
+        return [key, sanitizeLogValue(entryValue)]
+      })
+    )
+  }
+
+  return value
+}
+
 const requestLogger = (
   request: Request,
   response: Response,
@@ -9,7 +38,9 @@ const requestLogger = (
 ) => {
   logger.info('Method:', request.method)
   logger.info('Path:  ', request.path)
-  logger.info('Body:  ', request.body)
+
+  logger.info('Body:  ', sanitizeLogValue(request.body) as any)
+
   logger.info('---')
   next()
 }

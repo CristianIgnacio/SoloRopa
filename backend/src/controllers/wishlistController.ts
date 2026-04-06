@@ -21,7 +21,13 @@ const getUserWishlists = async (request: Request, response: Response, next: Next
   try {
     const username = request.params.username;
     const user = await UserModel.findOne({ username })
-    const wishlists = await Wishlist.find({ userId: user?.id });
+    if (!user) {
+      return response.status(404).json({
+        success: false,
+        error: "User not found"
+      });
+    }
+    const wishlists = await Wishlist.find({ userId: user?.id, visibility: "public" });
     response.status(200).json({
       success: true,
       data: wishlists
@@ -133,7 +139,8 @@ const updateWishlist = async (request: Request, response: Response, next: NextFu
 const addItemToWishlist = async (request: Request, response: Response, next: NextFunction) => {
   try {
     const userId = request.userId;
-    const { wishlistId, productId, note, tags } = request.body;
+    const { productId, note, tags } = request.body;
+    const wishlistId = request.params.id || request.body.wishlistId;
     const wishlist = await Wishlist.findOne({ _id: wishlistId, userId });
     if (!wishlist) throw new Error("Wishlist not found");
     // Verificar si ya está agregado
@@ -169,7 +176,7 @@ const addItemToWishlist = async (request: Request, response: Response, next: Nex
 const deleteItemToWishlist = async (request: Request, response: Response, next: NextFunction) => {
   try {
     const userId = request.userId;
-    const wishlistId = request.params.wishlistId;
+    const wishlistId = request.params.id;
     const itemId = request.params.productId;
 
     // Validar que itemId es un ObjectId válido

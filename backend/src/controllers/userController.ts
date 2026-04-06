@@ -3,6 +3,18 @@ import { Request, Response, NextFunction } from 'express';
 import UserModel from "../models/User";
 import WishlistModel from "../models/Wishlist";
 
+const serializePublicUser = (user: {
+    id?: string;
+    username: string;
+    role: "user" | "admin";
+    avatarUrl?: string | null;
+}) => ({
+    id: user.id,
+    username: user.username,
+    role: user.role,
+    avatarUrl: user.avatarUrl || null,
+});
+
 export const getUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const users = await UserModel.find({});
@@ -21,7 +33,7 @@ export const getUserById = async (req: Request, res: Response, next: NextFunctio
         const user = await UserModel.findById(userId);
 
         if (user) {
-            res.json(user);
+            res.json(serializePublicUser(user));
         } else {
             res.status(404).json({ error: "User not found" })
         }
@@ -38,7 +50,7 @@ export const getUserbyUsername = async (req: Request, res: Response, next: NextF
         const user = await UserModel.findOne({ username: username });
 
         if (user) {
-            res.json(user);
+            res.json(serializePublicUser(user));
         } else {
             res.status(404).json({ error: "User not found" })
         }
@@ -76,7 +88,7 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
             items: []
         });
 
-        res.status(201).json(savedUser);
+        res.status(201).json(savedUser.toJSON());
 
     } catch (error) {
         next(error);
