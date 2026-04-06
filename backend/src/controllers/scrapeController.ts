@@ -37,6 +37,17 @@ const scrapeRudeboys = scrapeBase("rudeboys")
 const scrapeFreshBrand = scrapeBase("freshbrand")
 const scrapeMoreamor = scrapeBase("moreamor")
 const scrapeSubcomplot = scrapeBase("subcomplot")
+const scrapeBelowApparel = scrapeBase("belowapparel")
+const scrapeBvnggvng = scrapeBase("bvnggvng")
+const scrapeMDF = scrapeBase("mdf")
 
-
-export {scrapeFreshBrand, scrapeMoreamor, scrapeRudeboys, scrapeBase, scrapeSubcomplot};
+export {
+  scrapeFreshBrand,
+  scrapeMoreamor,
+  scrapeRudeboys,
+  scrapeBase,
+  scrapeSubcomplot,
+  scrapeBelowApparel,
+  scrapeBvnggvng,
+  scrapeMDF
+};
