@@ -17,6 +17,8 @@ export interface Product {
 
 interface VariantsProduct { 
   title: string;
+  color?: string;
+  size?: string;
   sku?: string;
   price?: number;
   comparePrice? : number ;

@@ -5,6 +5,8 @@ import productService from "../services/products"
 import { useProductEvents } from "../Hooks/useProductEvents"
 import FavoriteButton from "../components/ui/FavoriteButton"
 import HoverImageZoom from "../components/ui/HoverImageZoom"
+import { useProductVariants } from "../Hooks/useProductVariants"
+import VariantSelector from "../components/product/VariantSelector"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowTrendDown, faArrowUpRightFromSquare, faArrowLeft } from "@fortawesome/free-solid-svg-icons"
 
@@ -15,9 +17,11 @@ export default function ProductDetail() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeImage, setActiveImage] = useState(0)
-  const [selectedVariant, setSelectedVariant] = useState<Product["variants"][number] | null>(null)
 
   const { trackView, trackClick } = useProductEvents(product?.id)
+
+  const variantsState = useProductVariants(product)
+  const { selectedVariant } = variantsState
 
   useEffect(() => {
     if (!id) return
@@ -142,54 +146,10 @@ export default function ProductDetail() {
             )}
           </div>
 
-          {/* Tallas */}
+          {/* Seleccionador de Opciones Dinámico via Componente */}
           {product.variants && product.variants.length > 0 && (
             <div className="mb-8">
-              <div className="mb-3 flex items-center justify-between">
-                <h3 className="text-sm font-medium text-slate-900">Tallas disponibles</h3>
-                {!selectedVariant && (
-                  <span className="text-xs text-red-500">Selecciona una talla</span>
-                )}
-              </div>
-
-              <div className="grid grid-cols-4 gap-3 sm:grid-cols-5 lg:grid-cols-4">
-                {product.variants.map((variant: any) => {
-                  const isSelected = selectedVariant?.title === variant.title
-                  const outOfStock = variant.inStock === false
-
-                  // Autoseleccionar primera variante con stock
-                  if (selectedVariant === null && variant.inStock) {
-                    setSelectedVariant(variant)
-                  }
-
-                  return (
-                    <button
-                      key={variant.title}
-                      disabled={outOfStock}
-                      onClick={() => setSelectedVariant(variant)}
-                      className={`
-                        relative flex items-center justify-center rounded-lg border py-3 text-sm font-medium transition-all
-                        ${
-                          outOfStock
-                            ? "cursor-not-allowed border-slate-200 bg-slate-50 text-slate-400"
-                            : isSelected
-                            ? "border-slate-900 bg-slate-900 text-white shadow-md"
-                            : "border-slate-200 bg-white text-slate-900 hover:border-slate-400 hover:bg-slate-50"
-                        }
-                      `}
-                    >
-                      {variant.title}
-                      {outOfStock && (
-                        <span className="absolute inset-0 flex items-center justify-center overflow-hidden">
-                          <svg className="h-full w-full stroke-slate-300" viewBox="0 0 100 100" preserveAspectRatio="none" strokeWidth="2" fill="none">
-                            <line x1="0" y1="100" x2="100" y2="0" />
-                          </svg>
-                        </span>
-                      )}
-                    </button>
-                  )
-                })}
-              </div>
+              <VariantSelector product={product} variantsState={variantsState} />
             </div>
           )}
 

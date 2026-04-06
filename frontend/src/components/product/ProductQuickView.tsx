@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom"
 import Modal from "../ui/Modal"
 import FavoriteButton from "../ui/FavoriteButton"
 import HoverImageZoom from "../ui/HoverImageZoom"
+import { useProductVariants } from "../../Hooks/useProductVariants"
+import VariantSelector from "./VariantSelector"
 import type { Product } from "../../Types/Types"
 import { useProductEvents } from "../../Hooks/useProductEvents"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -17,30 +19,32 @@ type Props = {
 
 export default function ProductQuickView({ product, open, onClose }: Props) {
     const [activeImage, setActiveImage] = useState(0)
-    const [selectedVariant, setSelectedVariant] = useState<Product["variants"][number] | null>(null)
     const navigate = useNavigate()
 
     const { trackView, trackClick } = useProductEvents(product?.id)
+
+    const variantsState = useProductVariants(product, open)
+    const { selectedVariant, resetVariants } = variantsState
 
     useEffect(() => {
         if (product?.id && open) {
             trackView()
         }
     }, [product?.id, open])
-    
-    if (!product) return null
-
-    const images = product.images
 
     const resetState = () => {
         setActiveImage(0)
-        setSelectedVariant(null)
+        resetVariants()
     }
 
     const handleClose = () => {
         resetState()
         onClose()
     }
+
+    if (!product) return null
+
+    const images = product.images
 
     return (
         <Modal open={open} onClose={handleClose}>
@@ -117,48 +121,12 @@ export default function ProductQuickView({ product, open, onClose }: Props) {
                     <FavoriteButton productId={product.id} />
                 </div>
 
-                {/* Tallas */}
-                {product.variants?.length > 0 && (
+                {/* Opciones Dinámicas */}
                 <div className="mt-4">
-                    <p className="mb-2 text-sm font-medium">Tallas</p>
-
-                    <div className="grid grid-cols-4 gap-2">
-                    {product.variants.map((variant) => {
-                        const isSelected = selectedVariant?.title === variant.title
-                        const outOfStock = variant.inStock === false
-
-                        if (selectedVariant === null && variant.inStock) {setSelectedVariant(variant)}  
-
-                        return (
-                        <button
-                            key={variant.title}
-                            disabled={outOfStock}
-                            onClick={() => setSelectedVariant(variant)}
-                            className={`
-                            relative rounded border px-2 py-1 text-sm transition
-                            ${
-                                outOfStock
-                                ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400 line-through"
-                                : isSelected
-                                ? "border-slate-900 bg-slate-900 text-white"
-                                : "border-slate-300 hover:border-slate-900"
-                            }
-                            `}
-                        >
-                            {variant.title}
-                        </button>
-                        )
-                    })}
-                    </div>
-
-                    {/* Mensaje sin stock */}
-                    {!selectedVariant && (
-                    <p className="mt-2 text-xs text-red-500">
-                        No hay stock disponible
-                    </p>
+                    {product.variants?.length > 0 && (
+                        <VariantSelector product={product} variantsState={variantsState} />
                     )}
                 </div>
-                )}
 
             {/* Placeholder comparador */}
             <p className="text-sm text-green-600 mb-2">

@@ -1,9 +1,14 @@
 import axiosSecure from "../utils/axiosSecure";
 
 interface WishlistPayload {
+  id?: string;
   name?: string;
-  userId: string;
+  userId?: string;
   items?: string[];
+  description?: string;
+  visibility?: "private" | "public" | "unlisted";
+  isDefault?: boolean;
+  coverImage?: string;
 }
 
 const createWishlist = async (payload: WishlistPayload) => {
@@ -17,7 +22,12 @@ const deleteWishlist = async (wishlistId: string) => {
 };
 
 const updateWishlist = async (payload: WishlistPayload) => {
-  const res = await axiosSecure.put("/api/wishlist", payload);
+  if (!payload.id) {
+    throw new Error("wishlist id is required");
+  }
+
+  const { id, ...data } = payload;
+  const res = await axiosSecure.put(`/api/wishlist/${id}`, data);
   return res.data;
 };
 
