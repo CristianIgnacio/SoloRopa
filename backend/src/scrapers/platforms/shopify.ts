@@ -55,15 +55,41 @@ const scrapeShopifyBase = async (baseUrl: string): Promise<ShopifyProduct[]> => 
           const price = p?.variants?.[0]?.price ? Number(p.variants[0].price) : null;
           // const img = p?.image?.src ?? (p?.images?.[0]?.src ?? null);
           
-          const img = p?.image?.src 
-            ?? (p?.images?.map( (i : any) => {
-                return { src : i.src, alt : p.title} 
-              }) 
-                ?? []);
+          let finalImages: { src: string, alt: string }[] = [];
+          if (p?.images && Array.isArray(p.images) && p.images.length > 0) {
+            finalImages = p.images.map((i: any) => ({ src: i.src, alt: p.title }));
+          } else if (p?.image?.src) {
+            finalImages = [{ src: p.image.src, alt: p.title }];
+          }
+
+          // Identificar posiciones dinámicas de Talla y Color según p.options
+          let colorPosition = 0;
+          let sizePosition = 0;
+          if (p?.options && Array.isArray(p.options)) {
+            p.options.forEach((opt: any) => {
+              if (opt.name && /(color|colour)/i.test(opt.name)) {
+                colorPosition = opt.position;
+              }
+              if (opt.name && /(size|talla|medido)/i.test(opt.name)) {
+                sizePosition = opt.position;
+              }
+            });
+          }
 
           const variants = p?.variants?.map( (v : any) => {
+            // Shopify usually serves the full merged title (e.g. "Negro / S") in v.title.
+            // If missing, fallback to option1.
+            const fullTitle = v.title && v.title !== "Default Title" ? v.title : v.option1;
+            
+            let color = undefined;
+            let size = undefined;
+            if (colorPosition > 0) color = v[`option${colorPosition}`];
+            if (sizePosition > 0) size = v[`option${sizePosition}`];
+
             return {
-              title: v.option1,
+              title: fullTitle,
+              color,
+              size,
               sku: v.sku,
               price: v.price ? Number(v.price) : undefined,
               comparePrice: v.compare_at_price ? Number(v.compare_at_price) : undefined,
@@ -91,7 +117,7 @@ const scrapeShopifyBase = async (baseUrl: string): Promise<ShopifyProduct[]> => 
             
             tags : tags,
             
-            images: img,
+            images: finalImages,
 
             variants,
             raw: p

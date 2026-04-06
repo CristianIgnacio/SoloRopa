@@ -64,50 +64,81 @@ const scrapeWooCommerceBase = async (baseUrl: string): Promise<WooCommerceProduc
           const rawProduct = wooToRawProduct(p, baseUrl);
           const normalized = processProduct(rawProduct);
           
-          const tallasNombre = ["size", "talla"]
-          const sizeMap = new Map<string, {
-            title: string;
-            sku?: string;
-            price?: number;
-            comparePrice?: number;
-            inStock: boolean;
-          }>();
+          const tallasNombre = ["size", "talla", "tallas"];
+          const colorNombre = ["color", "colour", "colores"];
+          
+          let sizeTerms: any[] = [];
+          let colorTerms: any[] = [];
 
           for (const attr of p.attributes ?? []) {
-            if (!tallasNombre.includes(attr.name.toLowerCase())) continue;
-
-            for (const term of attr.terms ?? []) {
-              const key = term.name.toLowerCase();
-
-              sizeMap.set(key, {
-                title: term.name,
-                sku: term.slug,
-                inStock: false,
-              });
-            }
+             const nameLower = attr.name.toLowerCase();
+             if (tallasNombre.includes(nameLower)) {
+                 sizeTerms = attr.terms ?? [];
+             } else if (colorNombre.includes(nameLower)) {
+                 colorTerms = attr.terms ?? [];
+             }
           }
 
+          const variantsMap = new Map(); // "colorSlug-sizeSlug" -> variantObj
+          const defaultPrice = p.prices?.price ? Number(p.prices.price) : null;
+
+          // Generate combinations
+          if (colorTerms.length > 0 && sizeTerms.length > 0) {
+              for (const c of colorTerms) {
+                  for (const s of sizeTerms) {
+                      const key = `${c.slug}-${s.slug}`;
+                      variantsMap.set(key, { title: `${c.name} / ${s.name}`, inStock: false, color: c.name, size: s.name, price: defaultPrice });
+                  }
+              }
+          } else if (colorTerms.length > 0) {
+              for (const c of colorTerms) {
+                  variantsMap.set(`${c.slug}-`, { title: c.name, inStock: false, color: c.name, price: defaultPrice });
+              }
+          } else if (sizeTerms.length > 0) {
+              for (const s of sizeTerms) {
+                  variantsMap.set(`-${s.slug}`, { title: s.name, inStock: false, size: s.name, price: defaultPrice });
+              }
+          } else {
+              // No color or size variations
+              variantsMap.set(`-`, { title: "Default Title", inStock: p.is_in_stock ?? false, price: defaultPrice });
+          }
+
+          // Now validate against variations to activate inStock
           for (const v of p.variations ?? []) {
-            for (const attr of v.attributes ?? []) {
-              if (!tallasNombre.includes(attr.name.toLowerCase())) continue;
+              let vColorSlug = "";
+              let vSizeSlug = "";
 
-              const key = attr.value.toLowerCase();
-              const size = sizeMap.get(key);
-              if (!size) continue;
-
-              // Regla estándar: si existe variación → hay stock
-              size.inStock = true;
-
-              if (v.price !== undefined) {
-                size.price = Number(v.price);
+              for (const attr of v.attributes ?? []) {
+                  const nameLower = attr.name.toLowerCase();
+                  if (tallasNombre.includes(nameLower)) {
+                      vSizeSlug = attr.value;
+                  } else if (colorNombre.includes(nameLower)) {
+                      vColorSlug = attr.value;
+                  }
               }
-              if (v.compare_at_price !== undefined) {
-                size.comparePrice = Number(v.compare_at_price);
+
+              const key = `${vColorSlug}-${vSizeSlug}`;
+              const variant = variantsMap.get(key);
+              
+              if (variant) {
+                  variant.inStock = true;
+                  if (v.price !== undefined) variant.price = Number(v.price);
+                  if (v.compare_at_price !== undefined) variant.comparePrice = Number(v.compare_at_price);
+                  if (v.sku) variant.sku = v.sku;
+              } else {
+                // Se agrega dinámicamente si no existía globalmente
+                variantsMap.set(key, {
+                    title: [vColorSlug, vSizeSlug].filter(Boolean).join(" / "),
+                    inStock: true,
+                    color: vColorSlug || undefined,
+                    size: vSizeSlug || undefined,
+                    price: v.price !== undefined ? Number(v.price) : defaultPrice,
+                    sku: v.sku || undefined
+                });
               }
-            }
           }
 
-          const variants = Array.from(sizeMap.values());
+          const variants = Array.from(variantsMap.values());
 
           allProducts.push({
             title: p.name,
