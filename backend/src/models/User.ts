@@ -17,7 +17,8 @@ const userSchema = new mongoose.Schema({
 
   password: {
     type: String,
-    required: true
+    required: true,
+    select: false
   },
 
   role: {
@@ -30,8 +31,28 @@ const userSchema = new mongoose.Schema({
     type: String,
   },
 
+  resetPasswordToken: {
+    type: String,
+    select: false
+  },
+  resetPasswordExpires: {
+    type: Date,
+    select: false
+  },
+
 }, {
   timestamps: true, // crea createdAt y updatedAt
+});
+
+userSchema.set("toJSON", {
+  transform: (_, returnedObject: any) => {
+    returnedObject.id = returnedObject._id?.toString();
+    delete returnedObject._id;
+    delete returnedObject.__v;
+    delete returnedObject.password;
+    delete returnedObject.resetPasswordToken;
+    delete returnedObject.resetPasswordExpires;
+  },
 });
 
 // userSchema.pre("save", async function (next) {

@@ -26,7 +26,7 @@ export interface IProduct extends Document {
   canonicalTags?: CanonicalTags
 
   // variacion (tallas, color)
-  variants?: { title: string; sku?: string; price?: number; comparePrice? : number ; inStock?: boolean }[];
+  variants?: { title: string; color?: string; size?: string; sku?: string; price?: number; comparePrice? : number ; inStock?: boolean }[];
 
   // Metricas de tendencia
   viewsCount : number,
@@ -57,7 +57,7 @@ const ProductSchema = new Schema<IProduct>({
   inStock: { type: Boolean, required: false },
   isActive: { type: Boolean, required: false },
   category : {type : String, enum: PRODUCT_CATEGORIES,default : "otros", lowercase : true},
-  categoryConfidence : {type : Number, defaul: 0},
+  categoryConfidence : {type : Number, default: 0},
   tags : [{type : String, lowercase : true}],
   canonicalTags: {
     type: Schema.Types.Mixed,
@@ -66,6 +66,8 @@ const ProductSchema = new Schema<IProduct>({
   },
   variants: [{
     title: { type: String, required: true },
+    color: { type: String, required: false },
+    size: { type: String, required: false },
     sku: { type: String, required: false },
     price: { type: Number, required: false },
     comparePrice: { type: Number, required: false },
