@@ -1,4 +1,4 @@
-import {scrapeFreshBrand, scrapeMoreamor, scrapeRudeboys, scrapeSubcomplot, scrapeBelowApparel, scrapeBvnggvng, scrapeMDF} from "../controllers/scrapeController"
+import {scrapeFreshBrand, scrapeMoreamor, scrapeRudeboys, scrapeSubcomplot, scrapeBelowApparel, scrapeBvnggvng, scrapeMDF, scrapeTreinoficial} from "../controllers/scrapeController"
 import express from "express"
 import { authenticate, authorizeRole } from "../middleware/authMiddleware"
 
@@ -13,5 +13,6 @@ router.get("/subcomplot", ...adminOnly, scrapeSubcomplot)
 router.get("/belowapparel", ...adminOnly, scrapeBelowApparel)
 router.get("/bvnggvng", ...adminOnly, scrapeBvnggvng)
 router.get("/mdf", ...adminOnly, scrapeMDF)
+router.get("/treinoficial", ...adminOnly, scrapeTreinoficial)
 
 export default router

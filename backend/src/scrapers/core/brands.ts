@@ -5,6 +5,7 @@ import { Subcomplot } from "../brands/subcomplot"
 import { BelowApparel } from "../brands/belowapparel"
 import { Bvnggvng } from "../brands/bvnggvng"
 import { MDF } from "../brands/mdf"
+import { Treinoficial } from "../brands/treinoficial"
 
 const stores: { [key: string]: any } = {
   freshbrand: Freshbrand,
@@ -13,7 +14,8 @@ const stores: { [key: string]: any } = {
   subcomplot : Subcomplot,
   belowapparel : BelowApparel,
   bvnggvng : Bvnggvng,
-  mdf : MDF
+  mdf : MDF,
+  treinoficial: Treinoficial
 };
 
 export default stores

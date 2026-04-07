@@ -108,9 +108,22 @@ const seedBrands = async () => {
       isActive: true
     };
 
+    const treinoficial = {
+      name: "Treinoficial",
+      slug: "treinoficial",
+      description: "Streetwear 100% confeccionado en Chile",
+      website: "https://www.treinoficial.cl/",
+      logo: {
+        src: "https://cdnx.jumpseller.com/treino/image/no-image.jpg",
+        alt: "Logo Treinoficial",
+        backgroundColor: "#000000"
+      },
+      isActive: true
+    };
+
     // Usar updateOne con upsert para insertar si no existe, o actualizar si ya existe
     // De esta forma solo actualizamos los campos especificados sin borrar otros
-    const brands = [rudeboys, freshbrand, moreamor, subcomplot, belowapparel, bvnggvng, mdf];
+    const brands = [rudeboys, freshbrand, moreamor, subcomplot, belowapparel, bvnggvng, mdf, treinoficial];
     
     for (const brand of brands) {
       await Brand.updateOne(

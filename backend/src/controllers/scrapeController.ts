@@ -40,6 +40,7 @@ const scrapeSubcomplot = scrapeBase("subcomplot")
 const scrapeBelowApparel = scrapeBase("belowapparel")
 const scrapeBvnggvng = scrapeBase("bvnggvng")
 const scrapeMDF = scrapeBase("mdf")
+const scrapeTreinoficial = scrapeBase("treinoficial")
 
 export {
   scrapeFreshBrand,
@@ -49,5 +50,6 @@ export {
   scrapeSubcomplot,
   scrapeBelowApparel,
   scrapeBvnggvng,
-  scrapeMDF
+  scrapeMDF,
+  scrapeTreinoficial
 };
