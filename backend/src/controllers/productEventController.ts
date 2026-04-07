@@ -2,6 +2,7 @@ import Product from "../models/Product";
 import { Response, Request, NextFunction } from "express";
 import ProductEventModel from "../models/ProductEvent";
 import mongoose from "mongoose";
+import WishlistModel from "../models/Wishlist";
 
 // Obtner todos los productos
 const createProductEvent = async (req : Request, res : Response, next : NextFunction) => {
@@ -68,6 +69,50 @@ const createProductEvent = async (req : Request, res : Response, next : NextFunc
             viewsCount: 1,
             viewsLastNDays: 1,
             trendingScore: 1
+        }
+
+        // LÓGICA DE HISTORIAL/VISTOS RECIENTEMENTE
+        if (userId && !skipUpdate) {
+            // Se hace async flotante para no bloquear la respuesta HTTP
+            (async () => {
+                try {
+                    let recentsList = await WishlistModel.findOne({ userId, name: "Vistos Recientemente" });
+                    
+                    if (!recentsList) {
+                        recentsList = await WishlistModel.create({
+                            userId,
+                            name: "Vistos Recientemente",
+                            isDefault: false,
+                            visibility: "private",
+                            items: []
+                        });
+                    }
+
+                    // Remover si ya existía para actualizar posicionamiento
+                    const itemIndex = recentsList.items.findIndex(
+                        (item) => item.productId.toString() === productId
+                    );
+
+                    if (itemIndex !== -1) {
+                        recentsList.items.splice(itemIndex, 1);
+                    }
+
+                    // Agregar al principio
+                    recentsList.items.unshift({
+                        productId,
+                        addedAt: new Date()
+                    } as any);
+
+                    // Limitar a los últimos 30 elementos
+                    if (recentsList.items.length > 30) {
+                        recentsList.items = recentsList.items.slice(0, 30);
+                    }
+
+                    await recentsList.save();
+                } catch (error) {
+                    console.error("Error guardando Vistos Recientemente: ", error);
+                }
+            })();
         }
     }
 
