@@ -5,6 +5,7 @@ import brandsServices from "../services/brands"
 import type { Product, Brand } from "../Types/Types"
 import HorizontalSection from "../components/explore/HorizontalSection"
 import BrandStrip from "../components/explore/BrandStrip"
+import BrandOfTheWeek from "../components/explore/BrandOfTheWeek"
 import ProductQuickView from "../components/product/ProductQuickView"
 import ProductMasonry from "../components/product/ProductMansory"
 import { useInfiniteScroll } from "../Hooks/useInfiniteScroll"
@@ -19,6 +20,7 @@ export default function Explore() {
   const [newestProducts, setNewestProducts] = useState<Product[]>([])
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([])
   const [brands, setBrands] = useState<Brand[]>([])
+  const [heroBrand, setHeroBrand] = useState<Brand | null>(null)
 
   // Grid paginado "Todos los productos"
   const [products, setProducts] = useState<Product[]>([])
@@ -46,6 +48,12 @@ export default function Explore() {
         setNewestProducts(newest)
         setFeaturedProducts(featured)
         setBrands(dataBrands)
+        if (dataBrands.length > 0) {
+          // Select a random brand for the week spotlight
+          const randomIdx = Math.floor(Math.random() * dataBrands.length)
+          setHeroBrand(dataBrands[randomIdx])
+        }
+
         setProducts(gridPage.data)
         setTotal(gridPage.total)
         setHasMore(gridPage.hasMore)
@@ -95,6 +103,13 @@ export default function Explore() {
           <div className="rounded-lg px-4">
             {/* SECCIONES CURATORIALES */}
             <BrandStrip brands={brands} />
+
+            {heroBrand && (
+               <BrandOfTheWeek 
+                 brand={heroBrand} 
+                 onProductClick={(product) => setQuickViewProduct(product)} 
+               />
+            )}
 
             <HorizontalSection
               title={

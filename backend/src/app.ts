@@ -16,11 +16,13 @@ mongoose.set('strictQuery', false)
 
 // conexion bd
 if (config.MONGODB_URI) {
-  mongoose.connect(config.MONGODB_URI, { dbName: config.MONGODB_DBNAME }).catch((error) => {
-    logger.error('error connecting to MongoDB:', error.message)
-  }).then(() => {
-    logger.info('Connected to MongoDB')
-  })
+  mongoose.connect(config.MONGODB_URI, { dbName: config.MONGODB_DBNAME })
+    .then(() => {
+      logger.info('Connected to MongoDB')
+    })
+    .catch((error) => {
+      logger.error('error connecting to MongoDB:', error.message)
+    })
 }
 
 // CORS — en producción reemplazar origin por el dominio real via FRONTEND_URL env var

@@ -14,13 +14,18 @@ const getAllProducts = async (req: Request, res: Response, next: NextFunction) =
     const allowedSortFields = ['createdAt', 'price', 'trendingScore', 'favoritesCount', 'title']
     const sortField = allowedSortFields.includes(sort) ? sort : 'createdAt'
 
+    const filter: any = {}
+    if (req.query.brand) {
+      filter.brand = req.query.brand
+    }
+
     const [products, total] = await Promise.all([
-      Product.find({})
+      Product.find(filter)
         .populate('brand')
         .sort({ [sortField]: order })
         .skip(skip)
         .limit(limit),
-      Product.countDocuments({})
+      Product.countDocuments(filter)
     ])
 
     const pages = Math.ceil(total / limit)

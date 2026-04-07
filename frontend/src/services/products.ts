@@ -14,10 +14,11 @@ const getProducts = async (
   page = 1,
   limit = 20,
   sort = "createdAt",
-  order = "desc"
+  order = "desc",
+  brand?: string
 ): Promise<PaginatedResponse> => {
   const res = await axios.get(API_URL, {
-    params: { page, limit, sort, order },
+    params: { page, limit, sort, order, ...(brand ? { brand } : {}) },
   });
   return res.data;
 };
