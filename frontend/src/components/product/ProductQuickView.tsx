@@ -51,7 +51,7 @@ export default function ProductQuickView({ product, open, onClose }: Props) {
         {/* Botón cerrar */}
         <button
             onClick={handleClose}
-            className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100"
+            className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center border-2 border-black bg-white text-black transition-colors hover:bg-black hover:text-white"
         >
             <FontAwesomeIcon icon={faXmark} />
         </button>
@@ -60,7 +60,7 @@ export default function ProductQuickView({ product, open, onClose }: Props) {
             {/* GALERÍA */}
             <div>
             {/* Imagen principal */}
-            <div className="aspect-3/4 overflow-hidden rounded bg-slate-100 cursor-zoom-in group relative">
+            <div className="aspect-3/4 overflow-hidden border-2 border-black bg-white cursor-zoom-in group relative">
                 <HoverImageZoom
                     src={images[activeImage].src}
                     alt={images[activeImage].alt || product.title}
@@ -76,10 +76,10 @@ export default function ProductQuickView({ product, open, onClose }: Props) {
                     <button
                     key={index}
                     onClick={() => setActiveImage(index)}
-                    className={`overflow-hidden rounded border ${
+                    className={`min-h-[50px] overflow-hidden border-2 transition-all ${
                         activeImage === index
-                        ? "border-slate-900"
-                        : "border-transparent hover:border-slate-300"
+                        ? "border-black shadow-[2px_2px_0_0_#000]"
+                        : "border-transparent hover:border-black"
                     }`}
                     >
                     <img
@@ -95,11 +95,11 @@ export default function ProductQuickView({ product, open, onClose }: Props) {
 
             {/* INFO */}
             <div className="flex flex-col gap-3">
-                <p className="text-sm text-slate-500">
+                <p className="w-fit border border-black bg-black px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-white shadow-[2px_2px_0_0_#000]">
                     {product.brand.name}
                 </p>
 
-                <h2 className="text-lg font-semibold">
+                <h2 className="mt-2 text-2xl font-black uppercase tracking-tighter text-black">
                     {product.title}
                 </h2>
 
@@ -140,7 +140,7 @@ export default function ProductQuickView({ product, open, onClose }: Props) {
                         handleClose()
                         navigate(`/producto/${product.id}`)
                     }}
-                    className="flex-1 rounded border-2 border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+                    className="flex-1 border-2 border-black bg-white px-4 py-2.5 text-sm font-bold uppercase tracking-widest text-black shadow-[2px_2px_0_0_#000] transition-all hover:-translate-y-1 hover:bg-black hover:text-white hover:shadow-[4px_4px_0_0_#000] active:translate-y-0 active:shadow-none"
                 >
                     Ver en detalle
                 </button>
@@ -151,7 +151,7 @@ export default function ProductQuickView({ product, open, onClose }: Props) {
                         handleClose()
                         window.open(product.url, "_blank", "noopener,noreferrer")
                     }}
-                    className="flex-1 rounded bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
+                    className="flex-1 border-2 border-black bg-black px-4 py-2.5 text-sm font-bold uppercase tracking-widest text-white shadow-[2px_2px_0_0_#000] transition-all hover:-translate-y-1 hover:bg-yellow-400 hover:text-black hover:shadow-[4px_4px_0_0_#000] active:translate-y-0 active:shadow-none"
                 >
                     Comprar en tienda
                     <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="ml-1.5 text-xs opacity-70" />

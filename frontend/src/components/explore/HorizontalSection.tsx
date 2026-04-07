@@ -31,9 +31,9 @@ export default function HorizontalSection({ title, products, onProductClick }: P
   return (
     <section className="mt-8">
       {/* Header */}
-      <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-lg font-medium">{title}</h2>
-        <button className="text-sm text-slate-500 hover:underline">
+      <div className="mb-3 flex items-center justify-between border-b-4 border-black pb-2">
+        <h2 className="text-xl font-black uppercase tracking-tighter text-black">{title}</h2>
+        <button className="text-sm font-bold uppercase tracking-widest text-black underline decoration-2 underline-offset-4 transition-colors hover:bg-yellow-400">
           Ver más
         </button>
       </div>
@@ -45,10 +45,10 @@ export default function HorizontalSection({ title, products, onProductClick }: P
           onClick={() => scroll("left")}
           className="
             flex h-10 w-10 items-center justify-center
-            rounded-full border border-slate-200 bg-white
-            text-slate-600
-            transition
-            hover:bg-slate-100 hover:text-slate-900
+            rounded-sm border-2 border-black bg-white
+            text-black shadow-[2px_2px_0_0_#000]
+            transition-all
+            hover:bg-black hover:text-white active:translate-y-px active:shadow-none
           "
           aria-label="Scroll izquierda"
         >
@@ -78,10 +78,10 @@ export default function HorizontalSection({ title, products, onProductClick }: P
           onClick={() => scroll("right")}
           className="
             flex h-10 w-10 items-center justify-center
-            rounded-full border border-slate-200 bg-white
-            text-slate-600
-            transition
-            hover:bg-slate-100 hover:text-slate-900
+            rounded-sm border-2 border-black bg-white
+            text-black shadow-[2px_2px_0_0_#000]
+            transition-all
+            hover:bg-black hover:text-white active:translate-y-px active:shadow-none
           "
           aria-label="Scroll derecha"
         >

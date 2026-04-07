@@ -19,7 +19,7 @@ export default function ProductCardHover({ product, onClick }: Props) {
     return (
         <div
             onClick={handleInternalClick}
-            className="group relative cursor-pointer overflow-hidden rounded-lg bg-slate-100"
+            className="group relative cursor-pointer overflow-hidden rounded-sm border-2 border-black bg-white shadow-none transition-all hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000]"
         >
       {/* Imagen */}
       <img
@@ -48,11 +48,11 @@ export default function ProductCardHover({ product, onClick }: Props) {
 
         {/* Bottom info */}
         <div className="text-white">
-          <p className="text-xs opacity-80">{product.brand.name}</p>
-          <p className="text-sm font-medium leading-tight">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-yellow-400">{product.brand.name}</p>
+          <p className="text-sm font-bold leading-tight">
             {product.title}
           </p>
-          <p className="mt-1 text-sm font-semibold">
+          <p className="mt-1 text-sm font-extrabold">
             ${product.price?.toLocaleString("es-CL")}
           </p>
         </div>

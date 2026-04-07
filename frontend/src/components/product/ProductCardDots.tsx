@@ -44,7 +44,7 @@ export default function ProductCardDots({ product, onClick }: Props) {
   return (
     <div
       onClick={handleInternalClick}
-      className="group relative cursor-pointer overflow-hidden rounded-lg bg-white"
+      className="group relative cursor-pointer overflow-hidden rounded-sm border-2 border-black bg-white shadow-none transition-all hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000] active:translate-y-0 active:shadow-[2px_2px_0_0_#000]"
       onMouseEnter={onMouseEnterCard}
     >
       {/* Imagen */}
@@ -69,7 +69,7 @@ export default function ProductCardDots({ product, onClick }: Props) {
           "
         >
           {/* Marca */}
-          <span className="rounded bg-black/60 px-2 py-1 text-xs text-white backdrop-blur">
+          <span className="border border-black bg-black px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-[2px_2px_0_0_#000]">
             {product.brand.name}
           </span>
 
@@ -118,11 +118,11 @@ export default function ProductCardDots({ product, onClick }: Props) {
       </div>
 
       {/* Info siempre visible */}
-      <div className="p-2">
-        <p className="line-clamp-2 text-sm font-medium">
+      <div className="border-t-2 border-black p-2 bg-white">
+        <p className="line-clamp-2 text-xs font-bold leading-tight sm:text-sm">
           {product.title}
         </p>
-        <p className="mt-1 text-sm font-semibold">
+        <p className="mt-1 text-sm font-extrabold text-slate-900">
           ${product.price?.toLocaleString("es-CL")}
         </p>
       </div>

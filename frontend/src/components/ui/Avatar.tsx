@@ -17,7 +17,7 @@ export default function Avatar({ username, src, size = 32 }: Props) {
         src={baseUrl + src}
         alt={username}
         style={{ width: size, height: size }}
-        className="rounded-full object-cover"
+        className="rounded-none border-2 border-black bg-white object-cover shadow-[2px_2px_0_0_#000]"
       />
     )
   }
@@ -32,7 +32,7 @@ export default function Avatar({ username, src, size = 32 }: Props) {
         height: size,
         backgroundColor: bgColor,
       }}
-      className="flex items-center justify-center rounded-full text-sm font-semibold text-white"
+      className="flex items-center justify-center rounded-none border-2 border-black text-sm font-black uppercase text-white shadow-[2px_2px_0_0_#000]"
     >
       {letter}
     </div>

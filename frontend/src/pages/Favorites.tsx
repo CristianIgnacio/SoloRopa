@@ -30,9 +30,9 @@ export default function Favorites() {
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-6">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Tus colecciones</h1>
-        <button className="rounded bg-slate-900 px-4 py-2 text-sm text-white">
+      <div className="mb-6 flex items-center justify-between border-b-4 border-black pb-2">
+        <h1 className="text-2xl font-black uppercase tracking-tighter text-black">Tus colecciones</h1>
+        <button className="border-2 border-black bg-black px-4 py-2 text-sm font-bold uppercase tracking-widest text-white shadow-[2px_2px_0_0_#000] transition-all hover:bg-yellow-400 hover:text-black active:translate-y-px active:shadow-none">
           + Nueva colección
         </button>
       </div>

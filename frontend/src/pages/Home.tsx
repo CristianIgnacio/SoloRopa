@@ -71,13 +71,13 @@ const Home = () => {
             />
 
             {loading && (
-                <p className="mt-6 text-center text-sm text-slate-500">
-                    Cargando más productos...
+                <p className="mt-8 border-t-2 border-black pt-4 text-center text-xs font-bold uppercase tracking-widest text-black">
+                    Cargando drop...
                 </p>
             )}
 
             {!hasMore && products.length > 0 && (
-                <p className="mt-6 text-center text-sm text-slate-400">
+                <p className="mt-8 border-t-2 border-black pt-4 text-center text-xs font-bold uppercase tracking-widest text-slate-500">
                     Has visto todos los productos 🎉
                 </p>
             )}

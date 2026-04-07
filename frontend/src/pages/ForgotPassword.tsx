@@ -30,13 +30,13 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
+    <div className="flex min-h-screen items-center justify-center px-4 pt-16">
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="w-full max-w-sm rounded-lg bg-white p-6 shadow"
+        className="w-full max-w-sm rounded-sm border-2 border-black bg-white p-6 shadow-[8px_8px_0_0_#000]"
       >
-        <h1 className="mb-2 text-xl font-semibold text-slate-900">Recuperar cuenta</h1>
-        <p className="mb-6 text-sm text-slate-500">
+        <h1 className="mb-2 text-2xl font-black uppercase tracking-tighter text-black border-b-4 border-black pb-2">Recuperar cuenta</h1>
+        <p className="mb-6 mt-4 text-sm font-bold text-slate-800">
           Ingresa tu correo electronico y te enviaremos un enlace para restablecer tu contrasena.
         </p>
 
@@ -58,13 +58,13 @@ export default function ForgotPassword() {
           </p>
         )}
 
-        <div className="relative mb-4">
-          <FontAwesomeIcon icon={faEnvelope} className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400" />
+        <div className="relative mb-6">
+          <FontAwesomeIcon icon={faEnvelope} className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-black" />
           <input
             type="email"
             name="email"
             placeholder="Correo electronico"
-            className="w-full rounded border py-2 pl-9 pr-3 outline-none focus:border-slate-500"
+            className="w-full rounded-none border-2 border-black bg-white py-2 pl-9 pr-3 text-sm font-bold shadow-[2px_2px_0_0_#000] outline-none transition-shadow focus:shadow-[4px_4px_0_0_#000]"
             value={values.email}
             onChange={handleChange}
             required
@@ -75,15 +75,15 @@ export default function ForgotPassword() {
         <button
           type="submit"
           disabled={loading || !!message}
-          className="flex w-full items-center justify-center gap-2 rounded bg-slate-900 py-2.5 text-sm font-medium text-white transition hover:bg-slate-800 disabled:opacity-50"
+          className="flex w-full items-center justify-center gap-2 rounded-none border-2 border-black bg-black py-2.5 font-bold uppercase tracking-widest text-white shadow-[2px_2px_0_0_#000] transition-all hover:bg-yellow-400 hover:text-black active:translate-y-px active:shadow-none disabled:opacity-50"
         >
           <FontAwesomeIcon icon={faPaperPlane} />
           {loading ? "Enviando..." : "Enviar enlace"}
         </button>
 
-        <p className="mt-5 text-center text-sm text-slate-600">
+        <p className="mt-6 border-t-2 border-black pt-4 text-center text-xs font-bold uppercase tracking-widest text-black">
           {"Recordaste tu contrasena? "}
-          <Link to="/login" className="font-medium text-slate-900 hover:underline">
+          <Link to="/login" className="ml-1 underline decoration-2 underline-offset-4 transition-colors hover:bg-yellow-400">
             Inicia sesion
           </Link>
         </p>

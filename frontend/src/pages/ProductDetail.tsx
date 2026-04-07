@@ -84,7 +84,7 @@ export default function ProductDetail() {
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
         {/* GALERÍA */}
         <div className="flex flex-col gap-4">
-          <div className="group relative aspect-[3/4] w-full overflow-hidden rounded-2xl bg-slate-100 shadow-sm cursor-zoom-in">
+          <div className="group relative aspect-[3/4] w-full overflow-hidden border-4 border-black bg-white shadow-[8px_8px_0_0_#000] cursor-zoom-in">
             {images && images.length > 0 ? (
               <HoverImageZoom
                 src={images[activeImage].src}
@@ -105,10 +105,10 @@ export default function ProductDetail() {
                 <button
                   key={index}
                   onClick={() => setActiveImage(index)}
-                  className={`overflow-hidden rounded-lg border-2 transition-all ${
+                  className={`min-h-[50px] overflow-hidden border-2 transition-all ${
                     activeImage === index
-                      ? "border-slate-900 shadow-sm"
-                      : "border-transparent opacity-70 hover:opacity-100"
+                      ? "border-black shadow-[4px_4px_0_0_#000]"
+                      : "border-transparent hover:border-black"
                   }`}
                 >
                   <img
@@ -124,18 +124,18 @@ export default function ProductDetail() {
 
         {/* INFO */}
         <div className="flex flex-col pt-4 lg:pt-8">
-          <div className="mb-2 flex items-center justify-between">
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold tracking-wide text-slate-600 uppercase">
+          <div className="mb-4 flex items-center justify-between">
+            <span className="border-2 border-black bg-black px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white shadow-[2px_2px_0_0_#000]">
               {product.brand.name}
             </span>
             <FavoriteButton productId={product.id} />
           </div>
 
-          <h1 className="mb-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+          <h1 className="mb-4 mt-2 text-4xl font-black uppercase tracking-tighter text-black sm:text-5xl border-b-4 border-black pb-4">
             {product.title}
           </h1>
 
-          <div className="mb-8 flex items-end gap-3">
+          <div className="mb-8 mt-4 flex items-end gap-3">
             <p className="text-3xl font-bold text-slate-900">
               ${(selectedVariant?.price ?? product.price)?.toLocaleString("es-CL")}
             </p>
@@ -153,12 +153,12 @@ export default function ProductDetail() {
             </div>
           )}
 
-          <div className="mb-8 rounded-xl bg-green-50 p-4 border border-green-100">
-            <h4 className="flex items-center gap-2 text-sm font-semibold text-green-800">
+          <div className="mb-8 border-2 border-black bg-green-400 p-4 shadow-[4px_4px_0_0_#000]">
+            <h4 className="flex items-center gap-2 text-sm font-black uppercase tracking-widest text-black">
               <FontAwesomeIcon icon={faArrowTrendDown} />
               Buen precio detectado
             </h4>
-            <p className="mt-1 text-sm text-green-700 text-balance">
+            <p className="mt-2 text-sm font-bold text-slate-900 text-balance">
               Este producto tiene un precio competitivo en el mercado actual.
             </p>
           </div>
@@ -168,7 +168,7 @@ export default function ProductDetail() {
               trackClick()
               window.open(product.url, "_blank", "noopener,noreferrer")
             }}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-8 py-4 text-base font-semibold text-white shadow-lg transition-all hover:scale-[1.02] hover:bg-slate-800 hover:shadow-xl active:scale-[0.98]"
+            className="flex w-full items-center justify-center gap-2 border-4 border-black bg-black px-8 py-4 text-lg font-black uppercase tracking-widest text-white shadow-[4px_4px_0_0_#000] transition-all hover:-translate-y-1 hover:bg-yellow-400 hover:text-black hover:shadow-[8px_8px_0_0_#000] active:translate-y-0 active:shadow-none"
           >
             Comprar en {product.brand.name}
             <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="text-sm" />

@@ -23,7 +23,7 @@ export default function BrandCarousel({ brands, onSelect }: Props) {
 
   return (
     <section className="mt-4">
-      <h2 className="mb-4 text-lg font-medium">Explorar por marca</h2>
+      <h2 className="mb-4 text-xl font-black uppercase tracking-tighter text-black border-b-4 border-black pb-2">Explorar por marca</h2>
 
       <div className="flex items-center gap-3">
         {/* Botón izquierda */}
@@ -31,9 +31,9 @@ export default function BrandCarousel({ brands, onSelect }: Props) {
           onClick={() => scroll("left")}
           className="
             flex h-10 w-10 items-center justify-center
-            rounded-full bg-white
-            text-slate-500 transition
-            hover:bg-slate-100 hover:text-slate-900
+            rounded-sm border-2 border-black bg-white
+            text-black shadow-[2px_2px_0_0_#000] transition-all
+            hover:bg-black hover:text-white active:translate-y-px active:shadow-none
           "
           aria-label="Scroll marcas izquierda"
         >
@@ -61,9 +61,10 @@ export default function BrandCarousel({ brands, onSelect }: Props) {
                 style={{ backgroundColor: brand.logo?.backgroundColor || "#ffffff" }}
                 className="
                   flex h-24 w-24 items-center justify-center
-                  rounded-full border-2 border-slate-200
+                  rounded-none border-2 border-black
+                  shadow-none
                   transition-all duration-200
-                  hover:scale-110 hover:border-slate-900 hover:shadow-lg
+                  hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000] active:translate-y-0 active:shadow-[2px_2px_0_0_#000]
                 "
               >
                 <img
@@ -74,7 +75,7 @@ export default function BrandCarousel({ brands, onSelect }: Props) {
                 />
               </div>
 
-              <span className="mt-2 whitespace-nowrap text-sm text-slate-700">
+              <span className="mt-4 whitespace-nowrap text-xs font-bold uppercase tracking-widest text-black bg-white border border-black px-2 shadow-[2px_2px_0_0_#000]">
                 {brand.name}
               </span>
             </button>
@@ -86,9 +87,9 @@ export default function BrandCarousel({ brands, onSelect }: Props) {
           onClick={() => scroll("right")}
           className="
             flex h-10 w-10 items-center justify-center
-            rounded-full bg-white
-            text-slate-500 transition
-            hover:bg-slate-100 hover:text-slate-900
+            rounded-sm border-2 border-black bg-white
+            text-black shadow-[2px_2px_0_0_#000] transition-all
+            hover:bg-black hover:text-white active:translate-y-px active:shadow-none
           "
           aria-label="Scroll marcas derecha"
         >

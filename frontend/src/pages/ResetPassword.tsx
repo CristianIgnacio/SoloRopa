@@ -41,13 +41,13 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
+    <div className="flex min-h-screen items-center justify-center px-4 pt-16">
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="w-full max-w-sm rounded-lg bg-white p-6 shadow"
+        className="w-full max-w-sm rounded-sm border-2 border-black bg-white p-6 shadow-[8px_8px_0_0_#000]"
       >
-        <h1 className="mb-2 text-xl font-semibold text-slate-900">Nueva contraseña</h1>
-        <p className="mb-6 text-sm text-slate-500">
+        <h1 className="mb-2 text-2xl font-black uppercase tracking-tighter text-black border-b-4 border-black pb-2">Nueva contraseña</h1>
+        <p className="mb-6 mt-4 text-sm font-bold text-slate-800">
           Ingresa tu nueva contraseña para acceder a tu cuenta.
         </p>
 
@@ -67,13 +67,13 @@ export default function ResetPassword() {
 
         {!message && (
           <>
-            <div className="relative mb-3">
-              <FontAwesomeIcon icon={faLock} className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400" />
+            <div className="relative mb-4">
+              <FontAwesomeIcon icon={faLock} className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-black" />
               <input
                 type="password"
                 name="password"
                 placeholder="Nueva Contraseña"
-                className="w-full rounded border py-2 pl-9 pr-3 outline-none focus:border-slate-500"
+                className="w-full rounded-none border-2 border-black bg-white py-2 pl-9 pr-3 text-sm font-bold shadow-[2px_2px_0_0_#000] outline-none transition-shadow focus:shadow-[4px_4px_0_0_#000]"
                 value={values.password}
                 onChange={handleChange}
                 required
@@ -86,12 +86,12 @@ export default function ResetPassword() {
             )}
 
             <div className="relative mb-4">
-              <FontAwesomeIcon icon={faLock} className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400" />
+              <FontAwesomeIcon icon={faLock} className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-black" />
               <input
                 type="password"
                 name="repeatPassword"
                 placeholder="Repetir Contraseña"
-                className="w-full rounded border py-2 pl-9 pr-3 outline-none focus:border-slate-500"
+                className="w-full rounded-none border-2 border-black bg-white py-2 pl-9 pr-3 text-sm font-bold shadow-[2px_2px_0_0_#000] outline-none transition-shadow focus:shadow-[4px_4px_0_0_#000]"
                 value={values.repeatPassword}
                 onChange={handleChange}
                 required
@@ -106,7 +106,7 @@ export default function ResetPassword() {
             <button
               type="submit"
               disabled={loading}
-              className="mt-2 flex w-full items-center justify-center gap-2 rounded bg-slate-900 py-2.5 text-sm font-medium text-white transition hover:bg-slate-800 disabled:opacity-50"
+              className="mt-2 flex w-full items-center justify-center gap-2 rounded-none border-2 border-black bg-black py-2.5 font-bold uppercase tracking-widest text-white shadow-[2px_2px_0_0_#000] transition-all hover:bg-yellow-400 hover:text-black active:translate-y-px active:shadow-none disabled:opacity-50"
             >
               <FontAwesomeIcon icon={faLock} />
               {loading ? "Actualizando..." : "Restablecer contraseña"}
@@ -114,8 +114,8 @@ export default function ResetPassword() {
           </>
         )}
 
-        <p className="mt-5 text-center text-sm text-slate-600">
-          <Link to="/login" className="font-medium text-slate-900 hover:underline">
+        <p className="mt-6 border-t-2 border-black pt-4 text-center text-xs font-bold uppercase tracking-widest text-black">
+          <Link to="/login" className="underline decoration-2 underline-offset-4 transition-colors hover:bg-yellow-400">
             ← Volver al Login
           </Link>
         </p>

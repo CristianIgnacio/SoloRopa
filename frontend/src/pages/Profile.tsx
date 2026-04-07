@@ -83,46 +83,48 @@ export default function Profile() {
         />
 
         <div>
-          <h1 className="text-xl font-semibold">
+          <h1 className="text-4xl font-black uppercase tracking-tighter text-black border-b-4 border-black pb-1">
             {profile.username}
           </h1>
 
           {profile.role && (
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-2 inline-block bg-black px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-white shadow-[2px_2px_0_0_#000]">
               {profile.role}
             </p>
           )}
 
-          <div className="mt-3 flex gap-4 text-sm text-slate-600">
-            <span>
-              <strong>{wishlists.length}</strong> colecciones
+          <div className="mt-4 flex flex-wrap gap-4 text-xs font-bold uppercase tracking-widest text-slate-800">
+            <span className="border-2 border-black bg-white px-3 py-1 shadow-[2px_2px_0_0_#000]">
+              <span className="text-lg font-black text-black">{wishlists.length}</span> colecciones
             </span>
-            <span>
-              <strong>{wishlists[0].items.length}</strong> favoritos
-            </span>
+            {wishlists.length > 0 && (
+              <span className="border-2 border-black bg-white px-3 py-1 shadow-[2px_2px_0_0_#000]">
+                <span className="text-lg font-black text-black">{wishlists[0].items.length}</span> favoritos
+              </span>
+            )}
           </div>
         </div>
       </div>
 
       {/* COLECCIONES */}
-      <div className="mt-10">
-        <h2 className="mb-4 text-lg font-medium">
+      <div className="mt-16 border-t-4 border-black pt-8">
+        <h2 className="mb-6 text-2xl font-black uppercase tracking-tighter text-black">
           Colecciones
         </h2>
 
         {wishlists.length === 0 ? (
-          <p className="text-sm text-slate-500">
+          <p className="text-sm font-bold uppercase tracking-widest text-slate-500">
             Aún no hay colecciones públicas
           </p>
         ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
             {wishlists.map((w : Wishlist) => (
               <div
                 key={w.id}
-                className="rounded-lg border bg-white p-4 hover:shadow"
+                className="group rounded-none border-2 border-black bg-white p-6 shadow-[4px_4px_0_0_#000] transition-all hover:-translate-y-1 hover:bg-yellow-400 hover:shadow-[8px_8px_0_0_#000]"
               >
-                <p className="font-medium">{w.name}</p>
-                <p className="text-sm text-slate-500">
+                <p className="text-lg font-black uppercase tracking-tighter text-black">{w.name}</p>
+                <p className="mt-1 text-xs font-bold uppercase tracking-widest text-slate-900">
                   {w.items.length} productos
                 </p>
               </div>

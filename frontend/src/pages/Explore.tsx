@@ -144,18 +144,18 @@ export default function Explore() {
 
       {/* GRID INFINITO */}
       <section className="mt-12">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-medium">
+        <div className="mb-4 flex items-center justify-between border-b-4 border-black pb-2">
+          <h2 className="text-xl font-black uppercase tracking-tighter text-black">
             Todos los productos
           </h2>
-          <span className="text-sm text-slate-500">
+          <span className="font-bold tracking-widest text-slate-500 text-sm">
             {total} resultados
           </span>
         </div>
 
         {products.length === 0 && !loading ? (
-          <div className="rounded-lg border bg-white p-8 text-center">
-            <p className="text-sm text-slate-600">
+          <div className="rounded-sm border-2 border-black bg-white p-8 text-center shadow-[4px_4px_0_0_#000]">
+            <p className="font-bold uppercase tracking-widest text-slate-600">
               No encontramos productos con estos filtros.
             </p>
           </div>
