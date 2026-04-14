@@ -7,7 +7,7 @@ const getAllProducts = async (req: Request, res: Response, next: NextFunction) =
     const page = Math.max(1, Number(req.query.page) || 1)
     const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20))
     const sort = (req.query.sort as string) || 'createdAt'
-    const order = req.query.order === 'asc' ? 1 : -1
+    const order = req.query.order === 'desc' ? -1 : 1
 
     const skip = (page - 1) * limit
 
@@ -17,6 +17,46 @@ const getAllProducts = async (req: Request, res: Response, next: NextFunction) =
     const filter: any = {}
     if (req.query.brand) {
       filter.brand = req.query.brand
+    }
+
+    if (req.query.category) {
+      filter.category = req.query.category
+    }
+
+    if (req.query.gender) {
+      filter.gender = req.query.gender
+    }
+
+    if (req.query.q) {
+      const qRegex = new RegExp(String(req.query.q), "i")
+      filter.$or = [
+        { title: qRegex },
+        { tags: qRegex },
+        { category: qRegex }
+      ]
+    }
+
+    if (req.query.minPrice || req.query.maxPrice) {
+      filter.price = {}
+      if (req.query.minPrice) filter.price.$gte = Number(req.query.minPrice)
+      if (req.query.maxPrice) filter.price.$lte = Number(req.query.maxPrice)
+    }
+
+    // Filtros sobre canonicalTags (fit, style, color)
+    if (req.query.fit) {
+      filter['canonicalTags.fit'] = { $in: String(req.query.fit).split(',') }
+    }
+
+    if (req.query.style) {
+      filter['canonicalTags.style'] = { $in: String(req.query.style).split(',') }
+    }
+
+    if (req.query.color) {
+      filter['canonicalTags.color'] = { $in: String(req.query.color).split(',') }
+    }
+
+    if (req.query.inStock === 'true') {
+      filter.inStock = true
     }
 
     const [products, total] = await Promise.all([

@@ -1,5 +1,6 @@
 import mongoose, { model, Schema, Document } from "mongoose"
 import { ProductCategory, PRODUCT_CATEGORIES } from "../constants/productCategories";
+import { Gender } from "../scrapers/domain/enums";
 import type {CanonicalTags} from "../scrapers/domain/Tag"
 
 export interface IProduct extends Document {
@@ -17,9 +18,10 @@ export interface IProduct extends Document {
   inStock?: boolean;
   isActive?: boolean;
 
-  // categorias
+  // categorias y genero
   category : ProductCategory;
   categoryConfidence: number
+  gender?: Gender;
 
   // tags
   tags : string[],
@@ -58,6 +60,7 @@ const ProductSchema = new Schema<IProduct>({
   isActive: { type: Boolean, required: false },
   category : {type : String, enum: PRODUCT_CATEGORIES,default : "otros", lowercase : true},
   categoryConfidence : {type : Number, default: 0},
+  gender: { type: String, enum: Object.values(Gender), required: false },
   tags : [{type : String, lowercase : true}],
   canonicalTags: {
     type: Schema.Types.Mixed,
