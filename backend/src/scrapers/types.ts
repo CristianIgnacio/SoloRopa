@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import type { CanonicalTags } from "../scrapers/domain/Tag";
+import { Gender } from "../scrapers/domain/enums";
 
 export type UpsertProductInput = {
   title: string;
@@ -15,6 +16,7 @@ export type UpsertProductInput = {
 
   category?: string;
   categoryConfidence?: number;
+  gender?: Gender;
 
   tags?: string[];
 

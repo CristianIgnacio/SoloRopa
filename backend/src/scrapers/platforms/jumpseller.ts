@@ -1,18 +1,25 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
 import { IProduct } from "../../models/Product";
+import { normalizeProductMetadata } from "../tag-engine";
+import type { CanonicalTags } from "../domain/Tag";
+import { ProductCategory } from "../../constants/productCategories";
+import { Gender } from "../domain/enums";
 
 export interface JumpsellerProduct extends Partial<IProduct> {
   title: string;
   price: number | null;
   currency?: string | null;
   url: string;
-  images?: { src: string; alt?: string }[] | [];
-  category: string;
+  images?: { src: string; alt?: string }[];
+  category: ProductCategory;
   tags: string[];
   inStock?: boolean;
   isActive?: boolean;
   variants?: { title: string; sku?: string; price?: number; comparePrice?: number; inStock?: boolean }[];
+  canonicalTags?: CanonicalTags;
+  gender?: Gender;
+  categoryConfidence?: number;
   raw?: any;
 }
 
@@ -87,22 +94,66 @@ const scrapeJumpsellerBase = async (baseUrl: string): Promise<JumpsellerProduct[
               }
             }
 
-            let title = parsed.name || $html('h1.page-header, h1.product-name, h1').first().text().trim();
+            let title = parsed.name || $html('h1.page-header, h1.product-name, h1').first().text();
+            if (title) {
+                title = title.replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&#39;/g, "'");
+                title = title.replace(/\s+/g, ' ').trim();
+            }
             
             let finalImages: {src: string, alt: string}[] = [];
-            if (parsed.image) {
+            
+            // Preferir imágenes del HTML para obtener TODAS, no solo main
+            const htmlImgs = new Set<string>();
+            $html('.product-images img, .product-image img, #product-images img, .slick-slide img, #slider img, .thumb img, .product-slider img').each((i, el) => {
+              let src = $html(el).attr('src') || $html(el).attr('data-src');
+              if (src && !src.includes('avatar') && !src.includes('logo')) {
+                src = src.replace(/\/resize\/\d+\/\d+/, ''); // Alta resolución
+                if (!src.startsWith('http') && !src.startsWith('//')) src = baseUrl + src;
+                if (src.startsWith('//')) src = 'https:' + src;
+                htmlImgs.add(src);
+              }
+            });
+
+            if (htmlImgs.size > 0) {
+              finalImages = Array.from(htmlImgs).map(src => ({ src, alt: title }));
+            } else if (parsed.image) {
               if (Array.isArray(parsed.image)) {
                 finalImages = parsed.image.map((img: string) => ({ src: img, alt: title }));
               } else if (typeof parsed.image === "string") {
                 finalImages = [{ src: parsed.image, alt: title }];
               }
-            } else {
-               // Fallback agarrando img
-               const srcAttr = $html('.product-image img, #product-image img').first().attr('src');
-               if (srcAttr) finalImages = [{ src: srcAttr, alt: title }];
             }
 
+            // Extraer Variantes (Tallas)
+            const extractedVariants: any[] = [];
+            $html('select.prod-options option, .product-option select option').each((i, el) => {
+              const stockStr = $html(el).attr('data-variant-stock');
+              if (stockStr !== undefined) {
+                  const varInStock = stockStr !== '0' && !$html(el).attr('disabled');
+                  let varTitle = $html(el).text().replace(/– Agotado/i, '').trim();
+                  if (varTitle) {
+                    extractedVariants.push({ 
+                      title: varTitle, 
+                      inStock: varInStock,
+                      price: price 
+                    });
+                  }
+              }
+            });
+
+            const rawTags = parsed.category && parsed.category.toLowerCase() !== 'otros' 
+                         ? [parsed.category.toLowerCase()] 
+                         : [];
+            $html('.tags li, ul.tags li, .product-tags a, a[href*="/search?tag="]').each((i, el) => {
+              const tagTxt = $html(el).text().trim().toLowerCase();
+              if (tagTxt && !rawTags.includes(tagTxt)) rawTags.push(tagTxt);
+            });
+
+            const description = $html('meta[name="description"]').attr('content') || "";
+
             if (title && price) {
+              const normalized = normalizeProductMetadata(title, rawTags, description);
+
               allProducts.push({
                 title,
                 url,
@@ -111,9 +162,12 @@ const scrapeJumpsellerBase = async (baseUrl: string): Promise<JumpsellerProduct[
                 inStock,
                 isActive: inStock,
                 images: finalImages,
-                category: parsed.category ?? 'otros',
-                tags: [],
-                variants: [],
+                category: normalized.category,
+                categoryConfidence: normalized.categoryConfidence,
+                gender: normalized.gender,
+                tags: normalized.tags,
+                canonicalTags: normalized.canonicalTags,
+                variants: extractedVariants.length > 0 ? extractedVariants : [],
                 raw: parsed
               });
             }

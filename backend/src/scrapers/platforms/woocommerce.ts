@@ -1,8 +1,8 @@
 import axios from "axios";
 import { IProduct } from "../../models/Product";
-// import * as cheerio from "cheerio";
-import { processProduct } from "../tag-engine";
-import { wooToRawProduct } from "../adapters/wooToRawProduct";
+import { normalizeProductMetadata } from "../tag-engine";
+import type { CanonicalTags } from "../domain/Tag";
+import { Gender } from "../domain/enums";
 
 export interface WooCommerceProduct extends Partial<IProduct> {
   title: string;
@@ -10,7 +10,13 @@ export interface WooCommerceProduct extends Partial<IProduct> {
   currency?: string | null;
   url: string;
   image?: string | null;
+  images?: { src: string; alt?: string }[];
   inStock?: boolean;
+  isActive?: boolean;
+  variants?: { title: string; inStock?: boolean; price?: number }[];
+  canonicalTags?: CanonicalTags;
+  gender?: Gender;
+  categoryConfidence?: number;
   raw?: any;
 }
 
@@ -57,12 +63,13 @@ const scrapeWooCommerceBase = async (baseUrl: string): Promise<WooCommerceProduc
               }) 
                 ?? []);
 
-          const tags = p.categories.map( (c : any) => c.name.toLowerCase())
+          const rawTags = p.categories ? p.categories.map((c: any) => c.slug.toLowerCase()) : [];
 
-          const category = tags[0]
+          let description = "";
+          if (p.description) description += p.description;
+          if (p.short_description) description += " " + p.short_description;
 
-          const rawProduct = wooToRawProduct(p, baseUrl);
-          const normalized = processProduct(rawProduct);
+          const normalized = normalizeProductMetadata(p.name, rawTags, description);
           
           const tallasNombre = ["size", "talla", "tallas"];
           const colorNombre = ["color", "colour", "colores"];
@@ -149,12 +156,12 @@ const scrapeWooCommerceBase = async (baseUrl: string): Promise<WooCommerceProduc
             inStock: p.is_in_stock || false,
             isActive : p.is_in_stock || false,
 
-            // category : category,
-            category: normalized.tags.category,
-            categoryConfidence : category ? 0.9 : 0.3,
+            category: normalized.category,
+            categoryConfidence: normalized.categoryConfidence,
+            gender: normalized.gender,
             
-            tags : tags,
-            canonicalTags: normalized.tags,
+            tags: normalized.tags,
+            canonicalTags: normalized.canonicalTags,
             
             images: img,
 

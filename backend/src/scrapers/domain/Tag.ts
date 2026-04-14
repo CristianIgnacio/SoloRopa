@@ -1,4 +1,4 @@
-import { Category, Fit, Style, Color } from "./enums" 
+import { Category, Fit, Style, Color, Gender } from "./enums" 
 
 export type CanonicalTags = {
   category?: Category
@@ -6,4 +6,6 @@ export type CanonicalTags = {
   style?: Style[]
   color?: Color[]
   season?: string[]
+  gender?: Gender
 }
+

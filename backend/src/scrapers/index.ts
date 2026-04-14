@@ -22,6 +22,7 @@ const buildSet = (input: UpsertProductInput) => {
   if (input.images !== undefined) $set.images = input.images ?? [];
   if (input.category !== undefined) $set.category = input.category;
   if (input.categoryConfidence !== undefined) $set.categoryConfidence = input.categoryConfidence;
+  if (input.gender !== undefined) $set.gender = input.gender;
 
   if (input.tags !== undefined) $set.tags = input.tags ?? [];
   if (input.variants !== undefined) $set.variants = input.variants ?? [];
@@ -70,6 +71,7 @@ const runScraperFor = async (storeKey: string) => {
       
       category: item.category ?? "otros",
       categoryConfidence : item.categoryConfidence ?? 0,
+      gender: item.gender,
 
       tags : item.tags ?? [],
       canonicalTags: item.canonicalTags,

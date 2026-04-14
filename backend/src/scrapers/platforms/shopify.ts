@@ -1,7 +1,9 @@
 import axios from "axios";
 import { IProduct } from "../../models/Product";
 import { ProductCategory } from "../../constants/productCategories";
-// import * as cheerio from "cheerio";
+import { normalizeProductMetadata } from "../tag-engine";
+import type { CanonicalTags } from "../domain/Tag";
+import { Gender } from "../domain/enums";
 
 export interface ShopifyProduct extends Partial<IProduct> {
   title: string;
@@ -14,6 +16,9 @@ export interface ShopifyProduct extends Partial<IProduct> {
   inStock?: boolean;
   isActive?: boolean;
   variants?: { title: string; sku?: string; price?: number; comparePrice? : number ; inStock?: boolean }[];
+  canonicalTags?: CanonicalTags;
+  gender?: Gender;
+  categoryConfidence?: number;
   raw?: any;
 }
 
@@ -99,10 +104,12 @@ const scrapeShopifyBase = async (baseUrl: string): Promise<ShopifyProduct[]> => 
 
           const isActive = variants.some( (v : any) => v.inStock );
 
-          const category = p.product_type || "otros"
+          // Unificamos titulo, product_type y tags nativos para el motor
+          const rawTagsFromShopify = p.tags || []
+          if (p.product_type) rawTagsFromShopify.push(p.product_type)
 
-          const tags = p.tags || []
-                
+          const normalized = normalizeProductMetadata(p.title, rawTagsFromShopify, "")
+
           allProducts.push({
             title: p.title,
             url: new URL(`/products/${p.handle}`, baseUrl).toString(),
@@ -112,10 +119,11 @@ const scrapeShopifyBase = async (baseUrl: string): Promise<ShopifyProduct[]> => 
             inStock: p?.variants?.some((v: any) => v?.available) ?? undefined,
             isActive,
             
-            category : category,
-            categoryConfidence : category ? 0.9 : 0.3,
-            
-            tags : tags,
+            category: normalized.category,
+            categoryConfidence: normalized.categoryConfidence,
+            gender: normalized.gender,
+            tags: normalized.tags,
+            canonicalTags: normalized.canonicalTags,
             
             images: finalImages,
 
