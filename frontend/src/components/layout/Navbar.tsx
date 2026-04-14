@@ -13,22 +13,31 @@ import {
   faUserPlus,
   faUser,
   faRightFromBracket,
+  faShieldHalved,
 } from "@fortawesome/free-solid-svg-icons"
 
 
 export default function Navbar() {
   const [open, setOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  
+  // Search states
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [searchValue, setSearchValue] = useState("")
+  const searchContainerRef = useRef<HTMLDivElement>(null)
+  
+  const POPULAR_SEARCHES = ["Poleras", "Oversize", "Zapatillas", "Pantalones Cargo", "Dark"]
+
   const navigate = useNavigate()
   const { user, logout } = useUserStore()
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(e.target as Node)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setOpen(false)
+      }
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false)
       }
     }
 
@@ -57,22 +66,77 @@ export default function Navbar() {
           SoloRopa
         </Link>
 
-        <div className="flex flex-1">
-          <div className="relative w-full">
-            <FontAwesomeIcon
-              icon={faMagnifyingGlass}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-black"
-            />
+        <div className="mx-4 flex flex-1 md:ml-8" ref={searchContainerRef}>
+          <form 
+            className="relative w-full group"
+            onSubmit={(e) => {
+              e.preventDefault();
+              setShowSuggestions(false);
+              if (searchValue?.trim()) navigate(`/search?q=${encodeURIComponent(searchValue)}`);
+            }}
+          >
             <input
-              placeholder="Buscar productos o marcas…"
-              className="w-full border-2 border-black bg-white py-2 pl-9 pr-4 text-sm font-medium shadow-[2px_2px_0_0_#000] transition-all focus:outline-none focus:shadow-[4px_4px_0_0_#000]"
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  navigate(`/search?q=${(e.target as HTMLInputElement).value}`)
-                }
-              }}
+              name="q"
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              onFocus={() => setShowSuggestions(true)}
+              autoComplete="off"
+              placeholder="Buscar streetwear, dark..."
+              className="w-full border-2 border-black bg-white py-2 pl-4 pr-10 text-sm font-bold shadow-[2px_2px_0_0_#000] placeholder:font-medium placeholder:text-slate-400 transition-all focus:outline-none focus:shadow-[4px_4px_0_0_#000]"
             />
-          </div>
+            <button
+              type="submit"
+              className="absolute right-0 top-0 flex h-full w-10 items-center justify-center border-l-2 border-transparent text-black transition-colors hover:bg-yellow-400 hover:border-black"
+              aria-label="Buscar"
+            >
+              <FontAwesomeIcon icon={faMagnifyingGlass} className="text-sm" />
+            </button>
+
+            {/* SUGERENCIAS DE BÚSQUEDA */}
+            {showSuggestions && (
+               <div className="absolute top-full left-0 mt-1 w-full border-2 border-black bg-white shadow-[4px_4px_0_0_#000] z-50">
+                  <div className="bg-black text-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest">
+                    {searchValue ? "Sugerencias" : "Búsquedas Populares"}
+                  </div>
+                  <ul>
+                    {POPULAR_SEARCHES
+                      .filter(term => term.toLowerCase().includes(searchValue.toLowerCase()))
+                      .map(term => (
+                      <li key={term}>
+                        <button 
+                          type="button"
+                          className="w-full text-left px-4 py-2 text-xs font-bold border-b border-slate-100 hover:bg-yellow-400 transition-colors uppercase"
+                          onClick={() => {
+                            setSearchValue(term);
+                            setShowSuggestions(false);
+                            navigate(`/search?q=${encodeURIComponent(term)}`);
+                          }}
+                        >
+                          <FontAwesomeIcon icon={faMagnifyingGlass} className="mr-2 text-[10px] opacity-40" />
+                          {term}
+                        </button>
+                      </li>
+                    ))}
+                    
+                    {searchValue && POPULAR_SEARCHES.filter(term => term.toLowerCase().includes(searchValue.toLowerCase())).length === 0 && (
+                      <li>
+                        <button 
+                          type="button"
+                          className="w-full text-left px-4 py-3 text-xs font-bold hover:bg-yellow-400 transition-colors uppercase"
+                          onClick={() => {
+                            setShowSuggestions(false);
+                            navigate(`/search?q=${encodeURIComponent(searchValue)}`);
+                          }}
+                        >
+                          <FontAwesomeIcon icon={faMagnifyingGlass} className="mr-2 text-[10px] opacity-40" />
+                          Ver resultados para "{searchValue}"
+                        </button>
+                      </li>
+                    )}
+                  </ul>
+               </div>
+            )}
+          </form>
         </div>
 
         <nav className="flex items-center gap-3">

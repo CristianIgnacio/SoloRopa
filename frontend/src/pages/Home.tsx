@@ -28,7 +28,7 @@ const Home = () => {
         setLoading(true)
 
         try {
-            const result = await productsServices.getProducts(pageNum, PAGE_SIZE)
+            const result = await productsServices.getProducts({ page: pageNum, limit: PAGE_SIZE })
 
             setProducts((prev) =>
                 pageNum === 1 ? result.data : [...prev, ...result.data]

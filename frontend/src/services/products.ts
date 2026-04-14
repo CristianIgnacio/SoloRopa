@@ -10,15 +10,10 @@ export interface PaginatedResponse {
   hasMore: boolean;
 }
 
-const getProducts = async (
-  page = 1,
-  limit = 20,
-  sort = "createdAt",
-  order = "desc",
-  brand?: string
-): Promise<PaginatedResponse> => {
+const getProducts = async (params: Record<string, any> = {}): Promise<PaginatedResponse> => {
+  const defaultParams = { page: 1, limit: 20, sort: "createdAt", order: "desc" };
   const res = await axios.get(API_URL, {
-    params: { page, limit, sort, order, ...(brand ? { brand } : {}) },
+    params: { ...defaultParams, ...params },
   });
   return res.data;
 };

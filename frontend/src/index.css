@@ -5,3 +5,29 @@ body {
   color: #111;
   font-family: 'Inter', system-ui, sans-serif;
 }
+
+/* ─── Skeleton / Shimmer ─────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    #e5e5e5 25%,
+    #f0f0f0 50%,
+    #e5e5e5 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+/* ─── Image fade-in when loaded ──────────────────────────────── */
+.img-fade-in {
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+.img-fade-in.loaded {
+  opacity: 1;
+}

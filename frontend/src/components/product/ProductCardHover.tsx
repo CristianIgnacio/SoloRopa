@@ -1,4 +1,5 @@
 // src/components/product/ProductCardHover.tsx
+import { useState } from "react"
 import FavoriteButton from "../ui/FavoriteButton"
 import type { Product } from "../../Types/Types"
 import { useProductEvents } from "../../Hooks/useProductEvents"
@@ -10,6 +11,7 @@ type Props = {
 
 export default function ProductCardHover({ product, onClick }: Props) {
     const { trackClick } = useProductEvents(product.id)
+    const [imageLoaded, setImageLoaded] = useState(false)
 
     const handleInternalClick = () => {
         trackClick()
@@ -21,15 +23,25 @@ export default function ProductCardHover({ product, onClick }: Props) {
             onClick={handleInternalClick}
             className="group relative cursor-pointer overflow-hidden rounded-sm border-2 border-black bg-white shadow-none transition-all hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000]"
         >
-      {/* Imagen */}
-      <img
-        src={product.images[0].src}
-        alt={product.images[0].alt}
-        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-        loading="lazy"
-      />
+      {/* Contenedor con aspect-ratio fijo → elimina el "salto" mientras carga */}
+      <div className="relative aspect-[4/5] w-full overflow-hidden">
 
-      {/* Overlay */}
+        {/* Skeleton shimmer — visible hasta que la imagen cargue */}
+        {!imageLoaded && (
+          <div className="skeleton-shimmer absolute inset-0 z-10" />
+        )}
+
+        {/* Imagen real con fade-in suave */}
+        <img
+          src={product.images[0].src}
+          alt={product.images[0].alt}
+          onLoad={() => setImageLoaded(true)}
+          className={`h-full w-full object-cover transition-all duration-300 group-hover:scale-105 img-fade-in ${imageLoaded ? "loaded" : ""}`}
+          loading="lazy"
+        />
+      </div>
+
+      {/* Overlay — solo aparece al hacer hover */}
       <div
         className="
           absolute inset-0
@@ -60,3 +72,4 @@ export default function ProductCardHover({ product, onClick }: Props) {
     </div>
   )
 }
+

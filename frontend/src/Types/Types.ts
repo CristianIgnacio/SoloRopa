@@ -9,6 +9,7 @@ export interface Product {
   variants : VariantsProduct[]
   inStock?: boolean;
   favoritesCount : Number,
+  gender?: "hombre" | "mujer" | "unisex";
   scrapedAt: Date;
   createdAt: Date;
   updateAt: Date;

@@ -42,7 +42,7 @@ export default function Explore() {
           productsServices.getNewestProducts(15),
           productsServices.getTrendingProducts(15),
           brandsServices.getAllBrands(),
-          productsServices.getProducts(1, PAGE_SIZE),
+          productsServices.getProducts({ page: 1, limit: PAGE_SIZE }),
         ])
 
         setNewestProducts(newest)
@@ -75,7 +75,7 @@ export default function Explore() {
     loadingRef.current = true
 
     try {
-      const result = await productsServices.getProducts(pageNum, PAGE_SIZE)
+      const result = await productsServices.getProducts({ page: pageNum, limit: PAGE_SIZE })
       setProducts((prev) => [...prev, ...result.data])
       setHasMore(result.hasMore)
     } finally {
@@ -120,6 +120,7 @@ export default function Explore() {
               }
               products={newestProducts}
               onProductClick={(product) => setQuickViewProduct(product)}
+              viewMoreLink="/search?sort=createdAt"
             />
 
             <HorizontalSection
@@ -131,6 +132,7 @@ export default function Explore() {
               }
               products={featuredProducts}
               onProductClick={(product) => setQuickViewProduct(product)}
+              viewMoreLink="/search?sort=trendingScore"
             />
           </div>
         )}

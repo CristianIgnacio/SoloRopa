@@ -19,7 +19,7 @@ export default function BrandOfTheWeek({ brand, onProductClick }: BrandOfTheWeek
       setLoading(true);
       try {
         // Fetch up to 4 top products for this brand
-        const result = await productsServices.getProducts(1, 4, "trendingScore", "desc", brand.id);
+        const result = await productsServices.getProducts({ page: 1, limit: 4, sort: "trendingScore", order: "desc", brand: brand.id });
         setProducts(result.data);
       } catch (err) {
         console.error("Error fetching brand products", err);

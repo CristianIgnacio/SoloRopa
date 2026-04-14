@@ -13,7 +13,9 @@ type Props = {
 
 
 
-export default function HorizontalSection({ title, products, onProductClick }: Props) {
+import { Link } from "react-router-dom"
+
+export default function HorizontalSection({ title, products, onProductClick, viewMoreLink }: Props & { viewMoreLink?: string }) {
   const scrollRef = useRef<HTMLDivElement>(null)
 
   if (products.length === 0) return null
@@ -33,9 +35,11 @@ export default function HorizontalSection({ title, products, onProductClick }: P
       {/* Header */}
       <div className="mb-3 flex items-center justify-between border-b-4 border-black pb-2">
         <h2 className="text-xl font-black uppercase tracking-tighter text-black">{title}</h2>
-        <button className="text-sm font-bold uppercase tracking-widest text-black underline decoration-2 underline-offset-4 transition-colors hover:bg-yellow-400">
-          Ver más
-        </button>
+        {viewMoreLink && (
+          <Link to={viewMoreLink} className="text-sm font-bold uppercase tracking-widest text-black underline decoration-2 underline-offset-4 transition-colors hover:bg-yellow-400">
+            Ver más
+          </Link>
+        )}
       </div>
 
       {/* Carrusel */}
