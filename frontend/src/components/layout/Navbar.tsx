@@ -122,6 +122,17 @@ export default function Navbar() {
                       Ver perfil
                     </Link>
 
+                    {user.role === "admin" && (
+                      <Link
+                        to="/admin"
+                        onClick={() => setOpen(false)}
+                        className="flex items-center gap-2 border-t-2 border-black px-4 py-3 text-xs font-bold uppercase tracking-widest text-black transition-colors hover:bg-yellow-400"
+                      >
+                        <FontAwesomeIcon icon={faShieldHalved} className="w-4 text-black" />
+                        Admin
+                      </Link>
+                    )}
+
                     <button
                       onClick={handleLogout}
                       className="flex w-full items-center gap-2 border-t-2 border-black bg-black px-4 py-3 text-left text-xs font-bold uppercase tracking-widest text-white transition-colors hover:bg-red-500"
