@@ -7,16 +7,29 @@ import FavoriteButton from "../components/ui/FavoriteButton"
 import HoverImageZoom from "../components/ui/HoverImageZoom"
 import { useProductVariants } from "../Hooks/useProductVariants"
 import VariantSelector from "../components/product/VariantSelector"
+import ProductCardHover from "../components/product/ProductCardHover"
+import ProductQuickView from "../components/product/ProductQuickView"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faArrowTrendDown, faArrowUpRightFromSquare, faArrowLeft } from "@fortawesome/free-solid-svg-icons"
+import { faArrowTrendDown, faArrowUpRightFromSquare, faArrowLeft, faTag } from "@fortawesome/free-solid-svg-icons"
+
+
+/** Aplana todos los canonicalTags en un array único */
+const allCanonicalTags = (product: Product): string[] => {
+  if (!product.canonicalTags) return []
+  return Object.values(product.canonicalTags)
+    .filter(Boolean)
+    .flat() as string[]
+}
 
 export default function ProductDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const [product, setProduct] = useState<Product | null>(null)
+  const [related, setRelated] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeImage, setActiveImage] = useState(0)
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null)
 
   const { trackView, trackClick } = useProductEvents(product?.id)
 
@@ -29,8 +42,14 @@ export default function ProductDetail() {
     const fetchProduct = async () => {
       try {
         setLoading(true)
+        setActiveImage(0)
+        setRelated([])
         const data = await productService.getProductById(id)
         setProduct(data)
+
+        // Cargar relacionados
+        const rel = await productService.getRelatedProducts(id, 10)
+        setRelated(rel)
       } catch (err: any) {
         setError(err.response?.data?.message || "Error al cargar el producto")
       } finally {
@@ -70,6 +89,8 @@ export default function ProductDetail() {
   }
 
   const images = product.images
+  const canonicalList = allCanonicalTags(product)
+  const displayTags = [...new Set([...(product.tags ?? []), ...canonicalList])].slice(0, 16)
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
@@ -124,6 +145,7 @@ export default function ProductDetail() {
 
         {/* INFO */}
         <div className="flex flex-col pt-4 lg:pt-8">
+          {/* Marca + ID corto */}
           <div className="mb-4 flex items-center justify-between">
             <span className="border-2 border-black bg-black px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white shadow-[2px_2px_0_0_#000]">
               {product.brand.name}
@@ -131,9 +153,25 @@ export default function ProductDetail() {
             <FavoriteButton productId={product.id} />
           </div>
 
-          <h1 className="mb-4 mt-2 text-4xl font-black uppercase tracking-tighter text-black sm:text-5xl border-b-4 border-black pb-4">
+          <h1 className="mb-2 mt-2 text-4xl font-black uppercase tracking-tighter text-black sm:text-5xl border-b-4 border-black pb-4">
             {product.title}
           </h1>
+
+          {/* Categoría + Género */}
+          {(product.category || product.gender) && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {product.category && (
+                <span className="border-2 border-black px-3 py-1 text-xs font-black uppercase tracking-widest text-black">
+                  {product.category}
+                </span>
+              )}
+              {product.gender && (
+                <span className="border-2 border-yellow-400 bg-yellow-400 px-3 py-1 text-xs font-black uppercase tracking-widest text-black">
+                  {product.gender}
+                </span>
+              )}
+            </div>
+          )}
 
           <div className="mb-8 mt-4 flex items-end gap-3">
             <p className="text-3xl font-bold text-slate-900">
@@ -146,10 +184,30 @@ export default function ProductDetail() {
             )}
           </div>
 
-          {/* Seleccionador de Opciones Dinámico via Componente */}
+          {/* Seleccionador de Opciones Dinámico */}
           {product.variants && product.variants.length > 0 && (
             <div className="mb-8">
               <VariantSelector product={product} variantsState={variantsState} />
+            </div>
+          )}
+
+          {/* Tags */}
+          {displayTags.length > 0 && (
+            <div className="mb-8">
+              <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                <FontAwesomeIcon icon={faTag} className="mr-1.5" />
+                Identificadores
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {displayTags.map(tag => (
+                  <span
+                    key={tag}
+                    className="border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500 shadow-[1px_1px_0_0_#e2e8f0]"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
             </div>
           )}
 
@@ -179,7 +237,37 @@ export default function ProductDetail() {
           </p>
         </div>
       </div>
+
+      {/* PRODUCTOS RELACIONADOS */}
+      {related.length > 0 && (
+        <section className="mt-20 border-t-4 border-black pt-10">
+          <div className="mb-6 flex items-center justify-between">
+            <h2 className="text-2xl font-black uppercase tracking-tighter text-black">
+              Te puede interesar
+            </h2>
+            <span className="text-xs font-bold uppercase tracking-widest text-slate-400">
+              {product.category && `más ${product.category}`}
+            </span>
+          </div>
+
+          {/* Barra horizontal scrolleable en móvil, grid en desktop */}
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+            {related.map(rel => (
+              <ProductCardHover
+                key={rel.id}
+                product={rel}
+                onClick={() => setQuickViewProduct(rel)}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
+      <ProductQuickView
+        product={quickViewProduct}
+        open={!!quickViewProduct}
+        onClose={() => setQuickViewProduct(null)}
+      />
     </main>
   )
 }
-

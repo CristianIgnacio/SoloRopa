@@ -15,6 +15,7 @@ import Search from "../pages/Search"
 import ProductDetail from "../pages/ProductDetail"
 import ForgotPassword from "../pages/ForgotPassword"
 import ResetPassword from "../pages/ResetPassword"
+import OutfitBuilder from "../pages/OutfitBuilder"
 
 export default function AppRouter() {
   return (
@@ -32,6 +33,7 @@ export default function AppRouter() {
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/favorites/:id" element={<FavoritesDetail />} />
           <Route path="/profile/edit" element={<ProfileEdit />} />
+          <Route path="/outfit-builder" element={<OutfitBuilder />} />
         </Route>
 
         {/* 🔐 Rutas privadas (admin) */}
