@@ -8,7 +8,7 @@ const prueba = async () => {
         "https://www.errante85.com/",
         "https://www.belowapparel.com/",
         "https://bvnggvng.cl/",
-        "https://www.streetmachine.cl/c/marcas/whatup/",
+        "https://www.streetmachine.cl/collections/whatup",
         "https://www.rudeboys.cl/",
         "https://subcomplot.cl/",
         "https://www.treinoficial.cl/",

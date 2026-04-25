@@ -6,6 +6,7 @@ import { BelowApparel } from "../brands/belowapparel"
 import { Bvnggvng } from "../brands/bvnggvng"
 import { MDF } from "../brands/mdf"
 import { Treinoficial } from "../brands/treinoficial"
+import { Whatup } from "../brands/whatup"
 
 const stores: { [key: string]: any } = {
   freshbrand: Freshbrand,
@@ -15,7 +16,8 @@ const stores: { [key: string]: any } = {
   belowapparel : BelowApparel,
   bvnggvng : Bvnggvng,
   mdf : MDF,
-  treinoficial: Treinoficial
+  treinoficial: Treinoficial,
+  whatup: Whatup
 };
 
 export default stores

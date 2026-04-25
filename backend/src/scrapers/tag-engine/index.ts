@@ -22,8 +22,6 @@ export function normalizeProductMetadata(
   const combinedText = `${title} ${rawTags.join(" ")} ${description}`.toLowerCase()
   const tokens: string[] = combinedText.match(/[a-záéíóúñ]+/g) || []
 
-  console.log("Tokens:", tokens);
-
   // 1. Limpiar Tags Crudos (Purificación)
   const cleanTags = new Set<string>()
   const validKeywords = [

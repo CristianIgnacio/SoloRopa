@@ -114,16 +114,29 @@ const seedBrands = async () => {
       description: "Streetwear 100% confeccionado en Chile",
       website: "https://www.treinoficial.cl/",
       logo: {
-        src: "https://cdnx.jumpseller.com/treino/image/no-image.jpg",
+        src: "https://images.jumpseller.com/store/treino/store/logo/400X272-1,2MB.gif?1641506970",
         alt: "Logo Treinoficial",
         backgroundColor: "#000000"
       },
       isActive: true
     };
 
+    const whatup = {
+      name: "Whatup",
+      slug: "whatup",
+      description: "Ropa urbana y skate",
+      website: "https://www.streetmachine.cl/collections/whatup",
+      logo: {
+        src: "https://www.streetmachine.cl/cdn/shop/collections/WHATUP_9af49086-b6de-44cc-b693-5ad5f462f065.jpg?v=1772633125&width=720",
+        alt: "Logo Whatup",
+        backgroundColor: "#FFFFFF"
+      },
+      isActive: true
+    };
+
     // Usar updateOne con upsert para insertar si no existe, o actualizar si ya existe
     // De esta forma solo actualizamos los campos especificados sin borrar otros
-    const brands = [rudeboys, freshbrand, moreamor, subcomplot, belowapparel, bvnggvng, mdf, treinoficial];
+    const brands = [rudeboys, freshbrand, moreamor, subcomplot, belowapparel, bvnggvng, mdf, treinoficial, whatup];
     
     for (const brand of brands) {
       await Brand.updateOne(

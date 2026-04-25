@@ -26,6 +26,7 @@ const scrapeBelowApparel = scrapeBase("belowapparel")
 const scrapeBvnggvng = scrapeBase("bvnggvng")
 const scrapeMDF = scrapeBase("mdf")
 const scrapeTreinoficial = scrapeBase("treinoficial")
+const scrapeWhatup = scrapeBase("whatup")
 
 const scrapeAll = async (req: Request, res: Response, next: NextFunction) => {
   const brandKeys = Object.keys(stores);
@@ -82,6 +83,7 @@ export {
   scrapeBvnggvng,
   scrapeMDF,
   scrapeTreinoficial,
+  scrapeWhatup,
   scrapeAll,
   getLastScrapeStats
 };
