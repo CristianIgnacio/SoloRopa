@@ -1,5 +1,5 @@
 import express from 'express';
-import {getAllProducts, getTrendingProducts, getNewestProducts, getProductById} from '../controllers/productController';
+import {getAllProducts, getTrendingProducts, getNewestProducts, getProductById, getRelatedProducts} from '../controllers/productController';
 
 const router = express.Router();
 
@@ -9,6 +9,7 @@ router.get("/trending", getTrendingProducts)
 router.get("/newest", getNewestProducts)
 // router.get('/featured', getFeaturedProducts);
 // router.get('/brand/:brandId', getProductsByBrand);
+router.get('/:id/related', getRelatedProducts);
 router.get('/:id', getProductById);
 // router.get('/slug/:slug', getProductBySlug);
 

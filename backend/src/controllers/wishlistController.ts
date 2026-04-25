@@ -7,7 +7,7 @@ import UserModel from "../models/User";
 const getMeWishlists = async (request: Request, response: Response, next: NextFunction) => {
   try {
     const userId = request.userId;
-    const wishlists = await Wishlist.find({ userId });
+    const wishlists = await Wishlist.find({ userId }).populate({ path: 'items.productId', populate: { path: 'brand' } });
     response.status(200).json({
       success: true,
       data: wishlists

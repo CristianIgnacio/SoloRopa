@@ -44,6 +44,20 @@ const createProductEvent = async (req : Request, res : Response, next : NextFunc
                 await ProductEventModel.updateOne({ _id: existingEvent._id }, { $set: { userId } })
             }
         }
+    } else if (["favorite", "unfavorite"].includes(type) && userId) {
+        // Para favoritos, evitamos sumar/restar múltiples veces seguidas de forma descontrolada
+        // Verificamos si el último evento de este usuario fue del mismo tipo
+        const lastEvent = await ProductEventModel.findOne({
+            productId,
+            userId,
+            type: { $in: ["favorite", "unfavorite"] }
+        }).sort({ createdAt: -1 });
+
+        // Si el último evento fue exactamente el mismo (ej: favorite y vuelve a mandar favorite),
+        // ignoramos la actualización para no duplicar el contador.
+        if (lastEvent && lastEvent.type === type) {
+            skipUpdate = true;
+        }
     }
 
 

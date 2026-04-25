@@ -16,15 +16,18 @@ const getAllProducts = async (req: Request, res: Response, next: NextFunction) =
 
     const filter: any = {}
     if (req.query.brand) {
-      filter.brand = req.query.brand
+      const brands = String(req.query.brand).split(',')
+      filter.brand = brands.length > 1 ? { $in: brands } : brands[0]
     }
 
     if (req.query.category) {
-      filter.category = req.query.category
+      const cats = String(req.query.category).split(',')
+      filter.category = cats.length > 1 ? { $in: cats } : cats[0]
     }
 
     if (req.query.gender) {
-      filter.gender = req.query.gender
+      const genders = String(req.query.gender).split(',')
+      filter.gender = genders.length > 1 ? { $in: genders } : genders[0]
     }
 
     if (req.query.q) {
@@ -155,4 +158,40 @@ const getNewestProducts = async (req: Request, res: Response, next: NextFunction
   }
 }
 
-export { getAllProducts, getProductById, getTrendingProducts, getNewestProducts }
+// Obtener productos relacionados por categoría (misma marca primero)
+const getRelatedProducts = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params
+    const limit = Math.min(20, Number(req.query.limit) || 10)
+
+    const product = await Product.findById(id)
+    if (!product) return res.status(404).json({ success: false, message: 'Producto no encontrado' })
+
+    // Misma marca misma categoría (excluye el propio)
+    const sameBrandSameCategory = await Product.find({
+      _id: { $ne: product._id },
+      brand: product.brand,
+      category: product.category
+    }).limit(limit).populate('brand')
+
+    // Completar con misma categoría de cualquier marca si faltan
+    const remaining = limit - sameBrandSameCategory.length
+    const sameCategoryIds = sameBrandSameCategory.map(p => p._id)
+    const extraIds = [product._id, ...sameCategoryIds]
+
+    const otherCategory = remaining > 0
+      ? await Product.find({
+          _id: { $nin: extraIds },
+          category: product.category
+        }).limit(remaining).populate('brand')
+      : []
+
+    const related = [...sameBrandSameCategory, ...otherCategory]
+
+    res.json({ success: true, data: related })
+  } catch (err) {
+    next(err)
+  }
+}
+
+export { getAllProducts, getProductById, getTrendingProducts, getNewestProducts, getRelatedProducts }
