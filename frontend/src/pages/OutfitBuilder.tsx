@@ -1,12 +1,10 @@
 import { useEffect, useMemo, useState } from "react"
-import { Link } from "react-router-dom"
 import type { Product, Brand, Wishlist, WishlistItem } from "../Types/Types"
 import productsServices from "../services/products"
 import brandsServices from "../services/brands"
 import wishlistServices from "../services/wishlist"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
-  faArrowRight,
   faCircleNotch,
   faHatCowboy,
   faHeart,
@@ -116,8 +114,8 @@ export default function OutfitBuilder() {
 
     if (viewFavorites) {
       // Filtrar favoritos localmente en base a categorías del slot
-      const filteredFavs = favoriteProducts.filter(p =>
-        p.categories?.some(cat => slot.categories.includes(cat.name?.toLowerCase() || "")) ||
+      const filteredFavs = favoriteProducts.filter(p => 
+        slot.categories.includes(p.category?.toLowerCase() || "") ||
         p.tags?.some(tag => slot.categories.includes(tag.toLowerCase()))
       )
       setProducts(filteredFavs)
@@ -191,9 +189,7 @@ export default function OutfitBuilder() {
     return total
   }, [selectedProducts])
 
-  const filledSlotsCount = useMemo(() => {
-    return Object.values(selectedProducts).filter(arr => arr.length > 0).length
-  }, [selectedProducts])
+
 
   const totalItemsCount = useMemo(() => {
     return Object.values(selectedProducts).reduce((acc, arr) => acc + arr.length, 0)
