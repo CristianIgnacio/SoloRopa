@@ -27,13 +27,12 @@ interface RegisterCredentials {
 }
 
 const register = async (credentials: RegisterCredentials) => {
-    console.log("antes de enviar2", credentials)
     const formData = new FormData();
     formData.append("username", credentials.username);
     formData.append("email", credentials.email);
     formData.append("password", credentials.password);
     formData.append("avatarUrl", credentials.avatarUrl || "");
-    const response = await axios.post("/api/user", formData, {headers: {"Content-Type": "multipart/form-data"}, withCredentials : true});
+    const response = await axios.post("/api/users", formData, {headers: {"Content-Type": "multipart/form-data"}, withCredentials : true});
     return response.data;
 };
 
@@ -52,4 +51,14 @@ const logout = async () => {
     return response.data;
 }
 
-export default { login, register, logout, restoreLogin };
+const forgotPassword = async (email: string) => {
+    const response = await axios.post("/api/auth/forgot-password", { email });
+    return response.data;
+};
+
+const resetPassword = async (token: string, password: string) => {
+    const response = await axios.post(`/api/auth/reset-password/${token}`, { password });
+    return response.data;
+};
+
+export default { login, register, logout, restoreLogin, forgotPassword, resetPassword };

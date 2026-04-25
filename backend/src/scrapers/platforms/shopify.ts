@@ -1,15 +1,24 @@
 import axios from "axios";
-// import * as cheerio from "cheerio";
+import { IProduct } from "../../models/Product";
+import { ProductCategory } from "../../constants/productCategories";
+import { normalizeProductMetadata } from "../tag-engine";
+import type { CanonicalTags } from "../domain/Tag";
+import { Gender } from "../domain/enums";
 
-export interface ShopifyProduct {
+export interface ShopifyProduct extends Partial<IProduct> {
   title: string;
   price: number | null;
   currency?: string | null;
   url: string;
-  images?: string | null;
+  images?: { src: string; alt?: string }[] | [];
+  category : ProductCategory;
+  tags : string[],
   inStock?: boolean;
   isActive?: boolean;
   variants?: { title: string; sku?: string; price?: number; comparePrice? : number ; inStock?: boolean }[];
+  canonicalTags?: CanonicalTags;
+  gender?: Gender;
+  categoryConfidence?: number;
   raw?: any;
 }
 
@@ -51,15 +60,41 @@ const scrapeShopifyBase = async (baseUrl: string): Promise<ShopifyProduct[]> => 
           const price = p?.variants?.[0]?.price ? Number(p.variants[0].price) : null;
           // const img = p?.image?.src ?? (p?.images?.[0]?.src ?? null);
           
-          const img = p?.image?.src 
-            ?? (p?.images?.map( (i : any) => {
-                return { src : i.src, alt : p.title} 
-              }) 
-                ?? []);
+          let finalImages: { src: string, alt: string }[] = [];
+          if (p?.images && Array.isArray(p.images) && p.images.length > 0) {
+            finalImages = p.images.map((i: any) => ({ src: i.src, alt: p.title }));
+          } else if (p?.image?.src) {
+            finalImages = [{ src: p.image.src, alt: p.title }];
+          }
+
+          // Identificar posiciones dinámicas de Talla y Color según p.options
+          let colorPosition = 0;
+          let sizePosition = 0;
+          if (p?.options && Array.isArray(p.options)) {
+            p.options.forEach((opt: any) => {
+              if (opt.name && /(color|colour)/i.test(opt.name)) {
+                colorPosition = opt.position;
+              }
+              if (opt.name && /(size|talla|medido)/i.test(opt.name)) {
+                sizePosition = opt.position;
+              }
+            });
+          }
 
           const variants = p?.variants?.map( (v : any) => {
+            // Shopify usually serves the full merged title (e.g. "Negro / S") in v.title.
+            // If missing, fallback to option1.
+            const fullTitle = v.title && v.title !== "Default Title" ? v.title : v.option1;
+            
+            let color = undefined;
+            let size = undefined;
+            if (colorPosition > 0) color = v[`option${colorPosition}`];
+            if (sizePosition > 0) size = v[`option${sizePosition}`];
+
             return {
-              title: v.option1,
+              title: fullTitle,
+              color,
+              size,
               sku: v.sku,
               price: v.price ? Number(v.price) : undefined,
               comparePrice: v.compare_at_price ? Number(v.compare_at_price) : undefined,
@@ -68,15 +103,30 @@ const scrapeShopifyBase = async (baseUrl: string): Promise<ShopifyProduct[]> => 
           }) ?? [];
 
           const isActive = variants.some( (v : any) => v.inStock );
-                
+
+          // Unificamos titulo, product_type y tags nativos para el motor
+          const rawTagsFromShopify = p.tags || []
+          if (p.product_type) rawTagsFromShopify.push(p.product_type)
+
+          const normalized = normalizeProductMetadata(p.title, rawTagsFromShopify, "")
+
           allProducts.push({
             title: p.title,
+            url: new URL(`/products/${p.handle}`, baseUrl).toString(),
+
             price,
             currency: p?.variants?.[0]?.currency || null,
-            url: new URL(`/products/${p.handle}`, baseUrl).toString(),
-            images: img,
             inStock: p?.variants?.some((v: any) => v?.available) ?? undefined,
             isActive,
+            
+            category: normalized.category,
+            categoryConfidence: normalized.categoryConfidence,
+            gender: normalized.gender,
+            tags: normalized.tags,
+            canonicalTags: normalized.canonicalTags,
+            
+            images: finalImages,
+
             variants,
             raw: p
           });

@@ -8,12 +8,27 @@ export interface Product {
   images: {src : string, alt? : string}[] | [];
   variants : VariantsProduct[]
   inStock?: boolean;
+  isActive?: boolean;
+  favoritesCount : Number,
+  category?: string;
+  gender?: "hombre" | "mujer" | "unisex";
+  tags?: string[];
+  canonicalTags?: {
+    fit?: string[];
+    style?: string[];
+    color?: string[];
+    [key: string]: string[] | undefined;
+  };
   scrapedAt: Date;
+  createdAt: Date;
+  updateAt: Date;
   raw?: any;          // guarda el JSON/HTML bruto si quieres
 }
 
 interface VariantsProduct { 
   title: string;
+  color?: string;
+  size?: string;
   sku?: string;
   price?: number;
   comparePrice? : number ;

@@ -1,13 +1,25 @@
 import bcrypt from "bcrypt";
-import { Request, Response, NextFunction, response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import UserModel from "../models/User";
-import WishlistModel from "../models/Whishlist";
+import WishlistModel from "../models/Wishlist";
+
+const serializePublicUser = (user: {
+    id?: string;
+    username: string;
+    role: "user" | "admin";
+    avatarUrl?: string | null;
+}) => ({
+    id: user.id,
+    username: user.username,
+    role: user.role,
+    avatarUrl: user.avatarUrl || null,
+});
 
 export const getUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const users = await UserModel.find({});
 
-        response.json(users);
+        res.json(users);
 
     } catch (error) {
         next(error);
@@ -21,7 +33,24 @@ export const getUserById = async (req: Request, res: Response, next: NextFunctio
         const user = await UserModel.findById(userId);
 
         if (user) {
-            res.json(user);
+            res.json(serializePublicUser(user));
+        } else {
+            res.status(404).json({ error: "User not found" })
+        }
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getUserbyUsername = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        // Obtenemos el id del usuario buscado
+        const username = req.params.username;
+        const user = await UserModel.findOne({ username: username });
+
+        if (user) {
+            res.json(serializePublicUser(user));
         } else {
             res.status(404).json({ error: "User not found" })
         }
@@ -36,18 +65,18 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
         const { username, password, email } = req.body;
 
         const avatarUrl = req.file
-        ? `/uploads/avatars/${req.file.filename}`
-        : null;
+            ? `/uploads/avatars/${req.file.filename}`
+            : null;
 
         const saltRounds = 10;
         const passwordHash = await bcrypt.hash(password, saltRounds);
 
         const user = new UserModel({
-            username : username,
-            password : passwordHash,
-            email : email,
-            role : "user",
-            avatarUrl : avatarUrl || null,
+            username: username,
+            password: passwordHash,
+            email: email,
+            role: "user",
+            avatarUrl: avatarUrl || null,
         });
         const savedUser = await user.save();
 
@@ -59,7 +88,7 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
             items: []
         });
 
-        res.status(201).json(savedUser);
+        res.status(201).json(savedUser.toJSON());
 
     } catch (error) {
         next(error);

@@ -1,13 +1,16 @@
 import express from 'express';
-import {getAllProducts} from '../controllers/productController';
+import {getAllProducts, getTrendingProducts, getNewestProducts, getProductById, getRelatedProducts} from '../controllers/productController';
 
 const router = express.Router();
 
 // Rutas públicas
 router.get('/', getAllProducts);
+router.get("/trending", getTrendingProducts)
+router.get("/newest", getNewestProducts)
 // router.get('/featured', getFeaturedProducts);
 // router.get('/brand/:brandId', getProductsByBrand);
-// router.get('/:id', getProductById);
+router.get('/:id/related', getRelatedProducts);
+router.get('/:id', getProductById);
 // router.get('/slug/:slug', getProductBySlug);
 
 // // Rutas protegidas (agregar middleware de autenticación si es necesario)

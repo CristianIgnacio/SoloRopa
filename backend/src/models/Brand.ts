@@ -60,8 +60,19 @@ brandSchema.pre('save', function(next) {
 });
 
 // Índices para mejorar búsquedas
-// brandSchema.index({ name: 1 });
-// brandSchema.index({ slug: 1 });
+brandSchema.index({ name: 1 });
+brandSchema.index({ slug: 1 });
+
+brandSchema.set("toJSON", {
+  transform: (
+    _,
+    returnedObject: { id?: string; _id?: mongoose.Types.ObjectId; __v?: number }
+  ) => {
+    returnedObject.id = returnedObject._id?.toString();
+    delete returnedObject._id;
+    delete returnedObject.__v;
+  },
+});
 
 const BrandModel = mongoose.model('Brand', brandSchema);
 

@@ -1,15 +1,47 @@
 import mongoose, { model, Schema, Document } from "mongoose"
+import { ProductCategory, PRODUCT_CATEGORIES } from "../constants/productCategories";
+import { Gender } from "../scrapers/domain/enums";
+import type {CanonicalTags} from "../scrapers/domain/Tag"
 
 export interface IProduct extends Document {
-  brand: mongoose.Schema.Types.ObjectId;
+  // info
   title: string;
+  brand: mongoose.Schema.Types.ObjectId;
+  url: string;
+
+  //media
+  images: { src: string; alt?: string }[];
+  
+  // precios
   price: number | null;
   currency?: string | null;
-  url: string;
-  images: { src: string; alt?: string }[];
   inStock?: boolean;
   isActive?: boolean;
-  variants?: { title: string; sku?: string; price?: number; comparePrice? : number ; inStock?: boolean }[];
+
+  // categorias y genero
+  category : ProductCategory;
+  categoryConfidence: number
+  gender?: Gender;
+
+  // tags
+  tags : string[],
+  canonicalTags?: CanonicalTags
+
+  // variacion (tallas, color)
+  variants?: { title: string; color?: string; size?: string; sku?: string; price?: number; comparePrice? : number ; inStock?: boolean }[];
+
+  // Metricas de tendencia
+  viewsCount : number,
+  favoritesCount : number,
+  clicksCount : number,
+
+  viewsLastNDays : number,
+  favoritesLastNDays : number,
+  clicksLastNDays : number,
+
+  trendingScore : number,
+  lastUpdateScore : Date,
+  
   scrapedAt: Date;
   raw?: any;          // guarda el JSON/HTML bruto si quieres
 }
@@ -26,20 +58,43 @@ const ProductSchema = new Schema<IProduct>({
   }],
   inStock: { type: Boolean, required: false },
   isActive: { type: Boolean, required: false },
+  category : {type : String, enum: PRODUCT_CATEGORIES,default : "otros", lowercase : true},
+  categoryConfidence : {type : Number, default: 0},
+  gender: { type: String, enum: Object.values(Gender), required: false },
+  tags : [{type : String, lowercase : true}],
+  canonicalTags: {
+    type: Schema.Types.Mixed,
+    required: false,
+    default: {}
+  },
   variants: [{
     title: { type: String, required: true },
+    color: { type: String, required: false },
+    size: { type: String, required: false },
     sku: { type: String, required: false },
     price: { type: Number, required: false },
     comparePrice: { type: Number, required: false },
     inStock: { type: Boolean, required: false }
   }],
+  viewsCount : { type : Number, default : 0, required : true},
+  favoritesCount : { type : Number, default : 0, required : true},
+  clicksCount : { type : Number, default : 0, required : true},
+  viewsLastNDays : { type : Number, default : 0, required : true},
+  favoritesLastNDays : { type : Number, default : 0, required : true},
+  clicksLastNDays : { type : Number, default : 0, required : true},
+  trendingScore : { type : Number, default : 0, required : true},
+  lastUpdateScore : { type : Date, default: () => new Date(), required : true},
   scrapedAt: { type: Date, default: () => new Date() },
   raw: { type: Schema.Types.Mixed }
 }, { 
   timestamps: true
 });
 
-const ProductModel = model<IProduct>("Product", ProductSchema);
+// Índices para mejorar el rendimiento de búsquedas
+ProductSchema.index({ brand: 1 });
+ProductSchema.index({ category: 1 });
+ProductSchema.index({ trendingScore: -1 });
+ProductSchema.index({ title: 'text' });
 
 ProductSchema.set("toJSON", {
   transform: (
@@ -51,6 +106,8 @@ ProductSchema.set("toJSON", {
     delete returnedObject.__v;
   },
 });
+
+const ProductModel = model<IProduct>("Product", ProductSchema);
 
 export default ProductModel
 

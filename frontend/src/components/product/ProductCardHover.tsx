@@ -1,6 +1,8 @@
 // src/components/product/ProductCardHover.tsx
+import { useState } from "react"
 import FavoriteButton from "../ui/FavoriteButton"
 import type { Product } from "../../Types/Types"
+import { useProductEvents } from "../../Hooks/useProductEvents"
 
 type Props = {
   product: Product
@@ -8,20 +10,38 @@ type Props = {
 }
 
 export default function ProductCardHover({ product, onClick }: Props) {
-  return (
-    <div
-      onClick={onClick}
-      className="group relative cursor-pointer overflow-hidden rounded-lg bg-slate-100"
-    >
-      {/* Imagen */}
-      <img
-        src={product.images[0].src}
-        alt={product.images[0].alt}
-        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-        loading="lazy"
-      />
+    const { trackClick } = useProductEvents(product.id)
+    const [imageLoaded, setImageLoaded] = useState(false)
 
-      {/* Overlay */}
+    const handleInternalClick = () => {
+        trackClick()
+        onClick?.()
+    }
+
+    return (
+        <div
+            onClick={handleInternalClick}
+            className="group relative cursor-pointer overflow-hidden rounded-sm border-2 border-black bg-white shadow-none transition-all hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000]"
+        >
+      {/* Contenedor con aspect-ratio fijo → elimina el "salto" mientras carga */}
+      <div className="relative aspect-[4/5] w-full overflow-hidden">
+
+        {/* Skeleton shimmer — visible hasta que la imagen cargue */}
+        {!imageLoaded && (
+          <div className="skeleton-shimmer absolute inset-0 z-10" />
+        )}
+
+        {/* Imagen real con fade-in suave */}
+        <img
+          src={product.images[0].src}
+          alt={product.images[0].alt}
+          onLoad={() => setImageLoaded(true)}
+          className={`h-full w-full object-cover transition-all duration-300 group-hover:scale-105 img-fade-in ${imageLoaded ? "loaded" : ""}`}
+          loading="lazy"
+        />
+      </div>
+
+      {/* Overlay — solo aparece al hacer hover */}
       <div
         className="
           absolute inset-0
@@ -40,11 +60,11 @@ export default function ProductCardHover({ product, onClick }: Props) {
 
         {/* Bottom info */}
         <div className="text-white">
-          <p className="text-xs opacity-80">{product.brand.name}</p>
-          <p className="text-sm font-medium leading-tight">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-yellow-400">{product.brand.name}</p>
+          <p className="text-sm font-bold leading-tight">
             {product.title}
           </p>
-          <p className="mt-1 text-sm font-semibold">
+          <p className="mt-1 text-sm font-extrabold">
             ${product.price?.toLocaleString("es-CL")}
           </p>
         </div>
@@ -52,3 +72,4 @@ export default function ProductCardHover({ product, onClick }: Props) {
     </div>
   )
 }
+

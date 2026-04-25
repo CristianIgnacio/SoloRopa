@@ -26,7 +26,7 @@ export default function Modal({ open, onClose, children }: Props) {
       />
 
       {/* Content */}
-      <div className="relative z-10 max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-lg bg-white p-4">
+      <div className="relative z-10 max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-none border-4 border-black bg-white p-4 shadow-[12px_12px_0_0_#000]">
         {children}
       </div>
     </div>

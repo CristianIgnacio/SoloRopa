@@ -1,12 +1,13 @@
-import Wishlist from "../models/Whishlist";
+import Wishlist from "../models/Wishlist";
 import Product from "../models/Product";
 import { Response, Request, NextFunction } from "express";
 import mongoose from "mongoose";
+import UserModel from "../models/User";
 
-const getUserWishlists = async ( request: Request, response: Response, next: NextFunction) => {
+const getMeWishlists = async (request: Request, response: Response, next: NextFunction) => {
   try {
     const userId = request.userId;
-    const wishlists = await Wishlist.find({ userId });
+    const wishlists = await Wishlist.find({ userId }).populate({ path: 'items.productId', populate: { path: 'brand' } });
     response.status(200).json({
       success: true,
       data: wishlists
@@ -16,7 +17,27 @@ const getUserWishlists = async ( request: Request, response: Response, next: Nex
   }
 }
 
-const getWishlistById = async( request: Request,response: Response, next: NextFunction) => {
+const getUserWishlists = async (request: Request, response: Response, next: NextFunction) => {
+  try {
+    const username = request.params.username;
+    const user = await UserModel.findOne({ username })
+    if (!user) {
+      return response.status(404).json({
+        success: false,
+        error: "User not found"
+      });
+    }
+    const wishlists = await Wishlist.find({ userId: user?.id, visibility: "public" });
+    response.status(200).json({
+      success: true,
+      data: wishlists
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+const getWishlistById = async (request: Request, response: Response, next: NextFunction) => {
   try {
     const userId = request.userId;
     const wishlistId = request.params.id;
@@ -31,7 +52,7 @@ const getWishlistById = async( request: Request,response: Response, next: NextFu
   }
 }
 
-const deleteWishlist = async ( request: Request, response: Response, next: NextFunction) => {
+const deleteWishlist = async (request: Request, response: Response, next: NextFunction) => {
   try {
     const userId = request.userId;
     const wishlistId = request.params.id;
@@ -47,7 +68,7 @@ const deleteWishlist = async ( request: Request, response: Response, next: NextF
   }
 }
 
-const createWishlist = async (req : Request, res : Response, next : NextFunction) => {
+const createWishlist = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.userId;
     const data = req.body;
@@ -64,19 +85,19 @@ const createWishlist = async (req : Request, res : Response, next : NextFunction
       isDefault: data.isDefault || false,
       coverImage: data.coverImage || ""
     });
-    
+
     res.status(201).json({
       success: true,
       data: wishlist
     });
 
-    
+
   } catch (err) {
     next(err);
   }
 }
 
-const updateWishlist = async ( request: Request, response : Response, next: NextFunction) => {
+const updateWishlist = async (request: Request, response: Response, next: NextFunction) => {
   try {
     const userId = request.userId;
     const wishlistId = request.params.id;
@@ -115,10 +136,11 @@ const updateWishlist = async ( request: Request, response : Response, next: Next
 }
 
 
-const addItemToWishlist = async ( request: Request,response: Response, next: NextFunction) => {
+const addItemToWishlist = async (request: Request, response: Response, next: NextFunction) => {
   try {
     const userId = request.userId;
-    const { wishlistId, productId, note, tags } = request.body;
+    const { productId, note, tags } = request.body;
+    const wishlistId = request.params.id || request.body.wishlistId;
     const wishlist = await Wishlist.findOne({ _id: wishlistId, userId });
     if (!wishlist) throw new Error("Wishlist not found");
     // Verificar si ya está agregado
@@ -151,11 +173,10 @@ const addItemToWishlist = async ( request: Request,response: Response, next: Nex
   }
 }
 
-const deleteItemToWishlist = async ( request: Request,response: Response, next: NextFunction) => {
+const deleteItemToWishlist = async (request: Request, response: Response, next: NextFunction) => {
   try {
     const userId = request.userId;
-    console.log(request.params)
-    const wishlistId = request.params.wishlistId;
+    const wishlistId = request.params.id;
     const itemId = request.params.productId;
 
     // Validar que itemId es un ObjectId válido
@@ -164,11 +185,10 @@ const deleteItemToWishlist = async ( request: Request,response: Response, next: 
     }
 
     // Validar que wishlist existe y pertenece al usuario
-    const wishlist = await Wishlist.findOne({ id: wishlistId, userId });
+    const wishlist = await Wishlist.findOne({ _id: wishlistId, userId });
     if (!wishlist) throw new Error("Wishlist not found");
 
     // Encontrar el índice del item a eliminar
-    console.log(String(wishlist.items[0].productId))
     const itemIndex = wishlist.items.findIndex((i) => String(i.productId) === itemId);
     if (itemIndex === -1) {
       throw new Error("Item not found in wishlist");
@@ -193,7 +213,7 @@ const deleteItemToWishlist = async ( request: Request,response: Response, next: 
   }
 }
 
-const toggleFavorite = async ( req: Request, res: Response, next: NextFunction) => {
+const toggleFavorite = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.userId
     const { productId } = req.body
@@ -251,12 +271,13 @@ const toggleFavorite = async ( req: Request, res: Response, next: NextFunction) 
 }
 
 export {
-  getUserWishlists,
+  getMeWishlists,
   getWishlistById,
   createWishlist,
   deleteWishlist,
   updateWishlist,
   addItemToWishlist,
   deleteItemToWishlist,
-  toggleFavorite
+  toggleFavorite,
+  getUserWishlists
 }

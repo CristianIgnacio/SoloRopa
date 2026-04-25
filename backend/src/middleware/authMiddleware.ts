@@ -4,24 +4,47 @@ import jwt from "jsonwebtoken"
 import UserModel from '../models/User';
 
 export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
-  const authReq = req;
   const token = req.cookies?.token;
   if (!token) {
-    res.status(401).json({ error: "missing token" });
-  } else {
-    const decodedToken = jwt.verify(token, config.JWT_SECRET);
+    return res.status(401).json({ error: "missing token" });
+  }
+
+  try {
+    const decodedToken = jwt.verify(token, config.JWT_SECRET) as any;
     const csrfToken = req.headers["x-csrf-token"];
-    if (
-      typeof decodedToken === "object" &&
-      decodedToken.id &&
-      decodedToken.csrf == csrfToken
-    ) {
-      authReq.userId = decodedToken.id;
+
+    if (decodedToken.id && decodedToken.csrf === csrfToken) {
+      req.userId = decodedToken.id;
       next();
     } else {
-      res.status(401).json({ error: "invalid token" });
+      res.status(401).json({ error: "invalid token or csrf" });
     }
+  } catch (err) {
+    res.status(401).json({ error: "invalid token" });
   }
+};
+
+/**
+ * Middleware para capturar el userId si existe, pero no bloquear si no hay sesión.
+ * Útil para eventos de productos por invitados.
+ */
+export const collectUser = async (req: Request, res: Response, next: NextFunction) => {
+  const token = req.cookies?.token;
+  if (!token) {
+    return next();
+  }
+
+  try {
+    const decodedToken = jwt.verify(token, config.JWT_SECRET) as any;
+    const csrfToken = req.headers["x-csrf-token"];
+
+    if (decodedToken.id && decodedToken.csrf === csrfToken) {
+      req.userId = decodedToken.id;
+    }
+  } catch (err) {
+    // Ignoramos el error, el usuario queda como invitado
+  }
+  next();
 };
 
 // Middleware de autorización por rol

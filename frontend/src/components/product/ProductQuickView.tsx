@@ -1,9 +1,15 @@
 // src/components/product/ProductQuickView.tsx
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 import Modal from "../ui/Modal"
 import FavoriteButton from "../ui/FavoriteButton"
+import HoverImageZoom from "../ui/HoverImageZoom"
+import { useProductVariants } from "../../Hooks/useProductVariants"
+import VariantSelector from "./VariantSelector"
 import type { Product } from "../../Types/Types"
-import { useNavigate} from "react-router-dom"
+import { useProductEvents } from "../../Hooks/useProductEvents"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faXmark, faArrowTrendDown, faArrowUpRightFromSquare, faTag } from "@fortawesome/free-solid-svg-icons"
 
 type Props = {
   product: Product | null
@@ -11,18 +17,33 @@ type Props = {
   onClose: () => void
 }
 
+
+/** Combina todos los tags canónicos en una lista plana */
+const allCanonicalTags = (product: Product): string[] => {
+  if (!product.canonicalTags) return []
+  return Object.values(product.canonicalTags)
+    .filter(Boolean)
+    .flat() as string[]
+}
+
 export default function ProductQuickView({ product, open, onClose }: Props) {
-    const navigate = useNavigate()
     const [activeImage, setActiveImage] = useState(0)
-    const [selectedVariant, setSelectedVariant] = useState<Product["variants"][number] | null>(null)
+    const navigate = useNavigate()
 
-    if (!product) return null
+    const { trackView, trackClick } = useProductEvents(product?.id)
 
-    const images = product.images
+    const variantsState = useProductVariants(product, open)
+    const { selectedVariant, resetVariants } = variantsState
+
+    useEffect(() => {
+        if (product?.id && open) {
+            trackView()
+        }
+    }, [product?.id, open])
 
     const resetState = () => {
         setActiveImage(0)
-        setSelectedVariant(null)
+        resetVariants()
     }
 
     const handleClose = () => {
@@ -30,25 +51,33 @@ export default function ProductQuickView({ product, open, onClose }: Props) {
         onClose()
     }
 
+    if (!product) return null
+
+    const images = product.images
+    const canonicalList = allCanonicalTags(product)
+    // Combina tags nativos del scraper + canónicos, sin duplicados
+    const displayTags = [...new Set([...(product.tags ?? []), ...canonicalList])].slice(0, 12)
+
     return (
         <Modal open={open} onClose={handleClose}>
         {/* Botón cerrar */}
         <button
             onClick={handleClose}
-            className="absolute right-3 top-3 rounded-full p-1 text-slate-500 hover:bg-slate-100"
+            className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center border-2 border-black bg-white text-black transition-colors hover:bg-black hover:text-white"
         >
-            ✕
+            <FontAwesomeIcon icon={faXmark} />
         </button>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {/* GALERÍA */}
             <div>
             {/* Imagen principal */}
-            <div className="aspect-3/4 overflow-hidden rounded bg-slate-100">
-                <img
-                src={images[activeImage].src}
-                alt={images[activeImage].alt}
-                className="h-full w-full object-cover"
+            <div className="aspect-3/4 overflow-hidden border-2 border-black bg-white cursor-zoom-in group relative">
+                <HoverImageZoom
+                    src={images[activeImage].src}
+                    alt={images[activeImage].alt || product.title}
+                    className="h-full w-full"
+                    zoomScale={1.8}
                 />
             </div>
 
@@ -59,10 +88,10 @@ export default function ProductQuickView({ product, open, onClose }: Props) {
                     <button
                     key={index}
                     onClick={() => setActiveImage(index)}
-                    className={`overflow-hidden rounded border ${
+                    className={`min-h-[50px] overflow-hidden border-2 transition-all ${
                         activeImage === index
-                        ? "border-slate-900"
-                        : "border-transparent hover:border-slate-300"
+                        ? "border-black shadow-[2px_2px_0_0_#000]"
+                        : "border-transparent hover:border-black"
                     }`}
                     >
                     <img
@@ -78,13 +107,29 @@ export default function ProductQuickView({ product, open, onClose }: Props) {
 
             {/* INFO */}
             <div className="flex flex-col gap-3">
-                <p className="text-sm text-slate-500">
+                <p className="w-fit border border-black bg-black px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-white shadow-[2px_2px_0_0_#000]">
                     {product.brand.name}
                 </p>
 
-                <h2 className="text-lg font-semibold">
+                <h2 className="mt-1 text-2xl font-black uppercase tracking-tighter text-black">
                     {product.title}
                 </h2>
+
+                {/* Categoría + Género */}
+                {(product.category || product.gender) && (
+                    <div className="flex flex-wrap gap-2">
+                        {product.category && (
+                            <span className="border border-black px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-black">
+                                {product.category}
+                            </span>
+                        )}
+                        {product.gender && (
+                            <span className="border border-yellow-400 bg-yellow-400 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-black">
+                                {product.gender}
+                            </span>
+                        )}
+                    </div>
+                )}
 
                 <div className="flex items-center justify-between">
                     {/* <p className="text-xl font-bold">
@@ -104,65 +149,62 @@ export default function ProductQuickView({ product, open, onClose }: Props) {
                     <FavoriteButton productId={product.id} />
                 </div>
 
-                {/* Tallas */}
-                {product.variants?.length > 0 && (
-                <div className="mt-4">
-                    <p className="mb-2 text-sm font-medium">Tallas</p>
-
-                    <div className="grid grid-cols-4 gap-2">
-                    {product.variants.map((variant) => {
-                        const isSelected = selectedVariant?.title === variant.title
-                        const outOfStock = variant.inStock === false
-
-                        if (selectedVariant === null && variant.inStock) {setSelectedVariant(variant)}  
-
-                        return (
-                        <button
-                            key={variant.title}
-                            disabled={outOfStock}
-                            onClick={() => setSelectedVariant(variant)}
-                            className={`
-                            relative rounded border px-2 py-1 text-sm transition
-                            ${
-                                outOfStock
-                                ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400 line-through"
-                                : isSelected
-                                ? "border-slate-900 bg-slate-900 text-white"
-                                : "border-slate-300 hover:border-slate-900"
-                            }
-                            `}
-                        >
-                            {variant.title}
-                        </button>
-                        )
-                    })}
-                    </div>
-
-                    {/* Mensaje sin stock */}
-                    {!selectedVariant && (
-                    <p className="mt-2 text-xs text-red-500">
-                        No hay stock disponible
-                    </p>
+                {/* Opciones Dinámicas */}
+                <div className="mt-2">
+                    {product.variants?.length > 0 && (
+                        <VariantSelector product={product} variantsState={variantsState} />
                     )}
                 </div>
+
+                {/* Tags */}
+                {displayTags.length > 0 && (
+                    <div className="mt-1">
+                        <p className="mb-1.5 text-[9px] font-black uppercase tracking-widest text-slate-400">
+                            <FontAwesomeIcon icon={faTag} className="mr-1" />
+                            Tags
+                        </p>
+                        <div className="flex flex-wrap gap-1.5">
+                            {displayTags.map(tag => (
+                                <span
+                                    key={tag}
+                                    className="border border-slate-200 bg-slate-50 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-slate-500"
+                                >
+                                    {tag}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
                 )}
 
             {/* Placeholder comparador */}
-            <p className="text-sm text-green-600">
-                ▼ Bajó 8% en los últimos 30 días
+            <p className="text-sm text-green-600 mb-2">
+                <FontAwesomeIcon icon={faArrowTrendDown} className="mr-1" />
+                Buen precio detectado
             </p>
 
-            <button
-                onClick={() => {
-                handleClose
-                navigate(`/producto/${product.id}`)
-            }}
-                className="mt-4 rounded bg-slate-900 px-4 py-2 text-sm text-white"
-            >
-                <a href={product.url}>
-                    Ver detalle completo
-                </a>
-            </button>
+            <div className="mt-2 flex flex-col gap-3 sm:flex-row">
+                <button
+                    onClick={() => {
+                        handleClose()
+                        navigate(`/producto/${product.id}`)
+                    }}
+                    className="flex-1 border-2 border-black bg-white px-4 py-2.5 text-sm font-bold uppercase tracking-widest text-black shadow-[2px_2px_0_0_#000] transition-all hover:-translate-y-1 hover:bg-black hover:text-white hover:shadow-[4px_4px_0_0_#000] active:translate-y-0 active:shadow-none"
+                >
+                    Ver en detalle
+                </button>
+
+                <button
+                    onClick={() => {
+                        trackClick()
+                        handleClose()
+                        window.open(product.url, "_blank", "noopener,noreferrer")
+                    }}
+                    className="flex-1 border-2 border-black bg-black px-4 py-2.5 text-sm font-bold uppercase tracking-widest text-white shadow-[2px_2px_0_0_#000] transition-all hover:-translate-y-1 hover:bg-yellow-400 hover:text-black hover:shadow-[4px_4px_0_0_#000] active:translate-y-0 active:shadow-none"
+                >
+                    Comprar en tienda
+                    <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="ml-1.5 text-xs opacity-70" />
+                </button>
+            </div>
             </div>
         </div>
         </Modal>

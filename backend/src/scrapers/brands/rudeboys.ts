@@ -1,4 +1,3 @@
-import scrapeShopifyBase from "../platforms/shopify";
 import scrapeWooCommerceBase from "../platforms/woocommerce";
 
 export const Rudeboys = {

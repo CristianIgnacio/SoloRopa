@@ -9,6 +9,13 @@ import Register from "../pages/Register"
 import Favorites from "../pages/Favorites"
 import PrivateRoute from "./PrivateRoute"
 import FavoritesDetail from "../pages/FavoritesDetail"
+import ProfileEdit from "../pages/ProfileEdit"
+import Explore from "../pages/Explore"
+import Search from "../pages/Search"
+import ProductDetail from "../pages/ProductDetail"
+import ForgotPassword from "../pages/ForgotPassword"
+import ResetPassword from "../pages/ResetPassword"
+import OutfitBuilder from "../pages/OutfitBuilder"
 
 export default function AppRouter() {
   return (
@@ -16,12 +23,17 @@ export default function AppRouter() {
       {/* Rutas con layout */}
       <Route element={<MainLayout />}>
         <Route path="/" element={<Home />} />
-        <Route path="/profile/:id" element={<Profile />} />
+        <Route path="/profile/:username" element={<Profile />} />
+        <Route path="/explore" element={<Explore />} />
+        <Route path="/search" element={<Search />} />
+        <Route path="/producto/:id" element={<ProductDetail />} />
 
         {/* 🔒 Rutas privadas (user) */}
         <Route element={<PrivateRoute />}>
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/favorites/:id" element={<FavoritesDetail />} />
+          <Route path="/profile/edit" element={<ProfileEdit />} />
+          <Route path="/outfit-builder" element={<OutfitBuilder />} />
         </Route>
 
         {/* 🔐 Rutas privadas (admin) */}
@@ -33,6 +45,8 @@ export default function AppRouter() {
       {/* Públicas */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password/:token" element={<ResetPassword />} />
     </Routes>
   )
 }

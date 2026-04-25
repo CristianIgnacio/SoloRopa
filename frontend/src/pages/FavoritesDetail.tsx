@@ -44,18 +44,18 @@ export default function FavoritesDetail() {
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-6">
-      <div className="mb-6">
-        <h1 className="text-xl font-semibold">{wishlist?.name}</h1>
-        <p className="text-sm text-slate-500">
+      <div className="mb-8 border-b-4 border-black pb-4">
+        <h1 className="text-4xl font-black uppercase tracking-tighter text-black">{wishlist?.name}</h1>
+        <p className="mt-1 text-sm font-bold uppercase tracking-widest text-slate-600">
           {wishlist?.items.length} productos guardados
         </p>
       </div>
 
       {(!wishlist || wishlist.items.length === 0) ? (
-        <p className="text-slate-500">No hay productos aún.</p>
+        <p className="text-sm font-bold uppercase tracking-widest text-slate-500">No hay productos aún.</p>
       ) : (
         // <ProductMasonry products={products} />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {wishlist.items.map((item: WishlistItem) => (
             <FavoriteItemCard
               key={item.productId.id}
