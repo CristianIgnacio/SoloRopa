@@ -8,7 +8,6 @@ type WishlistState = {
   wishlist : Wishlist[]
   loadFavorites: () => Promise<void>
   toggleFavorite: (productId: string) => Promise<void>
-  isFavorite: (productId: string) => boolean
 }
 
 export const useWishlistStore = create<WishlistState>((set, get) => ({
@@ -17,7 +16,10 @@ export const useWishlistStore = create<WishlistState>((set, get) => ({
     loadFavorites: async () => {
         const wishlists = await wishlistServices.getMeWishlists()
         const findList = wishlists.data.find((w: any) => w.isDefault)
-        const defaultList = findList?.items.map( (item : any) => item.productId)
+        const defaultList = findList?.items.map((item: any) => {
+            const prod = item.productId;
+            return prod?.id || prod?._id || prod;
+        })
 
         set({
             favoriteIds: new Set(defaultList || []),
@@ -41,9 +43,5 @@ export const useWishlistStore = create<WishlistState>((set, get) => ({
         // rollback si falla
         set({ favoriteIds: prev })
         }
-    },
-
-    isFavorite: (productId) => {
-        return get().favoriteIds.has(productId)
     },
 }))

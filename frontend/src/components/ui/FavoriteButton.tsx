@@ -12,7 +12,7 @@ type Props = {
 
 export default function FavoriteButton({ productId }: Props) {
   const toggleFavorite = useWishlistStore((s) => s.toggleFavorite)
-  const isFavorite = useWishlistStore((s) => s.isFavorite(productId))
+  const isFavorite = useWishlistStore((s) => s.favoriteIds.has(productId))
   const {user} = useUserStore()
   const navigate = useNavigate()
 

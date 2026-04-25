@@ -37,4 +37,9 @@ const getProductById = async (id: string) => {
   return res.data.data;
 };
 
-export default { getProducts, getTrendingProducts, getNewestProducts, getProductById };
+const getRelatedProducts = async (id: string, limit = 10) => {
+  const res = await axios.get(`${API_URL}/${id}/related`, { params: { limit } });
+  return res.data.data;
+};
+
+export default { getProducts, getTrendingProducts, getNewestProducts, getProductById, getRelatedProducts };
