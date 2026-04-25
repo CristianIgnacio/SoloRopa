@@ -14,6 +14,7 @@ import {
   faUser,
   faRightFromBracket,
   faShieldHalved,
+  faShirt,
 } from "@fortawesome/free-solid-svg-icons"
 
 
@@ -140,6 +141,10 @@ export default function Navbar() {
         </div>
 
         <nav className="flex items-center gap-3">
+          <Link to="/search" className="hidden items-center gap-1.5 px-3 py-1 text-sm font-bold uppercase tracking-wider text-black border-2 border-transparent transition-all hover:border-black hover:bg-yellow-400 md:flex">
+            <FontAwesomeIcon icon={faMagnifyingGlass} className="text-xs" />
+            Buscar
+          </Link>
           {user ? (
             <>
               <Link to="/favorites" className="flex items-center gap-1.5 px-3 py-1 text-sm font-bold uppercase tracking-wider text-black border-2 border-transparent transition-all hover:border-black hover:bg-yellow-400">
@@ -184,6 +189,15 @@ export default function Navbar() {
                     >
                       <FontAwesomeIcon icon={faUser} className="w-4 text-black" />
                       Ver perfil
+                    </Link>
+
+                    <Link
+                      to="/outfit-builder"
+                      onClick={() => setOpen(false)}
+                      className="flex items-center gap-2 border-t border-slate-100 px-4 py-3 text-xs font-bold uppercase tracking-widest text-black transition-colors hover:bg-yellow-400"
+                    >
+                      <FontAwesomeIcon icon={faShirt} className="w-4 text-black" />
+                      Crear outfit
                     </Link>
 
                     {user.role === "admin" && (

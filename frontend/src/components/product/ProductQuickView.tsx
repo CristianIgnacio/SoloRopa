@@ -9,12 +9,21 @@ import VariantSelector from "./VariantSelector"
 import type { Product } from "../../Types/Types"
 import { useProductEvents } from "../../Hooks/useProductEvents"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faXmark, faArrowTrendDown, faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons"
+import { faXmark, faArrowTrendDown, faArrowUpRightFromSquare, faTag } from "@fortawesome/free-solid-svg-icons"
 
 type Props = {
   product: Product | null
   open: boolean
   onClose: () => void
+}
+
+
+/** Combina todos los tags canónicos en una lista plana */
+const allCanonicalTags = (product: Product): string[] => {
+  if (!product.canonicalTags) return []
+  return Object.values(product.canonicalTags)
+    .filter(Boolean)
+    .flat() as string[]
 }
 
 export default function ProductQuickView({ product, open, onClose }: Props) {
@@ -45,6 +54,9 @@ export default function ProductQuickView({ product, open, onClose }: Props) {
     if (!product) return null
 
     const images = product.images
+    const canonicalList = allCanonicalTags(product)
+    // Combina tags nativos del scraper + canónicos, sin duplicados
+    const displayTags = [...new Set([...(product.tags ?? []), ...canonicalList])].slice(0, 12)
 
     return (
         <Modal open={open} onClose={handleClose}>
@@ -99,9 +111,25 @@ export default function ProductQuickView({ product, open, onClose }: Props) {
                     {product.brand.name}
                 </p>
 
-                <h2 className="mt-2 text-2xl font-black uppercase tracking-tighter text-black">
+                <h2 className="mt-1 text-2xl font-black uppercase tracking-tighter text-black">
                     {product.title}
                 </h2>
+
+                {/* Categoría + Género */}
+                {(product.category || product.gender) && (
+                    <div className="flex flex-wrap gap-2">
+                        {product.category && (
+                            <span className="border border-black px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-black">
+                                {product.category}
+                            </span>
+                        )}
+                        {product.gender && (
+                            <span className="border border-yellow-400 bg-yellow-400 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-black">
+                                {product.gender}
+                            </span>
+                        )}
+                    </div>
+                )}
 
                 <div className="flex items-center justify-between">
                     {/* <p className="text-xl font-bold">
@@ -122,11 +150,31 @@ export default function ProductQuickView({ product, open, onClose }: Props) {
                 </div>
 
                 {/* Opciones Dinámicas */}
-                <div className="mt-4">
+                <div className="mt-2">
                     {product.variants?.length > 0 && (
                         <VariantSelector product={product} variantsState={variantsState} />
                     )}
                 </div>
+
+                {/* Tags */}
+                {displayTags.length > 0 && (
+                    <div className="mt-1">
+                        <p className="mb-1.5 text-[9px] font-black uppercase tracking-widest text-slate-400">
+                            <FontAwesomeIcon icon={faTag} className="mr-1" />
+                            Tags
+                        </p>
+                        <div className="flex flex-wrap gap-1.5">
+                            {displayTags.map(tag => (
+                                <span
+                                    key={tag}
+                                    className="border border-slate-200 bg-slate-50 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-slate-500"
+                                >
+                                    {tag}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
             {/* Placeholder comparador */}
             <p className="text-sm text-green-600 mb-2">

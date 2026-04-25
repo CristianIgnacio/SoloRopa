@@ -55,7 +55,7 @@ export default function FavoritesDetail() {
         <p className="text-sm font-bold uppercase tracking-widest text-slate-500">No hay productos aún.</p>
       ) : (
         // <ProductMasonry products={products} />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {wishlist.items.map((item: WishlistItem) => (
             <FavoriteItemCard
               key={item.productId.id}

@@ -1,15 +1,16 @@
 import { useRef } from "react"
+import { useNavigate } from "react-router-dom"
 import type { Brand } from "../../Types/Types"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons"
 
 type Props = {
   brands: Brand[]
-  onSelect?: (brandId: string) => void
 }
 
-export default function BrandCarousel({ brands, onSelect }: Props) {
+export default function BrandCarousel({ brands }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null)
+  const navigate = useNavigate()
 
   if (brands.length === 0) return null
 
@@ -19,6 +20,10 @@ export default function BrandCarousel({ brands, onSelect }: Props) {
       left: dir === "left" ? -300 : 300,
       behavior: "smooth",
     })
+  }
+
+  const handleBrandClick = (brandId: string) => {
+    navigate(`/search?brand=${brandId}`)
   }
 
   return (
@@ -43,28 +48,23 @@ export default function BrandCarousel({ brands, onSelect }: Props) {
         {/* Carrusel */}
         <div
           ref={scrollRef}
-          className="
-            flex flex-1 gap-6
-            overflow-x-hidden
-            py-6
-            px-3
-
-          "
+          className="flex flex-1 gap-6 overflow-x-hidden py-6 px-3"
         >
           {brands.map((brand) => (
             <button
               key={brand.id}
-              onClick={() => onSelect?.(brand.id)}
-              className="flex shrink-0 flex-col items-center text-center"
+              onClick={() => handleBrandClick(brand.id)}
+              title={`Ver productos de ${brand.name}`}
+              className="flex shrink-0 flex-col items-center text-center group"
             >
               <div
                 style={{ backgroundColor: brand.logo?.backgroundColor || "#ffffff" }}
                 className="
                   flex h-24 w-24 items-center justify-center
-                  rounded-none border-2 border-black
-                  shadow-none
+                  rounded-none border-2 border-black shadow-none
                   transition-all duration-200
-                  hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000] active:translate-y-0 active:shadow-[2px_2px_0_0_#000]
+                  group-hover:-translate-y-1 group-hover:shadow-[6px_6px_0_0_#000]
+                  active:translate-y-0 active:shadow-[2px_2px_0_0_#000]
                 "
               >
                 <img
@@ -75,7 +75,7 @@ export default function BrandCarousel({ brands, onSelect }: Props) {
                 />
               </div>
 
-              <span className="mt-4 whitespace-nowrap text-xs font-bold uppercase tracking-widest text-black bg-white border border-black px-2 shadow-[2px_2px_0_0_#000]">
+              <span className="mt-4 whitespace-nowrap text-xs font-bold uppercase tracking-widest text-black bg-white border border-black px-2 shadow-[2px_2px_0_0_#000] group-hover:bg-yellow-400 transition-colors">
                 {brand.name}
               </span>
             </button>
