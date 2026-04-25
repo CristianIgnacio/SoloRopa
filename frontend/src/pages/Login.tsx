@@ -36,7 +36,6 @@ export default function Login() {
             const userlogin = await loginServices.login(credentials);
             loginState(userlogin)
             navigate(from, { replace: true })
-            // console.log("Login successful:", userlogin);
         }
         catch(error){
             console.error("Login error:", error);

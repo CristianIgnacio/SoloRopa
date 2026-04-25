@@ -71,7 +71,6 @@ export default function Profile() {
   }
 
 
-  console.log(wishlists)
   return (
     <section className="mx-auto max-w-5xl px-4 py-8">
       {/* HEADER */}

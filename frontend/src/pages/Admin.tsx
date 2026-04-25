@@ -14,7 +14,7 @@ import scrapeService from "../services/scrape"
 import type { ScrapeFeedItem, BrandStat } from "../services/scrape"
 
 const BRANDS = [
-  { key: "freshbrand",   label: "Freshbrand",    url: "freshbrand.cl" },
+  { key: "freshbrand",   label: "Freshbrand",     url: "freshbrand.cl" },
   { key: "moreamor",     label: "Moreamor",       url: "moreamor.cl" },
   { key: "rudeboys",     label: "Rudeboys",       url: "rudeboys.cl" },
   { key: "subcomplot",   label: "SubComplot",     url: "subcomplot.cl" },
@@ -22,6 +22,7 @@ const BRANDS = [
   { key: "bvnggvng",     label: "Bvnggvng",       url: "bvnggvng.cl" },
   { key: "mdf",          label: "MDF",            url: "ropamdf.cl" },
   { key: "treinoficial", label: "Treinoficial",   url: "treinoficial.cl" },
+  { key: "whatup",       label: "Whatup",         url: "streetmachine.cl/collections/whatup" },
 ]
 
 type BrandStatus = "idle" | "loading" | "success" | "error"
