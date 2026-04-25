@@ -8,7 +8,7 @@
   "main": "src/index.ts",
   "scripts": {
     "build": "tsc",
-    "start": "node src/index.js",
+    "start": "node out/index.js",
     "dev": "ts-node-dev src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "detectPlatform": "ts-node src/scrapers/scripts/detectPlatform.ts",
