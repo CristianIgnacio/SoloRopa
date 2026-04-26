@@ -16,10 +16,10 @@ const MONGODB_URI =
 const JWT_SECRET = process.env.JWT_SECRET
 if (!JWT_SECRET) throw new Error('JWT_SECRET environment variable is required')
 
-  const MONGODB_DBNAME 
+const MONGODB_DBNAME 
   = process.env.NODE_ENV === 'test' 
     ? process.env.TEST_MONGODB_DBNAME 
-    : process.env.MONGODB_DBNAME || 'soloropa'
+    : process.env.MONGODB_DBNAME || 'SoloRopa'
 
 const SCRAPER_MONGODB_URI = process.env.SCRAPER_MONGODB_URI
 

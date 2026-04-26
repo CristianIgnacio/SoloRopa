@@ -4,6 +4,8 @@ import {BrowserRouter as Router} from "react-router-dom"
 import './index.css'
 import App from './App.tsx'
 import axios from 'axios'
+import { SpeedInsights } from "@vercel/speed-insights/react"
+import { Analytics } from "@vercel/analytics/react"
 
 axios.defaults.baseURL = import.meta.env.VITE_API_URL || ""
 
@@ -12,5 +14,7 @@ createRoot(document.getElementById('root')!).render(
     <Router>
       <App />
     </Router>
+    <SpeedInsights />
+    <Analytics />
   </StrictMode>,
 )
