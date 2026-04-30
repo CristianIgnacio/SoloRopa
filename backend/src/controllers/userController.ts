@@ -64,9 +64,9 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
     try {
         const { username, password, email } = req.body;
 
-        const avatarUrl = req.file
-            ? `/uploads/avatars/${req.file.filename}`
-            : null;
+        // const avatarUrl = req.file
+        //     ? `/uploads/avatars/${req.file.filename}`
+        //     : null;
 
         const saltRounds = 10;
         const passwordHash = await bcrypt.hash(password, saltRounds);
@@ -76,7 +76,7 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
             password: passwordHash,
             email: email,
             role: "user",
-            avatarUrl: avatarUrl || null,
+            // avatarUrl: avatarUrl || null,
         });
         const savedUser = await user.save();
 
