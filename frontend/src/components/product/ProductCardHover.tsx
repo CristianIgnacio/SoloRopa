@@ -45,7 +45,7 @@ export default function ProductCardHover({ product, onClick }: Props) {
       <div
         className="
           absolute inset-0
-          flex flex-col justify-between
+          hidden lg:flex flex-col justify-between
           bg-black/50
           p-3
           opacity-0

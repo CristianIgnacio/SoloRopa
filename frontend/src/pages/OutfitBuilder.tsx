@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState, useRef } from "react"
 import type { Product, Brand, Wishlist, WishlistItem } from "../Types/Types"
 import productsServices from "../services/products"
 import brandsServices from "../services/brands"
@@ -62,6 +62,7 @@ const getProductImage = (product?: Product | null) => product?.images?.[0]?.src 
 export default function OutfitBuilder() {
   const [selectedProducts, setSelectedProducts] = useState<OutfitState>(emptyOutfitState())
   const [activeSlot, setActiveSlot] = useState<OutfitSlotId>("top")
+  const catalogRef = useRef<HTMLDivElement>(null)
 
   // Filtros
   const [selectedStyle, setSelectedStyle] = useState("")
@@ -199,7 +200,7 @@ export default function OutfitBuilder() {
   const activeFilterCount = [selectedStyle, selectedColor, selectedGender, selectedBrand].filter(Boolean).length
 
   return (
-    <section className="min-h-screen bg-[#f3efe5] px-4 py-8">
+    <section className="min-h-screen bg-[#f3efe5] px-4 py-8 pb-32 lg:pb-8">
       <div className="mx-auto max-w-7xl">
 
         {/* ── HEADER ── */}
@@ -219,14 +220,23 @@ export default function OutfitBuilder() {
           <aside className="space-y-4">
 
             {/* Box Total */}
-            <div className="border-4 border-black bg-black p-5 shadow-[6px_6px_0_0_#facc15] text-white sticky top-24 z-10">
-              <div className="flex items-end justify-between">
+            <div className="fixed bottom-0 left-0 right-0 z-50 border-t-4 border-black bg-black p-4 text-white lg:sticky lg:top-24 lg:z-10 lg:border-4 lg:p-5 lg:shadow-[6px_6px_0_0_#facc15]">
+              <div className="mx-auto flex max-w-7xl items-center justify-between px-4 lg:px-0">
                 <div>
-                  <p className="text-4xl font-black">{totalItemsCount}</p>
+                  <p className="text-3xl font-black lg:text-4xl">{totalItemsCount}</p>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Prendas en total</p>
                 </div>
+                
+                {/* Botón scroll catálogo (Solo móvil) */}
+                <button 
+                  onClick={() => catalogRef.current?.scrollIntoView({ behavior: "smooth" })}
+                  className="flex items-center justify-center border-2 border-yellow-400 bg-yellow-400 px-4 py-2 text-xs font-black uppercase text-black lg:hidden shadow-[2px_2px_0_0_#000]"
+                >
+                  Ver Catálogo <FontAwesomeIcon icon={faMagnifyingGlass} className="ml-2" />
+                </button>
+
                 <div className="text-right">
-                  <p className="text-3xl font-black">{outfitPrice > 0 ? `$${outfitPrice.toLocaleString("es-CL")}` : "–"}</p>
+                  <p className="text-2xl font-black lg:text-3xl">{outfitPrice > 0 ? `$${outfitPrice.toLocaleString("es-CL")}` : "–"}</p>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Total acumulado</p>
                 </div>
               </div>
@@ -243,7 +253,14 @@ export default function OutfitBuilder() {
                   <button
                     key={slot.id}
                     type="button"
-                    onClick={() => setActiveSlot(slot.id)}
+                    onClick={() => {
+                      setActiveSlot(slot.id);
+                      if (window.innerWidth < 1024) {
+                        setTimeout(() => {
+                          catalogRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                        }, 100);
+                      }
+                    }}
                     className={`w-full border-4 p-4 text-left transition-all relative ${isActive
                         ? "border-yellow-400 bg-white shadow-[6px_6px_0_0_#facc15] -translate-y-1"
                         : "border-black bg-[#fffdf8] shadow-[4px_4px_0_0_#000] hover:bg-white"
@@ -297,7 +314,7 @@ export default function OutfitBuilder() {
           </aside>
 
           {/* ── COLUMNA DERECHA: Catálogo / Focus ── */}
-          <div className="space-y-6">
+          <div className="space-y-6" ref={catalogRef}>
 
             {/* Cabecera del Catálogo Activo */}
             <div className="border-4 border-black bg-white p-5 shadow-[6px_6px_0_0_#000]">

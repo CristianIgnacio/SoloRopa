@@ -15,11 +15,14 @@ import {
   faRightFromBracket,
   faShieldHalved,
   faShirt,
+  faBars,
+  faXmark,
 } from "@fortawesome/free-solid-svg-icons"
 
 
 export default function Navbar() {
   const [open, setOpen] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   
   // Search states
@@ -53,6 +56,7 @@ export default function Navbar() {
       await loginServices.logout()
       logout()
       setOpen(false)
+      setIsMobileMenuOpen(false)
       navigate("/")
     } catch (error) {
       console.error(error)
@@ -61,13 +65,13 @@ export default function Navbar() {
 
   return (
     <header className="fixed top-0 z-50 w-full border-b-4 border-black bg-[#F4F4F0]">
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4">
 
-        <Link to="/" className="text-2xl font-black uppercase tracking-tighter hover:text-yellow-500 transition-colors">
+        <Link to="/" className="text-2xl font-black uppercase tracking-tighter hover:text-yellow-500 transition-colors" onClick={() => setIsMobileMenuOpen(false)}>
           SoloRopa
         </Link>
 
-        <div className="mx-4 flex flex-1 md:ml-8" ref={searchContainerRef}>
+        <div className="hidden mx-4 md:flex flex-1 md:ml-8" ref={searchContainerRef}>
           <form 
             className="relative w-full group"
             onSubmit={(e) => {
@@ -140,7 +144,7 @@ export default function Navbar() {
           </form>
         </div>
 
-        <nav className="flex items-center gap-3">
+        <nav className="hidden md:flex items-center gap-3">
           <Link to="/search" className="hidden items-center gap-1.5 px-3 py-1 text-sm font-bold uppercase tracking-wider text-black border-2 border-transparent transition-all hover:border-black hover:bg-yellow-400 md:flex">
             <FontAwesomeIcon icon={faMagnifyingGlass} className="text-xs" />
             Buscar
@@ -239,7 +243,104 @@ export default function Navbar() {
           )}
         </nav>
 
+        {/* Mobile menu toggle */}
+        <button 
+          className="flex items-center justify-center p-2 text-black md:hidden hover:text-yellow-500 transition-colors"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          aria-label="Toggle menu"
+        >
+          <FontAwesomeIcon icon={isMobileMenuOpen ? faXmark : faBars} className="text-2xl" />
+        </button>
+
       </div>
+
+      {/* Mobile Menu Dropdown */}
+      {isMobileMenuOpen && (
+        <div className="absolute top-16 left-0 w-full border-b-4 border-black bg-[#F4F4F0] p-4 md:hidden shadow-[4px_4px_0_0_#000]">
+          <nav className="flex flex-col gap-4">
+            <Link 
+              to="/search" 
+              className="flex items-center gap-3 text-lg font-bold uppercase tracking-wider text-black transition-colors hover:text-yellow-500"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <FontAwesomeIcon icon={faMagnifyingGlass} className="w-5" />
+              Buscar
+            </Link>
+            {user ? (
+              <>
+                <Link 
+                  to="/favorites" 
+                  className="flex items-center gap-3 text-lg font-bold uppercase tracking-wider text-black transition-colors hover:text-yellow-500"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <FontAwesomeIcon icon={faHeart} className="w-5" />
+                  Favoritos
+                </Link>
+                <Link 
+                  to="/explore" 
+                  className="flex items-center gap-3 text-lg font-bold uppercase tracking-wider text-black transition-colors hover:text-yellow-500"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <FontAwesomeIcon icon={faCompass} className="w-5" />
+                  Explorar
+                </Link>
+                <Link 
+                  to={`/profile/${user.username}`} 
+                  className="flex items-center gap-3 text-lg font-bold uppercase tracking-wider text-black transition-colors hover:text-yellow-500"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <FontAwesomeIcon icon={faUser} className="w-5" />
+                  Ver perfil
+                </Link>
+                <Link 
+                  to="/outfit-builder" 
+                  className="flex items-center gap-3 text-lg font-bold uppercase tracking-wider text-black transition-colors hover:text-yellow-500"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <FontAwesomeIcon icon={faShirt} className="w-5" />
+                  Crear outfit
+                </Link>
+                {user.role === "admin" && (
+                  <Link 
+                    to="/admin" 
+                    className="flex items-center gap-3 text-lg font-bold uppercase tracking-wider text-black transition-colors hover:text-yellow-500"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <FontAwesomeIcon icon={faShieldHalved} className="w-5" />
+                    Admin
+                  </Link>
+                )}
+                <button 
+                  onClick={handleLogout}
+                  className="flex items-center gap-3 text-lg font-bold uppercase tracking-wider text-red-500 transition-colors hover:text-red-600"
+                >
+                  <FontAwesomeIcon icon={faRightFromBracket} className="w-5" />
+                  Cerrar sesión
+                </button>
+              </>
+            ) : (
+              <>
+                <Link 
+                  to="/login" 
+                  className="flex items-center gap-3 text-lg font-bold uppercase tracking-wider text-black transition-colors hover:text-yellow-500"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <FontAwesomeIcon icon={faRightToBracket} className="w-5" />
+                  Ingresar
+                </Link>
+                <Link 
+                  to="/register" 
+                  className="flex items-center gap-3 text-lg font-bold uppercase tracking-wider text-black transition-colors hover:text-yellow-500"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <FontAwesomeIcon icon={faUserPlus} className="w-5" />
+                  Crear cuenta
+                </Link>
+              </>
+            )}
+          </nav>
+        </div>
+      )}
     </header>
   )
 }

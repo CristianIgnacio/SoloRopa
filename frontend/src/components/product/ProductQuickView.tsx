@@ -63,7 +63,7 @@ export default function ProductQuickView({ product, open, onClose }: Props) {
         {/* Botón cerrar */}
         <button
             onClick={handleClose}
-            className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center border-2 border-black bg-white text-black transition-colors hover:bg-black hover:text-white"
+            className="absolute right-3 top-3 z-50 flex h-8 w-8 items-center justify-center border-2 border-black bg-white text-black transition-colors hover:bg-black hover:text-white"
         >
             <FontAwesomeIcon icon={faXmark} />
         </button>

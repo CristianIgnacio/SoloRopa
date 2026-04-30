@@ -146,7 +146,7 @@ export default function Search() {
           Explorador Avanzado
         </h1>
 
-        <div className="flex w-full items-center gap-2">
+        <div className="sticky top-16 z-30 -mx-4 flex w-full items-center gap-2 bg-[#F4F4F0]/95 px-4 py-3 backdrop-blur-sm lg:static lg:mx-0 lg:bg-transparent lg:px-0 lg:py-0 lg:backdrop-blur-none">
           <div className="flex flex-1 items-center border-4 border-black bg-white px-4 py-2 shadow-[4px_4px_0_0_#000]">
             <FontAwesomeIcon icon={faSearch} className="text-xl text-black" />
             <input
@@ -175,7 +175,7 @@ export default function Search() {
       <div className="flex flex-col gap-8 lg:flex-row">
         {/* SIDEBAR FILTROS */}
         <aside className={`
-          fixed inset-0 z-40 bg-white p-6 lg:static lg:block lg:w-64 lg:bg-transparent lg:p-0
+          fixed inset-0 z-[60] bg-white p-6 lg:static lg:block lg:w-64 lg:bg-transparent lg:p-0 lg:z-auto
           ${showFiltersMobile ? "block overflow-y-auto" : "hidden"}
         `}>
           <div className="mb-6 flex items-center justify-between lg:hidden">

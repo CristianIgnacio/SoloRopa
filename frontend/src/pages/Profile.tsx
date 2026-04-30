@@ -74,7 +74,7 @@ export default function Profile() {
   return (
     <section className="mx-auto max-w-5xl px-4 py-8">
       {/* HEADER */}
-      <div className="flex items-center gap-6">
+      <div className="flex flex-col items-center text-center sm:flex-row sm:text-left gap-4 sm:gap-6">
         <Avatar
           username={profile.username}
           src={profile.avatarUrl}
@@ -92,7 +92,7 @@ export default function Profile() {
             </p>
           )}
 
-          <div className="mt-4 flex flex-wrap gap-4 text-xs font-bold uppercase tracking-widest text-slate-800">
+          <div className="mt-4 flex flex-wrap justify-center sm:justify-start gap-4 text-xs font-bold uppercase tracking-widest text-slate-800">
             <span className="border-2 border-black bg-white px-3 py-1 shadow-[2px_2px_0_0_#000]">
               <span className="text-lg font-black text-black">{wishlists.length}</span> colecciones
             </span>
