@@ -3,6 +3,7 @@ import type { Product, Brand, Wishlist, WishlistItem } from "../Types/Types"
 import productsServices from "../services/products"
 import brandsServices from "../services/brands"
 import wishlistServices from "../services/wishlist"
+import ProductCardSkeleton from "../components/product/ProductCardSkeleton"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
   faCircleNotch,
@@ -513,9 +514,10 @@ export default function OutfitBuilder() {
 
             {/* Loading Indicator for initial load */}
             {loading && products.length === 0 && (
-              <div className="flex h-64 items-center justify-center text-lg font-black uppercase text-slate-400">
-                <FontAwesomeIcon icon={faCircleNotch} spin className="mr-3 text-yellow-500" />
-                Buscando...
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <ProductCardSkeleton key={i} />
+                ))}
               </div>
             )}
 

@@ -9,6 +9,7 @@ import { useProductVariants } from "../Hooks/useProductVariants"
 import VariantSelector from "../components/product/VariantSelector"
 import ProductCardHover from "../components/product/ProductCardHover"
 import ProductQuickView from "../components/product/ProductQuickView"
+import ProductDetailSkeleton from "../components/product/ProductDetailSkeleton"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowTrendDown, faArrowUpRightFromSquare, faArrowLeft, faTag } from "@fortawesome/free-solid-svg-icons"
 
@@ -67,11 +68,7 @@ export default function ProductDetail() {
   }, [product?.id])
 
   if (loading) {
-    return (
-      <div className="flex min-h-[50vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-slate-800"></div>
-      </div>
-    )
+    return <ProductDetailSkeleton />
   }
 
   if (error || !product) {

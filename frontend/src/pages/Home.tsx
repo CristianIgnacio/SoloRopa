@@ -7,6 +7,7 @@ import { useInfiniteScroll } from "../Hooks/useInfiniteScroll"
 import ProductQuickView from "../components/product/ProductQuickView"
 // import ProductCardDots from "../components/product/ProductCardDots"
 import ProductCardHover from "../components/product/ProductCardHover"
+import ProductCardSkeleton from "../components/product/ProductCardSkeleton"
 // import ProductCard from "../components/product/ProductCard"
 
 const PAGE_SIZE = 20
@@ -59,18 +60,29 @@ const Home = () => {
     return (
         <>
         <section className="mx-auto max-w-7xl px-4 py-6">
-            <ProductMasonry
-                products={products}
-                renderItem={(product) => (
-                    <>
-                    {/* <ProductCard key={product.id} product={product} /> */}
-                    <ProductCardHover key={product.id} product={product} onClick={() => setQuickViewProduct(product)}/>
-                    {/* <ProductCardDots product={product} onClick={() => setQuickViewProduct(product)}/> */}
-                    </>
-                )}
-            />
+            {/* Carga Inicial */}
+            {loading && products.length === 0 && (
+                <div className="columns-2 gap-4 sm:columns-3 md:columns-4 lg:columns-5 space-y-4">
+                    {Array.from({ length: 15 }).map((_, i) => (
+                        <div key={i} className="break-inside-avoid">
+                            <ProductCardSkeleton />
+                        </div>
+                    ))}
+                </div>
+            )}
 
-            {loading && (
+            {/* Grid Principal */}
+            {products.length > 0 && (
+                <ProductMasonry
+                    products={products}
+                    renderItem={(product) => (
+                        <ProductCardHover key={product.id} product={product} onClick={() => setQuickViewProduct(product)}/>
+                    )}
+                />
+            )}
+
+            {/* Scroll Infinito Carga */}
+            {loading && products.length > 0 && (
                 <p className="mt-8 border-t-2 border-black pt-4 text-center text-xs font-bold uppercase tracking-widest text-black">
                     Cargando drop...
                 </p>
