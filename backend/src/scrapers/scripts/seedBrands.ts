@@ -134,9 +134,22 @@ const seedBrands = async () => {
       isActive: true
     };
 
+    const nubebrand = {
+      name: "NubeBrand",
+      slug: "nubebrand",
+      description: "Ropa urbana",
+      website: "https://www.nubebrand.cl/",
+      logo: {
+        src: "https://www.nubebrand.cl/cdn/shop/files/logo_nube_180x.png?v=1615320851",
+        alt: "Logo NubeBrand",
+        backgroundColor: "#FFFFFF"
+      },
+      isActive: true
+    };
+
     // Usar updateOne con upsert para insertar si no existe, o actualizar si ya existe
     // De esta forma solo actualizamos los campos especificados sin borrar otros
-    const brands = [rudeboys, freshbrand, moreamor, subcomplot, belowapparel, bvnggvng, mdf, treinoficial, whatup];
+    const brands = [rudeboys, freshbrand, moreamor, subcomplot, belowapparel, bvnggvng, mdf, treinoficial, whatup, nubebrand];
     
     for (const brand of brands) {
       await Brand.updateOne(

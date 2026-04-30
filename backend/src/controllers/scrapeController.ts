@@ -27,6 +27,7 @@ const scrapeBvnggvng = scrapeBase("bvnggvng")
 const scrapeMDF = scrapeBase("mdf")
 const scrapeTreinoficial = scrapeBase("treinoficial")
 const scrapeWhatup = scrapeBase("whatup")
+const scrapeNubeBrand = scrapeBase("nubebrand")
 
 const scrapeAll = async (req: Request, res: Response, next: NextFunction) => {
   const brandKeys = Object.keys(stores);
@@ -84,6 +85,7 @@ export {
   scrapeMDF,
   scrapeTreinoficial,
   scrapeWhatup,
+  scrapeNubeBrand,
   scrapeAll,
   getLastScrapeStats
 };
