@@ -10,6 +10,7 @@ import VariantSelector from "../components/product/VariantSelector"
 import ProductCardHover from "../components/product/ProductCardHover"
 import ProductQuickView from "../components/product/ProductQuickView"
 import ProductDetailSkeleton from "../components/product/ProductDetailSkeleton"
+import ShareButton from "../components/ui/ShareButton"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowTrendDown, faArrowUpRightFromSquare, faArrowLeft, faTag } from "@fortawesome/free-solid-svg-icons"
 
@@ -147,7 +148,10 @@ export default function ProductDetail() {
             <span className="border-2 border-black bg-black px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white shadow-[2px_2px_0_0_#000]">
               {product.brand.name}
             </span>
-            <FavoriteButton productId={product.id} />
+            <div className="flex items-center gap-2">
+              <ShareButton productId={product.id} />
+              <FavoriteButton productId={product.id} />
+            </div>
           </div>
 
           <h1 className="mb-2 mt-2 text-4xl font-black uppercase tracking-tighter text-black sm:text-5xl border-b-4 border-black pb-4">
