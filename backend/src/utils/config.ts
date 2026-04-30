@@ -31,6 +31,8 @@ const COOKIE_SAME_SITE: SameSitePolicy = (
   ? process.env.COOKIE_SAME_SITE
   : 'lax'
 
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || ''
+
 export default { 
   PORT, 
   MONGODB_URI, 
@@ -38,5 +40,6 @@ export default {
   JWT_SECRET, 
   MONGODB_DBNAME, 
   SCRAPER_MONGODB_URI, 
-  COOKIE_SAME_SITE 
+  COOKIE_SAME_SITE,
+  GOOGLE_CLIENT_ID
 }

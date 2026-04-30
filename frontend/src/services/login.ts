@@ -19,6 +19,18 @@ const login = async (credentials: Credentials) => {
     return response.data;
 };
 
+const googleLogin = async (token: string) => {
+    const response = await axios.post("/api/auth/google", { token });
+
+    const csrfToken = response.headers["x-csrf-token"];
+
+    if (csrfToken) {
+        localStorage.setItem("csrfToken", csrfToken);
+    }
+
+    return response.data;
+};
+
 interface RegisterCredentials {
     username: string;
     email: string;
@@ -61,4 +73,4 @@ const resetPassword = async (token: string, password: string) => {
     return response.data;
 };
 
-export default { login, register, logout, restoreLogin, forgotPassword, resetPassword };
+export default { login, googleLogin, register, logout, restoreLogin, forgotPassword, resetPassword };

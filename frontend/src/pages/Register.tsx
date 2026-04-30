@@ -5,6 +5,8 @@ import { validateRegister } from "../validations/register";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faUser, faEnvelope, faLock, faUserPlus } from "@fortawesome/free-solid-svg-icons"
+import { GoogleLogin } from "@react-oauth/google"
+import { useUserStore } from "../Hooks/useStore";
 
 interface RegisterData {
   username: string;
@@ -28,6 +30,7 @@ export default function Register() {
   const generalError = errors.username || errors.email || errors.password || errors.repeatPassword || errors.imagen
 
   const navigate = useNavigate()
+  const { login: loginState } = useUserStore();
 
   const onSubmit = async (data : RegisterData) => {
     setLoading(true)
@@ -48,6 +51,21 @@ export default function Register() {
     }
   };
 
+  const handleGoogleLogin = async (credentialResponse: any) => {
+    setLoading(true);
+    try {
+      if (credentialResponse.credential) {
+        const userlogin = await loginServices.googleLogin(credentialResponse.credential);
+        loginState(userlogin);
+        navigate("/");
+      }
+    } catch (error) {
+      console.error("Google login error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const previewImage = form.imagen ? URL.createObjectURL(form.imagen) : "";
 
   return (
@@ -58,7 +76,7 @@ export default function Register() {
       >
         <h1 className="mb-6 text-center text-2xl font-black uppercase tracking-tighter text-black border-b-4 border-black pb-2">Crear cuenta</h1>
 
-        <label className="flex cursor-pointer flex-col items-center gap-2">
+        {/* <label className="flex cursor-pointer flex-col items-center gap-2">
           <img
             src={previewImage || ""}
             className="h-20 w-20 rounded-full object-cover"
@@ -75,7 +93,7 @@ export default function Register() {
             hidden
             onChange={handleChange}
           />
-        </label>
+        </label> */}
 
         <div className="relative mb-4">
         <FontAwesomeIcon icon={faUser} className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-black" />
@@ -134,13 +152,24 @@ export default function Register() {
         <button
           type="submit"
           disabled={loading}
-          className="flex w-full items-center justify-center gap-2 rounded-none border-2 border-black bg-black py-2.5 font-bold uppercase tracking-widest text-white shadow-[2px_2px_0_0_#000] transition-all hover:bg-yellow-400 hover:text-black active:translate-y-px active:shadow-none disabled:opacity-50"
+          className="flex w-full items-center justify-center gap-2 rounded-none border-2 border-black bg-black py-2.5 font-bold uppercase tracking-widest text-white shadow-[2px_2px_0_0_#000] transition-all hover:bg-yellow-400 hover:text-black active:translate-y-px active:shadow-none disabled:opacity-50 mb-4"
         >
           <FontAwesomeIcon icon={faUserPlus} />
           {loading ? "Creando..." : "Crear cuenta"}
         </button>
 
-        <p className="mt-6 border-t-2 border-black pt-4 text-center text-xs font-bold uppercase tracking-widest text-black">
+        <div className="flex w-full items-center justify-center border-t-2 border-black pt-4 mb-2">
+            <GoogleLogin
+                onSuccess={handleGoogleLogin}
+                onError={() => {
+                    console.error("Login Failed");
+                }}
+                text="continue_with"
+                shape="rectangular"
+            />
+        </div>
+
+        <p className="mt-4 border-t-2 border-black pt-4 text-center text-xs font-bold uppercase tracking-widest text-black">
           ¿Ya tienes cuenta?{" "}
           <Link to="/login" className="ml-1 underline decoration-2 underline-offset-4 transition-colors hover:bg-yellow-400">
             Inicia sesión

@@ -6,6 +6,7 @@ import { validateLogin } from "../validations/login";
 import { useState } from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faUser, faLock, faRightToBracket } from "@fortawesome/free-solid-svg-icons"
+import { GoogleLogin } from "@react-oauth/google"
 
 interface LoginData {
   username: string;
@@ -41,6 +42,21 @@ export default function Login() {
             console.error("Login error:", error);
         } finally {
             setLoading(false)
+        }
+    };
+
+    const handleGoogleLogin = async (credentialResponse: any) => {
+        setLoading(true);
+        try {
+            if (credentialResponse.credential) {
+                const userlogin = await loginServices.googleLogin(credentialResponse.credential);
+                loginState(userlogin);
+                navigate(from, { replace: true });
+            }
+        } catch (error) {
+            console.error("Google login error:", error);
+        } finally {
+            setLoading(false);
         }
     };
     
@@ -93,13 +109,24 @@ export default function Login() {
             <button
             type="submit"
             disabled={loading}
-            className="flex w-full items-center justify-center gap-2 rounded-none border-2 border-black bg-black py-2.5 font-bold uppercase tracking-widest text-white shadow-[2px_2px_0_0_#000] transition-all hover:bg-yellow-400 hover:text-black active:translate-y-px active:shadow-none disabled:opacity-50"
+            className="flex w-full items-center justify-center gap-2 rounded-none border-2 border-black bg-black py-2.5 font-bold uppercase tracking-widest text-white shadow-[2px_2px_0_0_#000] transition-all hover:bg-yellow-400 hover:text-black active:translate-y-px active:shadow-none disabled:opacity-50 mb-4"
             >
             <FontAwesomeIcon icon={faRightToBracket} />
             {loading ? "Ingresando..." : "Ingresar"}
             </button>
 
-            <p className="mt-6 border-t-2 border-black pt-4 text-center text-xs font-bold uppercase tracking-widest text-black">
+            <div className="flex w-full items-center justify-center border-t-2 border-black pt-4 mb-2">
+                <GoogleLogin
+                    onSuccess={handleGoogleLogin}
+                    onError={() => {
+                        console.error("Login Failed");
+                    }}
+                    text="continue_with"
+                    shape="rectangular"
+                />
+            </div>
+
+            <p className="mt-4 border-t-2 border-black pt-4 text-center text-xs font-bold uppercase tracking-widest text-black">
             ¿No tienes cuenta?{" "}
             <Link to="/register" className="ml-1 underline decoration-2 underline-offset-4 transition-colors hover:bg-yellow-400">
                 Regístrate

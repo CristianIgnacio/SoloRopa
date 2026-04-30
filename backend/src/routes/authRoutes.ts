@@ -1,5 +1,5 @@
 import express from 'express';
-import { getCurrentUser, login, logout, forgotPassword, resetPassword } from '../controllers/authController';
+import { getCurrentUser, login, googleLogin, logout, forgotPassword, resetPassword } from '../controllers/authController';
 import { authenticate } from '../middleware/authMiddleware';
 import rateLimit from 'express-rate-limit';
 
@@ -22,6 +22,7 @@ const resetLimiter = rateLimit({
 router.get("/login/me", authenticate, getCurrentUser)
 
 router.post("/login", loginLimiter, login)
+router.post("/google", loginLimiter, googleLogin)
 router.post("/logout", logout)
 
 router.post("/forgot-password", resetLimiter, forgotPassword)
