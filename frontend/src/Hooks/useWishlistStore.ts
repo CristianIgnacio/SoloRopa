@@ -15,14 +15,19 @@ export const useWishlistStore = create<WishlistState>((set, get) => ({
     wishlist : [],
     loadFavorites: async () => {
         const wishlists = await wishlistServices.getMeWishlists()
-        const findList = wishlists.data.find((w: any) => w.isDefault)
-        const defaultList = findList?.items.map((item: any) => {
-            const prod = item.productId;
-            return prod?.id || prod?._id || prod;
+        const allIds = new Set<string>()
+        
+        wishlists.data.forEach((w: any) => {
+            if (!w.isSystem || w.isDefault) {
+                w.items.forEach((item: any) => {
+                    const prod = item.productId;
+                    allIds.add(prod?.id || prod?._id || prod);
+                })
+            }
         })
 
         set({
-            favoriteIds: new Set(defaultList || []),
+            favoriteIds: allIds,
             wishlist : wishlists.data,
         })
 

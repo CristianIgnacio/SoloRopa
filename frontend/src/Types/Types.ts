@@ -36,6 +36,7 @@ interface VariantsProduct {
 }
 
 export interface User {
+  id: string,
   username : string,
   email : string,
   // password : string,
@@ -67,5 +68,6 @@ export interface Wishlist {
   items: WishlistItem[];
   visibility: "private" | "public" | "unlisted";
   isDefault: boolean;
+  isSystem: boolean;
   createdAt: Date;
 }
