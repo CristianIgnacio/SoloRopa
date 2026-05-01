@@ -13,25 +13,20 @@ type Props = {
 export default function FavoriteButton({ productId }: Props) {
   const toggleFavorite = useWishlistStore((s) => s.toggleFavorite)
   const isFavorite = useWishlistStore((s) => s.favoriteIds.has(productId))
-  const {user} = useUserStore()
+  const { user } = useUserStore()
   const navigate = useNavigate()
-
   const { trackFavorite, trackUnfavorite } = useProductEvents(productId)
 
-  const onClickButton = (e : any) => {
+  const onClickButton = (e: React.MouseEvent) => {
     e.stopPropagation()
-    if(!user){
-      return navigate("/login")
-    }
-    
-    // Si ya era favorito, ahora vamos a quitarlo (unfavorite)
-    // Si no era favorito, ahora lo agregamos (favorite)
+    e.preventDefault()
+    if (!user) return navigate("/login")
+
     if (isFavorite) {
       trackUnfavorite()
     } else {
       trackFavorite()
     }
-
     toggleFavorite(productId)
   }
 
