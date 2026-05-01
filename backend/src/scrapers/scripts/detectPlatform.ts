@@ -13,7 +13,9 @@ const prueba = async () => {
         "https://subcomplot.cl/",
         "https://www.treinoficial.cl/",
         "https://ropamdf.cl/",
-        "https://volcom.cl/"
+        "https://volcom.cl/",
+        "https://www.stodak.com/",
+        "https://www.nubebrand.cl/"
     ]
 
     const result: { brand: string; platform: string }[] = []
