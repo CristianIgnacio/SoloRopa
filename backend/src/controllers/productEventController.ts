@@ -97,6 +97,7 @@ const createProductEvent = async (req : Request, res : Response, next : NextFunc
                             userId,
                             name: "Vistos Recientemente",
                             isDefault: false,
+                            isSystem: true,
                             visibility: "private",
                             items: []
                         });

@@ -7,7 +7,20 @@ import UserModel from "../models/User";
 const getMeWishlists = async (request: Request, response: Response, next: NextFunction) => {
   try {
     const userId = request.userId;
-    const wishlists = await Wishlist.find({ userId }).populate({ path: 'items.productId', populate: { path: 'brand' } });
+    const wishlists = await Wishlist.find({ userId }).populate({ path: 'items.productId', select: 'images' });
+
+    // Migración lazy: marcar listas de sistema que se crearon antes del campo isSystem
+    const toMigrate = wishlists.filter(
+      (w) => !w.isSystem && (w.isDefault || w.name === 'Vistos Recientemente')
+    );
+    if (toMigrate.length > 0) {
+      await Wishlist.updateMany(
+        { _id: { $in: toMigrate.map((w) => w._id) } },
+        { $set: { isSystem: true } }
+      );
+      toMigrate.forEach((w) => { w.isSystem = true; });
+    }
+
     response.status(200).json({
       success: true,
       data: wishlists
@@ -27,7 +40,8 @@ const getUserWishlists = async (request: Request, response: Response, next: Next
         error: "User not found"
       });
     }
-    const wishlists = await Wishlist.find({ userId: user?.id, visibility: "public" });
+    const wishlists = await Wishlist.find({ userId: user?.id, visibility: "public" })
+      .populate({ path: 'items.productId', select: 'images' });
     response.status(200).json({
       success: true,
       data: wishlists
@@ -41,8 +55,18 @@ const getWishlistById = async (request: Request, response: Response, next: NextF
   try {
     const userId = request.userId;
     const wishlistId = request.params.id;
-    const wishlist = await Wishlist.findOne({ _id: wishlistId, userId }).populate("items.productId");
+    const wishlist = await Wishlist.findOne({ _id: wishlistId })
+      .populate("items.productId")
+      .populate("userId", "username avatarUrl");
+      
     if (!wishlist) throw new Error("Wishlist not found");
+
+    const ownerId = (wishlist.userId as any)?._id?.toString() || String(wishlist.userId);
+
+    if (wishlist.visibility === "private" && ownerId !== String(userId)) {
+      throw new Error("Wishlist is private");
+    }
+
     response.status(200).json({
       success: true,
       data: wishlist
@@ -56,8 +80,14 @@ const deleteWishlist = async (request: Request, response: Response, next: NextFu
   try {
     const userId = request.userId;
     const wishlistId = request.params.id;
-    const wishlist = await Wishlist.findOneAndDelete({ _id: wishlistId, userId });
+    const wishlist = await Wishlist.findOne({ _id: wishlistId, userId });
     if (!wishlist) throw new Error("Wishlist not found");
+
+    if (wishlist.isSystem) {
+      return response.status(403).json({ success: false, message: "Cannot delete system wishlists" });
+    }
+
+    await Wishlist.deleteOne({ _id: wishlistId, userId });
 
     response.status(200).json({
       success: true,
@@ -114,7 +144,7 @@ const updateWishlist = async (request: Request, response: Response, next: NextFu
 
     // Actualizar solo los campos proporcionados
     const updateData: any = {};
-    if (name !== undefined) updateData.name = name;
+    if (name !== undefined && !wishlist.isSystem) updateData.name = name;
     if (description !== undefined) updateData.description = description;
     if (visibility !== undefined) updateData.visibility = visibility;
     if (isDefault !== undefined) updateData.isDefault = isDefault;
@@ -222,44 +252,51 @@ const toggleFavorite = async (req: Request, res: Response, next: NextFunction) =
       return res.status(400).json({ message: "productId requerido" })
     }
 
-    // 1️⃣ Buscar wishlist default
-    let wishlist = await Wishlist.findOne({
+    // 1️⃣ Buscar todas las listas válidas para favoritos (no sistema o default)
+    const userWishlists = await Wishlist.find({
       userId,
-      isDefault: true,
+      $or: [
+        { isSystem: false },
+        { isDefault: true }
+      ]
     })
 
-    // 2️⃣ Si no existe, crearla (muy importante)
-    if (!wishlist) {
-      wishlist = await Wishlist.create({
+    // 2️⃣ Revisar si el producto está en alguna de ellas
+    const wishlistsWithProduct = userWishlists.filter(w => 
+      w.items.some((item: any) => item.productId.toString() === productId)
+    )
+
+    // 3️⃣ Si está en alguna, se quita de todas (unfavorite)
+    if (wishlistsWithProduct.length > 0) {
+      for (const w of wishlistsWithProduct) {
+        w.items = w.items.filter((item: any) => item.productId.toString() !== productId) as any;
+        if (w.items.length === 0) {
+          w.coverImage = undefined;
+        }
+        await w.save();
+      }
+      return res.json({ isFavorite: false });
+    }
+
+    // 4️⃣ Si no está en ninguna, se agrega a la lista por defecto (favorite)
+    let defaultWishlist = userWishlists.find(w => w.isDefault);
+    
+    if (!defaultWishlist) {
+      defaultWishlist = await Wishlist.create({
         userId,
         name: "Favoritos",
         isDefault: true,
+        isSystem: true,
         items: [],
       })
     }
 
-    // 3️⃣ Buscar item existente
-    const itemIndex = wishlist.items.findIndex(
-      (item) => item.productId.toString() === productId
-    )
-
-    // 4️⃣ Toggle
-    if (itemIndex !== -1) {
-      wishlist.items.splice(itemIndex, 1)
-
-      await wishlist.save()
-
-      return res.json({
-        isFavorite: false,
-      })
-    }
-
-    wishlist.items.push({
+    defaultWishlist.items.push({
       productId,
       addedAt: new Date(),
     } as any)
 
-    await wishlist.save()
+    await defaultWishlist.save()
 
     return res.json({
       isFavorite: true,
