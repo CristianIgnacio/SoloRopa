@@ -15,6 +15,7 @@ interface IWishlist extends Document {
   items: IWishlistItem[];
   visibility: "private" | "public" | "unlisted";
   isDefault: boolean;
+  isSystem: boolean;
   createdAt: Date;
 }
 
@@ -38,6 +39,7 @@ const WishlistSchema = new mongoose.Schema<IWishlist>({
     }],
     visibility: { type: String, enum: ["private", "public", "unlisted"], default: "private" },
     isDefault: { type: Boolean, default: false },
+    isSystem: { type: Boolean, default: false },
     createdAt: { type: Date, default: () => new Date() }
 }, {
     timestamps: true

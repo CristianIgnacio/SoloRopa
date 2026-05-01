@@ -12,7 +12,7 @@ const ProductCard = ({product}: {product : Product}) => {
 
 
       <img
-        src={product.images[0].src || ""}
+        src={product.images?.[0]?.src || ""}
         alt={product.title}
         className="w-full object-cover"
         loading="lazy"

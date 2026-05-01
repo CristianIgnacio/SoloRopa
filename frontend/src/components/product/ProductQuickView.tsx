@@ -3,7 +3,9 @@ import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import Modal from "../ui/Modal"
 import FavoriteButton from "../ui/FavoriteButton"
+import SaveButton from "../ui/SaveButton"
 import HoverImageZoom from "../ui/HoverImageZoom"
+import ShareButton from "../ui/ShareButton"
 import { useProductVariants } from "../../Hooks/useProductVariants"
 import VariantSelector from "./VariantSelector"
 import type { Product } from "../../Types/Types"
@@ -63,7 +65,7 @@ export default function ProductQuickView({ product, open, onClose }: Props) {
         {/* Botón cerrar */}
         <button
             onClick={handleClose}
-            className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center border-2 border-black bg-white text-black transition-colors hover:bg-black hover:text-white"
+            className="absolute right-3 top-3 z-50 flex h-8 w-8 items-center justify-center border-2 border-black bg-white text-black transition-colors hover:bg-black hover:text-white"
         >
             <FontAwesomeIcon icon={faXmark} />
         </button>
@@ -74,8 +76,8 @@ export default function ProductQuickView({ product, open, onClose }: Props) {
             {/* Imagen principal */}
             <div className="aspect-3/4 overflow-hidden border-2 border-black bg-white cursor-zoom-in group relative">
                 <HoverImageZoom
-                    src={images[activeImage].src}
-                    alt={images[activeImage].alt || product.title}
+                    src={images[activeImage]?.src || "/img/no-image.png"}
+                    alt={images[activeImage]?.alt || product.title}
                     className="h-full w-full"
                     zoomScale={1.8}
                 />
@@ -95,8 +97,8 @@ export default function ProductQuickView({ product, open, onClose }: Props) {
                     }`}
                     >
                     <img
-                        src={img.src}
-                        alt={img.alt}
+                        src={img.src || "/img/no-image.png"}
+                        alt={img.alt || ""}
                         className="aspect-square w-full object-cover"
                     />
                     </button>
@@ -146,7 +148,11 @@ export default function ProductQuickView({ product, open, onClose }: Props) {
                         </p>
                     )}
 
-                    <FavoriteButton productId={product.id} />
+                    <div className="flex items-center gap-2">
+                        <ShareButton productId={product.id} />
+                        <SaveButton productId={product.id} />
+                        <FavoriteButton productId={product.id} />
+                    </div>
                 </div>
 
                 {/* Opciones Dinámicas */}

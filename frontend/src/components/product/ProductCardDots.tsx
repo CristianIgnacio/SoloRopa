@@ -50,8 +50,8 @@ export default function ProductCardDots({ product, onClick }: Props) {
       {/* Imagen */}
       <div className="relative aspect-3/4 bg-slate-100">
         <img
-          src={images[activeImage].src}
-          alt={images[activeImage].alt}
+          src={images[activeImage]?.src || "/img/no-image.png"}
+          alt={images[activeImage]?.alt || ""}
           className="h-full w-full object-cover transition-opacity duration-300"
           loading="lazy"
         />
@@ -117,12 +117,12 @@ export default function ProductCardDots({ product, onClick }: Props) {
         )}
       </div>
 
-      {/* Info siempre visible */}
-      <div className="border-t-2 border-black p-2 bg-white">
+      {/* Info siempre visible — altura fija para cards uniformes en el carrusel */}
+      <div className="flex h-[84px] flex-col justify-between border-t-2 border-black bg-white p-2 pb-3">
         <p className="line-clamp-2 text-xs font-bold leading-tight sm:text-sm">
           {product.title}
         </p>
-        <p className="mt-1 text-sm font-extrabold text-slate-900">
+        <p className="text-sm font-extrabold text-slate-900">
           ${product.price?.toLocaleString("es-CL")}
         </p>
       </div>

@@ -23,6 +23,7 @@ const BRANDS = [
   { key: "mdf",          label: "MDF",            url: "ropamdf.cl" },
   { key: "treinoficial", label: "Treinoficial",   url: "treinoficial.cl" },
   { key: "whatup",       label: "Whatup",         url: "streetmachine.cl/collections/whatup" },
+  { key: "nubebrand",    label: "NubeBrand",      url: "nubebrand.cl" },
 ]
 
 type BrandStatus = "idle" | "loading" | "success" | "error"

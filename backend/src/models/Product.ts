@@ -91,7 +91,6 @@ const ProductSchema = new Schema<IProduct>({
 });
 
 // Índices para mejorar el rendimiento de búsquedas
-ProductSchema.index({ brand: 1 });
 ProductSchema.index({ category: 1 });
 ProductSchema.index({ trendingScore: -1 });
 ProductSchema.index({ title: 'text' });

@@ -10,6 +10,7 @@ import ProductQuickView from "../components/product/ProductQuickView"
 import ProductMasonry from "../components/product/ProductMansory"
 import { useInfiniteScroll } from "../Hooks/useInfiniteScroll"
 import ProductCardHover from "../components/product/ProductCardHover"
+import ProductCardSkeleton from "../components/product/ProductCardSkeleton"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faBolt, faFire } from "@fortawesome/free-solid-svg-icons"
 
@@ -98,7 +99,30 @@ export default function Explore() {
     <section className="mx-auto max-w-7xl px-4">
       <div className="mt-4">
         {loading ? (
-          <p className="text-sm text-slate-500">Cargando productos…</p>
+          <div className="rounded-lg px-4 space-y-12">
+            {/* Skeleton Horizontal 1 */}
+            <div>
+              <div className="mb-4 h-8 w-48 bg-slate-200 animate-pulse rounded" />
+              <div className="flex gap-4 overflow-hidden">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="w-[280px] shrink-0">
+                    <ProductCardSkeleton />
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Skeleton Horizontal 2 */}
+            <div>
+              <div className="mb-4 h-8 w-48 bg-slate-200 animate-pulse rounded" />
+              <div className="flex gap-4 overflow-hidden">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="w-[280px] shrink-0">
+                    <ProductCardSkeleton />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         ) : (
           <div className="rounded-lg px-4">
             {/* SECCIONES CURATORIALES */}
@@ -155,6 +179,16 @@ export default function Explore() {
           </span>
         </div>
 
+        {loading && products.length === 0 && (
+          <div className="columns-2 gap-4 sm:columns-3 md:columns-4 lg:columns-5 space-y-4">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <div key={i} className="break-inside-avoid">
+                <ProductCardSkeleton />
+              </div>
+            ))}
+          </div>
+        )}
+
         {products.length === 0 && !loading ? (
           <div className="rounded-sm border-2 border-black bg-white p-8 text-center shadow-[4px_4px_0_0_#000]">
             <p className="font-bold uppercase tracking-widest text-slate-600">
@@ -162,16 +196,18 @@ export default function Explore() {
             </p>
           </div>
         ) : (
-          <ProductMasonry
-            products={products}
-            renderItem={(product) => (
-              <ProductCardHover
-                key={product.id}
-                product={product}
-                onClick={() => setQuickViewProduct(product)}
-              />
-            )}
-          />
+          products.length > 0 && (
+            <ProductMasonry
+              products={products}
+              renderItem={(product) => (
+                <ProductCardHover
+                  key={product.id}
+                  product={product}
+                  onClick={() => setQuickViewProduct(product)}
+                />
+              )}
+            />
+          )
         )}
 
         {hasMore && (

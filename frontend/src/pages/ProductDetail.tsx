@@ -4,11 +4,14 @@ import type { Product } from "../Types/Types"
 import productService from "../services/products"
 import { useProductEvents } from "../Hooks/useProductEvents"
 import FavoriteButton from "../components/ui/FavoriteButton"
+import SaveButton from "../components/ui/SaveButton"
 import HoverImageZoom from "../components/ui/HoverImageZoom"
 import { useProductVariants } from "../Hooks/useProductVariants"
 import VariantSelector from "../components/product/VariantSelector"
 import ProductCardHover from "../components/product/ProductCardHover"
 import ProductQuickView from "../components/product/ProductQuickView"
+import ProductDetailSkeleton from "../components/product/ProductDetailSkeleton"
+import ShareButton from "../components/ui/ShareButton"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowTrendDown, faArrowUpRightFromSquare, faArrowLeft, faTag } from "@fortawesome/free-solid-svg-icons"
 
@@ -67,11 +70,7 @@ export default function ProductDetail() {
   }, [product?.id])
 
   if (loading) {
-    return (
-      <div className="flex min-h-[50vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-slate-800"></div>
-      </div>
-    )
+    return <ProductDetailSkeleton />
   }
 
   if (error || !product) {
@@ -108,8 +107,8 @@ export default function ProductDetail() {
           <div className="group relative aspect-[3/4] w-full overflow-hidden border-4 border-black bg-white shadow-[8px_8px_0_0_#000] cursor-zoom-in">
             {images && images.length > 0 ? (
               <HoverImageZoom
-                src={images[activeImage].src}
-                alt={images[activeImage].alt || product.title}
+                src={images[activeImage]?.src || "/img/no-image.png"}
+                alt={images[activeImage]?.alt || product.title}
                 className="h-full w-full"
                 zoomScale={1.8}
               />
@@ -150,7 +149,11 @@ export default function ProductDetail() {
             <span className="border-2 border-black bg-black px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white shadow-[2px_2px_0_0_#000]">
               {product.brand.name}
             </span>
-            <FavoriteButton productId={product.id} />
+            <div className="flex items-center gap-2">
+              <ShareButton productId={product.id} />
+              <SaveButton productId={product.id} />
+              <FavoriteButton productId={product.id} />
+            </div>
           </div>
 
           <h1 className="mb-2 mt-2 text-4xl font-black uppercase tracking-tighter text-black sm:text-5xl border-b-4 border-black pb-4">

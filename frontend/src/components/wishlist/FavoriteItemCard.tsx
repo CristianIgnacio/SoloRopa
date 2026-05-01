@@ -29,9 +29,9 @@ export default function FavoriteItemCard({ item, wishlistId, onRemoved }: Props)
       className="group relative cursor-pointer overflow-hidden rounded-none border-2 border-black bg-white shadow-none transition-all hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000]"
     >
       <img
-        src={item.images[0].src}
-        alt={item.images[0].alt}
-        className="aspect-[3/4] w-full border-b-2 border-black object-cover"
+        src={item.images?.[0]?.src || "/img/no-image.png"}
+        alt={item.images?.[0]?.alt || item.title}
+        className="aspect-3/4 w-full border-b-2 border-black object-cover"
       />
 
       <div className="p-2">

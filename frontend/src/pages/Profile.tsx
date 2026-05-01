@@ -5,6 +5,8 @@ import Avatar from "../components/ui/Avatar"
 import wishlistServices from "../services/wishlist"
 import userServices from "../services/users"
 import type { User, Wishlist } from "../Types/Types"
+import WishlistCard from "../components/wishlist/WishlistCard"
+import ShareButton from "../components/ui/ShareButton"
 // import { useUserStore } from "../Hooks/useStore"
 
 export default function Profile() {
@@ -74,39 +76,48 @@ export default function Profile() {
   return (
     <section className="mx-auto max-w-5xl px-4 py-8">
       {/* HEADER */}
-      <div className="flex items-center gap-6">
-        <Avatar
-          username={profile.username}
-          src={profile.avatarUrl}
-          size={96}
-        />
+      <div className="flex flex-col items-center text-center sm:flex-row sm:text-left sm:justify-between gap-4 sm:gap-6 border-b-4 border-black pb-4">
+        <div className="flex flex-col items-center sm:flex-row gap-4 sm:gap-6">
+          <Avatar
+            username={profile.username}
+            src={profile.avatarUrl}
+            size={96}
+          />
 
-        <div>
-          <h1 className="text-4xl font-black uppercase tracking-tighter text-black border-b-4 border-black pb-1">
-            {profile.username}
-          </h1>
+          <div>
+            <h1 className="text-4xl font-black uppercase tracking-tighter text-black pb-1">
+              {profile.username}
+            </h1>
 
-          {profile.role && (
-            <p className="mt-2 inline-block bg-black px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-white shadow-[2px_2px_0_0_#000]">
-              {profile.role}
-            </p>
-          )}
-
-          <div className="mt-4 flex flex-wrap gap-4 text-xs font-bold uppercase tracking-widest text-slate-800">
-            <span className="border-2 border-black bg-white px-3 py-1 shadow-[2px_2px_0_0_#000]">
-              <span className="text-lg font-black text-black">{wishlists.length}</span> colecciones
-            </span>
-            {wishlists.length > 0 && (
-              <span className="border-2 border-black bg-white px-3 py-1 shadow-[2px_2px_0_0_#000]">
-                <span className="text-lg font-black text-black">{wishlists[0].items.length}</span> favoritos
-              </span>
+            {profile.role && (
+              <p className="mt-2 inline-block bg-black px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-white shadow-[2px_2px_0_0_#000]">
+                {profile.role}
+              </p>
             )}
+
+            <div className="mt-4 flex flex-wrap justify-center sm:justify-start gap-4 text-xs font-bold uppercase tracking-widest text-slate-800">
+              <span className="border-2 border-black bg-white px-3 py-1 shadow-[2px_2px_0_0_#000]">
+                <span className="text-lg font-black text-black">{wishlists.length}</span> colecciones
+              </span>
+              {wishlists.length > 0 && (
+                <span className="border-2 border-black bg-white px-3 py-1 shadow-[2px_2px_0_0_#000]">
+                  <span className="text-lg font-black text-black">{wishlists[0].items.length}</span> favoritos
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+        
+        <div className="mt-4 sm:mt-0 self-center sm:self-start">
+          <div className="flex items-center gap-2 border-2 border-black bg-white p-1 shadow-[2px_2px_0_0_#000]">
+            <ShareButton url={window.location.href} />
+            <span className="pr-2 text-xs font-bold uppercase tracking-widest text-black">Compartir</span>
           </div>
         </div>
       </div>
 
       {/* COLECCIONES */}
-      <div className="mt-16 border-t-4 border-black pt-8">
+      <div className="mt-8">
         <h2 className="mb-6 text-2xl font-black uppercase tracking-tighter text-black">
           Colecciones
         </h2>
@@ -116,17 +127,9 @@ export default function Profile() {
             Aún no hay colecciones públicas
           </p>
         ) : (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
-            {wishlists.map((w : Wishlist) => (
-              <div
-                key={w.id}
-                className="group rounded-none border-2 border-black bg-white p-6 shadow-[4px_4px_0_0_#000] transition-all hover:-translate-y-1 hover:bg-yellow-400 hover:shadow-[8px_8px_0_0_#000]"
-              >
-                <p className="text-lg font-black uppercase tracking-tighter text-black">{w.name}</p>
-                <p className="mt-1 text-xs font-bold uppercase tracking-widest text-slate-900">
-                  {w.items.length} productos
-                </p>
-              </div>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+            {wishlists.map((w: Wishlist) => (
+              <WishlistCard key={w.id} wishlist={w} />
             ))}
           </div>
         )}

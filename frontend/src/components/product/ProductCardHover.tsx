@@ -1,6 +1,7 @@
 // src/components/product/ProductCardHover.tsx
 import { useState } from "react"
 import FavoriteButton from "../ui/FavoriteButton"
+import SaveButton from "../ui/SaveButton"
 import type { Product } from "../../Types/Types"
 import { useProductEvents } from "../../Hooks/useProductEvents"
 
@@ -33,8 +34,8 @@ export default function ProductCardHover({ product, onClick }: Props) {
 
         {/* Imagen real con fade-in suave */}
         <img
-          src={product.images[0].src}
-          alt={product.images[0].alt}
+          src={product.images[0]?.src || "/img/no-image.png"}
+          alt={product.images[0]?.alt || ""}
           onLoad={() => setImageLoaded(true)}
           className={`h-full w-full object-cover transition-all duration-300 group-hover:scale-105 img-fade-in ${imageLoaded ? "loaded" : ""}`}
           loading="lazy"
@@ -45,7 +46,7 @@ export default function ProductCardHover({ product, onClick }: Props) {
       <div
         className="
           absolute inset-0
-          flex flex-col justify-between
+          hidden lg:flex flex-col justify-between
           bg-black/50
           p-3
           opacity-0
@@ -53,8 +54,9 @@ export default function ProductCardHover({ product, onClick }: Props) {
           group-hover:opacity-100
         "
       >
-        {/* Top */}
-        <div className="flex justify-end">
+        {/* Top: marcador izquierda, corazón derecha */}
+        <div className="flex justify-between">
+          <SaveButton productId={product.id} variant="card" />
           <FavoriteButton productId={product.id} />
         </div>
 

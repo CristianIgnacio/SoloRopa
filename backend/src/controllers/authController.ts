@@ -5,6 +5,9 @@ import jwt from 'jsonwebtoken';
 import config from '../utils/config';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
+import { OAuth2Client } from 'google-auth-library';
+
+const client = new OAuth2Client(config.GOOGLE_CLIENT_ID);
 
 const cookieSameSite: CookieOptions["sameSite"] = config.COOKIE_SAME_SITE;
 
@@ -22,6 +25,10 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     const user = await UserModel.findOne({ username }).select("+password");
 
     if (user) {
+      if (!user.password) {
+        return res.status(401).json({error: "Esta cuenta está vinculada a Google. Usa el inicio de sesión con Google."});
+      }
+
       const passwordCorrect = await bcrypt.compare(password, user.password);
       
       if (!passwordCorrect) {
@@ -46,6 +53,81 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     next(error);
   }
 };
+
+export const googleLogin = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { token } = req.body;
+
+    // Verify token with Google
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: config.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    if (!payload) {
+      return res.status(401).json({ error: "Invalid Google token" });
+    }
+
+    const { sub: googleId, email, name, picture } = payload;
+
+    if (!email) {
+      return res.status(400).json({ error: "No email found in Google payload" });
+    }
+
+    // Check if user exists by email or googleId
+    let user = await UserModel.findOne({
+      $or: [{ email }, { googleId }]
+    });
+
+    if (user) {
+      // If user exists but doesn't have googleId, update it
+      if (!user.googleId) {
+        user.googleId = googleId;
+        // Optionally update avatar if they don't have one
+        // if (!user.avatarUrl && picture) {
+        //   user.avatarUrl = picture;
+        // }
+        await user.save();
+      }
+    } else {
+      // Create new user
+      // Generate a unique username from the name
+      const baseUsername = name ? name.replace(/\s+/g, '').toLowerCase() : email.split('@')[0];
+      let newUsername = baseUsername;
+      let counter = 1;
+      
+      while (await UserModel.findOne({ username: newUsername })) {
+        newUsername = `${baseUsername}${counter}`;
+        counter++;
+      }
+
+      user = new UserModel({
+        username: newUsername,
+        email: email,
+        googleId: googleId,
+        // avatarUrl: picture,
+      });
+
+      await user.save();
+    }
+
+    const userForToken = {
+      username: user.username,
+      csrf: crypto.randomUUID(),
+      id: user._id,
+    };
+
+    const jwtToken = jwt.sign(userForToken, config.JWT_SECRET, { expiresIn:  60 * 60 });
+    res.setHeader("X-CSRF-Token", userForToken.csrf);
+    res.cookie("token", jwtToken, buildSessionCookieOptions());
+
+    res.status(200).send({ id: user.id, username: user.username, role: user.role, avatarUrl: user.avatarUrl });
+  } catch (error) {
+    next(error);
+  }
+};
+
 
 export const getCurrentUser = async (req: Request, res: Response, next: NextFunction) => {
   try {

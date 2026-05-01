@@ -6,15 +6,18 @@ import App from './App.tsx'
 import axios from 'axios'
 import { SpeedInsights } from "@vercel/speed-insights/react"
 import { Analytics } from "@vercel/analytics/react"
+import { GoogleOAuthProvider } from "@react-oauth/google"
 
 axios.defaults.baseURL = import.meta.env.VITE_API_URL || ""
 axios.defaults.withCredentials = true
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <Router>
-      <App />
-    </Router>
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ""}>
+      <Router>
+        <App />
+      </Router>
+    </GoogleOAuthProvider>
     <SpeedInsights />
     <Analytics />
   </StrictMode>,
