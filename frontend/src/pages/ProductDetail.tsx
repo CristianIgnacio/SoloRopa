@@ -106,8 +106,8 @@ export default function ProductDetail() {
           <div className="group relative aspect-[3/4] w-full overflow-hidden border-4 border-black bg-white shadow-[8px_8px_0_0_#000] cursor-zoom-in">
             {images && images.length > 0 ? (
               <HoverImageZoom
-                src={images[activeImage].src}
-                alt={images[activeImage].alt || product.title}
+                src={images[activeImage]?.src || "/img/no-image.png"}
+                alt={images[activeImage]?.alt || product.title}
                 className="h-full w-full"
                 zoomScale={1.8}
               />

@@ -75,8 +75,8 @@ export default function ProductQuickView({ product, open, onClose }: Props) {
             {/* Imagen principal */}
             <div className="aspect-3/4 overflow-hidden border-2 border-black bg-white cursor-zoom-in group relative">
                 <HoverImageZoom
-                    src={images[activeImage].src}
-                    alt={images[activeImage].alt || product.title}
+                    src={images[activeImage]?.src || "/img/no-image.png"}
+                    alt={images[activeImage]?.alt || product.title}
                     className="h-full w-full"
                     zoomScale={1.8}
                 />
@@ -96,8 +96,8 @@ export default function ProductQuickView({ product, open, onClose }: Props) {
                     }`}
                     >
                     <img
-                        src={img.src}
-                        alt={img.alt}
+                        src={img.src || "/img/no-image.png"}
+                        alt={img.alt || ""}
                         className="aspect-square w-full object-cover"
                     />
                     </button>

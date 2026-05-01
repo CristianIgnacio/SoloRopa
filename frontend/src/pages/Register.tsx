@@ -66,7 +66,7 @@ export default function Register() {
     }
   };
 
-  const previewImage = form.imagen ? URL.createObjectURL(form.imagen) : "";
+  // const previewImage = form.imagen ? URL.createObjectURL(form.imagen) : "";
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4 pt-16 pb-16">

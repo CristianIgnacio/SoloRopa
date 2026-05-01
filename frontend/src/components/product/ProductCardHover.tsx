@@ -33,8 +33,8 @@ export default function ProductCardHover({ product, onClick }: Props) {
 
         {/* Imagen real con fade-in suave */}
         <img
-          src={product.images[0].src}
-          alt={product.images[0].alt}
+          src={product.images[0]?.src || "/img/no-image.png"}
+          alt={product.images[0]?.alt || ""}
           onLoad={() => setImageLoaded(true)}
           className={`h-full w-full object-cover transition-all duration-300 group-hover:scale-105 img-fade-in ${imageLoaded ? "loaded" : ""}`}
           loading="lazy"
