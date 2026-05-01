@@ -3,26 +3,30 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faShareNodes, faCheck } from "@fortawesome/free-solid-svg-icons"
 
 type Props = {
-  productId: string
+  productId?: string
+  url?: string
 }
 
-export default function ShareButton({ productId }: Props) {
+export default function ShareButton({ productId, url }: Props) {
   const [copied, setCopied] = useState(false)
 
   const handleShare = async (e: React.MouseEvent) => {
     e.stopPropagation()
+    e.preventDefault()
     
-    const shareUrl = `${window.location.origin}/producto/${productId}`
+    const shareUrl = url 
+      ? url 
+      : productId 
+        ? `${window.location.origin}/producto/${productId}` 
+        : window.location.href
     
     try {
       if (navigator.share) {
-        // Usa la API de compartir nativa en móviles si está disponible
         await navigator.share({
-          title: 'Mira este producto',
+          title: 'Echa un vistazo a esto',
           url: shareUrl
         })
       } else {
-        // Fallback: copia al portapapeles
         await navigator.clipboard.writeText(shareUrl)
         setCopied(true)
         setTimeout(() => setCopied(false), 2000)
