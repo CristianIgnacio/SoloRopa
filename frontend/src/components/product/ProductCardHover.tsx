@@ -1,6 +1,7 @@
 // src/components/product/ProductCardHover.tsx
 import { useState } from "react"
 import FavoriteButton from "../ui/FavoriteButton"
+import SaveButton from "../ui/SaveButton"
 import type { Product } from "../../Types/Types"
 import { useProductEvents } from "../../Hooks/useProductEvents"
 
@@ -53,8 +54,9 @@ export default function ProductCardHover({ product, onClick }: Props) {
           group-hover:opacity-100
         "
       >
-        {/* Top */}
-        <div className="flex justify-end">
+        {/* Top: marcador izquierda, corazón derecha */}
+        <div className="flex justify-between">
+          <SaveButton productId={product.id} variant="card" />
           <FavoriteButton productId={product.id} />
         </div>
 

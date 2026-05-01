@@ -10,7 +10,7 @@ const breakpointColumnsObj = {
   1536: 4,
   1280: 3,
   768: 2,
-  640: 1,
+  500: 1,
 }
 
 type Props = {

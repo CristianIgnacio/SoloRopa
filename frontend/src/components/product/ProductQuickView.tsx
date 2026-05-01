@@ -3,6 +3,7 @@ import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import Modal from "../ui/Modal"
 import FavoriteButton from "../ui/FavoriteButton"
+import SaveButton from "../ui/SaveButton"
 import HoverImageZoom from "../ui/HoverImageZoom"
 import ShareButton from "../ui/ShareButton"
 import { useProductVariants } from "../../Hooks/useProductVariants"
@@ -149,7 +150,8 @@ export default function ProductQuickView({ product, open, onClose }: Props) {
 
                     <div className="flex items-center gap-2">
                         <ShareButton productId={product.id} />
-                    <FavoriteButton productId={product.id} />
+                        <SaveButton productId={product.id} />
+                        <FavoriteButton productId={product.id} />
                     </div>
                 </div>
 

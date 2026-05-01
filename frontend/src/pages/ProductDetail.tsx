@@ -4,6 +4,7 @@ import type { Product } from "../Types/Types"
 import productService from "../services/products"
 import { useProductEvents } from "../Hooks/useProductEvents"
 import FavoriteButton from "../components/ui/FavoriteButton"
+import SaveButton from "../components/ui/SaveButton"
 import HoverImageZoom from "../components/ui/HoverImageZoom"
 import { useProductVariants } from "../Hooks/useProductVariants"
 import VariantSelector from "../components/product/VariantSelector"
@@ -150,6 +151,7 @@ export default function ProductDetail() {
             </span>
             <div className="flex items-center gap-2">
               <ShareButton productId={product.id} />
+              <SaveButton productId={product.id} />
               <FavoriteButton productId={product.id} />
             </div>
           </div>
