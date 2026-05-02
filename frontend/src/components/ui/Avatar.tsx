@@ -11,16 +11,17 @@ const baseUrl = "http://localhost:3001"
 
 
 export default function Avatar({ username, src, size = 32 }: Props) {
-  // if (src) {
-  //   return (
-  //     <img
-  //       src={baseUrl + src}
-  //       alt={username}
-  //       style={{ width: size, height: size }}
-  //       className="rounded-none border-2 border-black bg-white object-cover shadow-[2px_2px_0_0_#000]"
-  //     />
-  //   )
-  // }
+  
+  if (false) {
+    return (
+      <img
+        src={baseUrl + src}
+        alt={username}
+        style={{ width: size, height: size }}
+        className="rounded-none border-2 border-black bg-white object-cover shadow-[2px_2px_0_0_#000]"
+      />
+    )
+  }
 
   const bgColor = stringToColor(username)
   const letter = username.charAt(0).toUpperCase()
