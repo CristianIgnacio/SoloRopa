@@ -8,9 +8,12 @@ import { useProductEvents } from "../../Hooks/useProductEvents"
 type Props = {
   product: Product
   onClick?: () => void
+  /** "natural" → la card crece según el alto real de la imagen (masonry libre)
+   *  "fixed"   → aspect-ratio 4/5 fijo (grid uniforme, default) */
+  imageMode?: "natural" | "fixed"
 }
 
-export default function ProductCardHover({ product, onClick }: Props) {
+export default function ProductCardHover({ product, onClick, imageMode = "fixed" }: Props) {
     const { trackClick } = useProductEvents(product.id)
     const [imageLoaded, setImageLoaded] = useState(false)
 
@@ -19,28 +22,44 @@ export default function ProductCardHover({ product, onClick }: Props) {
         onClick?.()
     }
 
+    const isNatural = imageMode === "natural"
+
     return (
         <div
             onClick={handleInternalClick}
             className="group relative cursor-pointer overflow-hidden rounded-sm border-2 border-black bg-white shadow-none transition-all hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000]"
         >
-      {/* Contenedor con aspect-ratio fijo → elimina el "salto" mientras carga */}
-      <div className="relative aspect-[4/5] w-full overflow-hidden">
-
-        {/* Skeleton shimmer — visible hasta que la imagen cargue */}
-        {!imageLoaded && (
-          <div className="skeleton-shimmer absolute inset-0 z-10" />
-        )}
-
-        {/* Imagen real con fade-in suave */}
-        <img
-          src={product.images[0]?.src || "/img/no-image.png"}
-          alt={product.images[0]?.alt || ""}
-          onLoad={() => setImageLoaded(true)}
-          className={`h-full w-full object-cover transition-all duration-300 group-hover:scale-105 img-fade-in ${imageLoaded ? "loaded" : ""}`}
-          loading="lazy"
-        />
-      </div>
+      {/* ── Contenedor de imagen ──────────────────────────────────────────── */}
+      {isNatural ? (
+        /* Modo natural: sin aspect-ratio → la imagen dicta el alto */
+        <div className="relative w-full overflow-hidden">
+          {!imageLoaded && (
+            /* Placeholder mientras carga: ocupa un espacio razonable */
+            <div className="skeleton-shimmer w-full" style={{ paddingBottom: "125%" }} />
+          )}
+          <img
+            src={product.images[0]?.src || "/img/no-image.png"}
+            alt={product.images[0]?.alt || ""}
+            onLoad={() => setImageLoaded(true)}
+            className={`w-full h-auto block object-cover transition-all duration-300 group-hover:scale-105 img-fade-in ${imageLoaded ? "loaded" : "absolute inset-0 h-full"}`}
+            loading="lazy"
+          />
+        </div>
+      ) : (
+        /* Modo fijo: aspect-ratio 4/5 */
+        <div className="relative aspect-[4/5] w-full overflow-hidden">
+          {!imageLoaded && (
+            <div className="skeleton-shimmer absolute inset-0 z-10" />
+          )}
+          <img
+            src={product.images[0]?.src || "/img/no-image.png"}
+            alt={product.images[0]?.alt || ""}
+            onLoad={() => setImageLoaded(true)}
+            className={`h-full w-full object-cover transition-all duration-300 group-hover:scale-105 img-fade-in ${imageLoaded ? "loaded" : ""}`}
+            loading="lazy"
+          />
+        </div>
+      )}
 
       {/* Overlay — solo aparece al hacer hover */}
       <div
@@ -74,4 +93,3 @@ export default function ProductCardHover({ product, onClick }: Props) {
     </div>
   )
 }
-

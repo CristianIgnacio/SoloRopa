@@ -75,8 +75,9 @@ const Home = () => {
             {products.length > 0 && (
                 <ProductMasonry
                     products={products}
-                    renderItem={(product) => (
-                        <ProductCardHover key={product.id} product={product} onClick={() => setQuickViewProduct(product)}/>
+                    imageMode="natural"
+                    renderItem={(product, imageMode) => (
+                        <ProductCardHover key={product.id} product={product} imageMode={imageMode} onClick={() => setQuickViewProduct(product)}/>
                     )}
                 />
             )}

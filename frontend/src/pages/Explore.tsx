@@ -197,12 +197,14 @@ export default function Explore() {
           </div>
         ) : (
           products.length > 0 && (
-            <ProductMasonry
+          <ProductMasonry
               products={products}
-              renderItem={(product) => (
+              imageMode="natural"
+              renderItem={(product, imageMode) => (
                 <ProductCardHover
                   key={product.id}
                   product={product}
+                  imageMode={imageMode}
                   onClick={() => setQuickViewProduct(product)}
                 />
               )}
