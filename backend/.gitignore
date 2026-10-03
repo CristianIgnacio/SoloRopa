@@ -13,6 +13,7 @@ dist-ssr
 *.local
 .env
 /uploads/treino-migration/
+/test
 
 # Editor directories and files
 .vscode/*

@@ -1,0 +1,12 @@
+/backend/out/
+# Node deps
+node_modules/
+# Env
+.env
+.DS_Store
+
+/db
+
+# Archivos generados y medios subidos por usuarios
+*.tsbuildinfo
+/backend/uploads/

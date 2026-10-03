@@ -1,0 +1,15 @@
+services:
+  mongo:
+    image: mongo:6
+    container_name: dev_mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    restart: unless-stopped
+
+volumes:
+  mongo_data:
