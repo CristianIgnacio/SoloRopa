@@ -1,4 +1,5 @@
 import type { Product } from "../../Types/Types"
+import ProductImage from "../ui/ProductImage"
 import { useProductEvents } from "../../Hooks/useProductEvents"
 import FavoriteButton from "../ui/FavoriteButton"
 
@@ -29,8 +30,8 @@ export default function ProductShowcaseCard({ product, onClick }: Props) {
 
       {/* Imagen completa, estilo polaroid sin marco inferior */}
       <div className="aspect-[4/5] w-full overflow-hidden bg-white">
-        <img
-          src={product.images[0]?.src || "https://dummyimage.com/600x800/f3f4f6/a3a3a3.png&text=No+Image"}
+        <ProductImage
+          src={product.images[0]?.src}
           alt={product.images[0]?.alt || product.title}
           className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
           loading="lazy"

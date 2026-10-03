@@ -14,7 +14,8 @@ const getAllProducts = async (req: Request, res: Response, next: NextFunction) =
     const allowedSortFields = ['createdAt', 'price', 'trendingScore', 'favoritesCount', 'title']
     const sortField = allowedSortFields.includes(sort) ? sort : 'createdAt'
 
-    const filter: any = {}
+    // Los productos retirados siguen accesibles por ID y desde favoritos.
+    const filter: any = { isActive: { $ne: false } }
     if (req.query.brand) {
       const brands = String(req.query.brand).split(',')
       filter.brand = brands.length > 1 ? { $in: brands } : brands[0]
@@ -129,7 +130,7 @@ const getTrendingProducts = async (req: Request, res: Response, next: NextFuncti
   try {
     const limit = Math.min(50, Number(req.query.limit) || 20)
 
-    const products = await Product.find()
+    const products = await Product.find({ isActive: { $ne: false } })
       .sort({ trendingScore: -1 })
       .limit(limit)
       .populate("brand")
@@ -146,7 +147,7 @@ const getNewestProducts = async (req: Request, res: Response, next: NextFunction
   try {
     const limit = Math.min(50, Number(req.query.limit) || 15)
 
-    const products = await Product.find()
+    const products = await Product.find({ isActive: { $ne: false } })
       .sort({ createdAt: -1 })
       .limit(limit)
       .populate("brand")
@@ -169,6 +170,7 @@ const getRelatedProducts = async (req: Request, res: Response, next: NextFunctio
 
     // Misma marca misma categoría (excluye el propio)
     const sameBrandSameCategory = await Product.find({
+      isActive: { $ne: false },
       _id: { $ne: product._id },
       brand: product.brand,
       category: product.category
@@ -181,6 +183,7 @@ const getRelatedProducts = async (req: Request, res: Response, next: NextFunctio
 
     const otherCategory = remaining > 0
       ? await Product.find({
+          isActive: { $ne: false },
           _id: { $nin: extraIds },
           category: product.category
         }).limit(remaining).populate('brand')

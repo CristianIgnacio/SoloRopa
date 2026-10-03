@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 .env
+/uploads/treino-migration/
 
 # Editor directories and files
 .vscode/*

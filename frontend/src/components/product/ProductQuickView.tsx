@@ -1,5 +1,6 @@
 // src/components/product/ProductQuickView.tsx
 import { useState, useEffect } from "react"
+import ProductImage from "../ui/ProductImage"
 import { useNavigate } from "react-router-dom"
 import Modal from "../ui/Modal"
 import FavoriteButton from "../ui/FavoriteButton"
@@ -76,7 +77,7 @@ export default function ProductQuickView({ product, open, onClose }: Props) {
             {/* Imagen principal */}
             <div className="aspect-3/4 overflow-hidden border-2 border-black bg-white cursor-zoom-in group relative">
                 <HoverImageZoom
-                    src={images[activeImage]?.src || "/img/no-image.png"}
+                    src={images[activeImage]?.src || "/img/no-image.svg"}
                     alt={images[activeImage]?.alt || product.title}
                     className="h-full w-full"
                     zoomScale={1.8}
@@ -96,8 +97,8 @@ export default function ProductQuickView({ product, open, onClose }: Props) {
                         : "border-transparent hover:border-black"
                     }`}
                     >
-                    <img
-                        src={img.src || "/img/no-image.png"}
+                    <ProductImage
+                        src={img.src}
                         alt={img.alt || ""}
                         className="aspect-square w-full object-cover"
                     />

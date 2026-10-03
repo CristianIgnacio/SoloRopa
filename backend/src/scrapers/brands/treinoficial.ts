@@ -1,9 +1,13 @@
-import scrapeJumpsellerBase from "../platforms/jumpseller";
+import scrapeShopifyBase from "../platforms/shopify";
 
 export const Treinoficial = {
   name: "Treinoficial",
-  baseUrl: "https://www.treinoficial.cl",
+  baseUrl: "https://treino.cl",
   async scrape() {
-    return await scrapeJumpsellerBase(this.baseUrl);
+    const products = await scrapeShopifyBase(this.baseUrl);
+    if (!products.length || products.some(product => !product.images?.length)) {
+      throw new Error("Treino devolvió un catálogo vacío o productos sin imágenes");
+    }
+    return products.map(product => ({ ...product, currency: "CLP" }));
   }
 };

@@ -23,9 +23,7 @@ export interface ShopifyProduct extends Partial<IProduct> {
 }
 
 /**
- * Intentamos:
- * 1) fetch {base}/products.json (si existe)
- * 2) si 1 falla, hacemos scraping de /collections/all o /collections/{handle}?view=all
+ * Lee el catálogo público completo. Un fallo aborta sin devolver datos parciales.
  */
 const scrapeShopifyBase = async (baseUrl: string): Promise<ShopifyProduct[]> => {
   const limit = 50
@@ -34,7 +32,7 @@ const scrapeShopifyBase = async (baseUrl: string): Promise<ShopifyProduct[]> => 
 
   console.log(`🛍️ Iniciando scraping Shopify: ${baseUrl}`);
 
-  while(true){
+  while(page <= 1000){
 
     const url = `${baseUrl}/products.json?limit=${limit}&page=${page}`;
     
@@ -48,7 +46,10 @@ const scrapeShopifyBase = async (baseUrl: string): Promise<ShopifyProduct[]> => 
         timeout: 15000
       });
 
-      const products: ShopifyProduct[] = data?.products || [];
+      if (!Array.isArray(data?.products)) {
+        throw new Error("Shopify no devolvió una lista de productos");
+      }
+      const products = data.products;
 
       if (products.length === 0) {
         console.log("✔ No hay más productos. Fin del scraping.");
@@ -105,7 +106,7 @@ const scrapeShopifyBase = async (baseUrl: string): Promise<ShopifyProduct[]> => 
           const isActive = variants.some( (v : any) => v.inStock );
 
           // Unificamos titulo, product_type y tags nativos para el motor
-          const rawTagsFromShopify = p.tags || []
+          const rawTagsFromShopify = Array.isArray(p.tags) ? [...p.tags] : []
           if (p.product_type) rawTagsFromShopify.push(p.product_type)
 
           const normalized = normalizeProductMetadata(p.title, rawTagsFromShopify, "")
@@ -138,14 +139,13 @@ const scrapeShopifyBase = async (baseUrl: string): Promise<ShopifyProduct[]> => 
       page++; // siguiente página
 
     } catch (err) {
-      // console.warn("products.json no disponible:", err.message);
-
-      // console.error(`❌ Error scraping página ${page}:`, err.message);
-      // break;
+      const message = err instanceof Error ? err.message : String(err);
+      throw new Error(`Error Shopify en página ${page}: ${message}`);
     }
 
   }
 
+  if (page > 1000) throw new Error("Shopify superó el límite de páginas");
   console.log(`✨ Total productos encontrados: ${allProducts.length}`);
   return allProducts;
 

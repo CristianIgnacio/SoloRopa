@@ -111,9 +111,9 @@ const seedBrands = async () => {
       name: "Treinoficial",
       slug: "treinoficial",
       description: "Streetwear 100% confeccionado en Chile",
-      website: "https://www.treinoficial.cl/",
+      website: "https://treino.cl/",
       logo: {
-        src: "https://images.jumpseller.com/store/treino/store/logo/400X272-1,2MB.gif?1641506970",
+        src: "https://treino.cl/cdn/shop/files/LOGO-OK_190x.gif?v=1777048305",
         alt: "Logo Treinoficial",
         backgroundColor: "#000000"
       },
