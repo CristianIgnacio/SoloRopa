@@ -1,4 +1,4 @@
-import {scrapeFreshBrand, scrapeMoreamor, scrapeRudeboys, scrapeSubcomplot, scrapeBelowApparel, scrapeBvnggvng, scrapeMDF, scrapeTreinoficial, scrapeWhatup, scrapeNubeBrand, scrapeAll, getLastScrapeStats} from "../controllers/scrapeController"
+import {scrapeFreshBrand, scrapeMoreamor, scrapeRudeboys, scrapeSubcomplot, scrapeBelowApparel, scrapeBvnggvng, scrapeMDF, scrapeTreinoficial, scrapeWhatup, scrapeNubeBrand, scrapeJoiaMarket, scrapeStodak, scrapeAll, getLastScrapeStats} from "../controllers/scrapeController"
 import express from "express"
 import { authenticate, authorizeRole } from "../middleware/authMiddleware"
 
@@ -16,6 +16,8 @@ router.get("/mdf", ...adminOnly, scrapeMDF)
 router.get("/treinoficial", ...adminOnly, scrapeTreinoficial)
 router.get("/whatup", ...adminOnly, scrapeWhatup)
 router.get("/nubebrand", ...adminOnly, scrapeNubeBrand)
+router.get("/joiamarket", ...adminOnly, scrapeJoiaMarket)
+router.get("/stodak", ...adminOnly, scrapeStodak)
 router.post("/all", ...adminOnly, scrapeAll)
 router.get("/stats", ...adminOnly, getLastScrapeStats)
 

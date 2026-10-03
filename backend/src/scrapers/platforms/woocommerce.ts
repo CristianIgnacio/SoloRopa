@@ -21,9 +21,7 @@ export interface WooCommerceProduct extends Partial<IProduct> {
 }
 
 /**
- * Intentamos:
- * 1) fetch {base}/products.json (si existe)
- * 2) si 1 falla, hacemos scraping de /collections/all o /collections/{handle}?view=all
+ * Lee el catálogo público paginado de WooCommerce Store API.
  */
 const scrapeWooCommerceBase = async (baseUrl: string): Promise<WooCommerceProduct[]> => {
   const perPage = 50
@@ -41,12 +39,15 @@ const scrapeWooCommerceBase = async (baseUrl: string): Promise<WooCommerceProduc
 
     try {
       const apiUrl = new URL(url, baseUrl).toString();
-      const { data } = await axios.get(apiUrl, {
+      const { data, headers } = await axios.get(apiUrl, {
         headers: { "User-Agent": "Mozilla/5.0 (scraper)" },
         timeout: 15000
       });
 
-      const products: WooCommerceProduct[] = data || [];
+      if (!Array.isArray(data)) {
+        throw new Error("WooCommerce no devolvió una lista de productos");
+      }
+      const products = data;
 
       if (products.length === 0) {
         console.log("✔ No hay más productos. Fin del scraping.");
@@ -59,7 +60,7 @@ const scrapeWooCommerceBase = async (baseUrl: string): Promise<WooCommerceProduc
           
           const img = p?.images?.src 
             ?? (p?.images?.map( (i : any) => {
-                return { src : i.src, alt : p.alt} 
+                return { src : i.src, alt : i.alt}
               }) 
                 ?? []);
 
@@ -76,34 +77,47 @@ const scrapeWooCommerceBase = async (baseUrl: string): Promise<WooCommerceProduc
           
           let sizeTerms: any[] = [];
           let colorTerms: any[] = [];
+          let fixedSizeSlug = "";
+          let fixedColorSlug = "";
 
           for (const attr of p.attributes ?? []) {
              const nameLower = attr.name.toLowerCase();
+             // Un color descriptivo (p. ej. Beige + Negro) no es una opción
+             // de compra. Mantenerlo unido evita inventar combinaciones.
+             const terms = attr.has_variations === false && attr.terms?.length
+               ? [{
+                   slug: attr.terms.map((t: any) => t.slug).join("-"),
+                   name: attr.terms.map((t: any) => t.name).join(" / ")
+                 }]
+               : attr.terms ?? [];
              if (tallasNombre.includes(nameLower)) {
-                 sizeTerms = attr.terms ?? [];
+                 sizeTerms = terms;
+                 if (attr.has_variations === false) fixedSizeSlug = terms[0]?.slug ?? "";
              } else if (colorNombre.includes(nameLower)) {
-                 colorTerms = attr.terms ?? [];
+                 colorTerms = terms;
+                 if (attr.has_variations === false) fixedColorSlug = terms[0]?.slug ?? "";
              }
           }
 
           const variantsMap = new Map(); // "colorSlug-sizeSlug" -> variantObj
           const defaultPrice = p.prices?.price ? Number(p.prices.price) : null;
+          const initialStock = p.type === "simple" && (p.is_in_stock ?? false);
 
           // Generate combinations
           if (colorTerms.length > 0 && sizeTerms.length > 0) {
               for (const c of colorTerms) {
                   for (const s of sizeTerms) {
                       const key = `${c.slug}-${s.slug}`;
-                      variantsMap.set(key, { title: `${c.name} / ${s.name}`, inStock: false, color: c.name, size: s.name, price: defaultPrice });
+                      variantsMap.set(key, { title: `${c.name} / ${s.name}`, inStock: initialStock, color: c.name, size: s.name, price: defaultPrice });
                   }
               }
           } else if (colorTerms.length > 0) {
               for (const c of colorTerms) {
-                  variantsMap.set(`${c.slug}-`, { title: c.name, inStock: false, color: c.name, price: defaultPrice });
+                  variantsMap.set(`${c.slug}-`, { title: c.name, inStock: initialStock, color: c.name, price: defaultPrice });
               }
           } else if (sizeTerms.length > 0) {
               for (const s of sizeTerms) {
-                  variantsMap.set(`-${s.slug}`, { title: s.name, inStock: false, size: s.name, price: defaultPrice });
+                  variantsMap.set(`-${s.slug}`, { title: s.name, inStock: initialStock, size: s.name, price: defaultPrice });
               }
           } else {
               // No color or size variations
@@ -112,8 +126,8 @@ const scrapeWooCommerceBase = async (baseUrl: string): Promise<WooCommerceProduc
 
           // Now validate against variations to activate inStock
           for (const v of p.variations ?? []) {
-              let vColorSlug = "";
-              let vSizeSlug = "";
+              let vColorSlug = fixedColorSlug;
+              let vSizeSlug = fixedSizeSlug;
 
               for (const attr of v.attributes ?? []) {
                   const nameLower = attr.name.toLowerCase();
@@ -128,7 +142,8 @@ const scrapeWooCommerceBase = async (baseUrl: string): Promise<WooCommerceProduc
               const variant = variantsMap.get(key);
               
               if (variant) {
-                  variant.inStock = true;
+                  // El listado puede omitir el stock por talla; no inventarlo.
+                  variant.inStock = p.is_in_stock === false ? false : v.is_in_stock;
                   if (v.price !== undefined) variant.price = Number(v.price);
                   if (v.compare_at_price !== undefined) variant.comparePrice = Number(v.compare_at_price);
                   if (v.sku) variant.sku = v.sku;
@@ -136,7 +151,7 @@ const scrapeWooCommerceBase = async (baseUrl: string): Promise<WooCommerceProduc
                 // Se agrega dinámicamente si no existía globalmente
                 variantsMap.set(key, {
                     title: [vColorSlug, vSizeSlug].filter(Boolean).join(" / "),
-                    inStock: true,
+                    inStock: p.is_in_stock === false ? false : v.is_in_stock,
                     color: vColorSlug || undefined,
                     size: vSizeSlug || undefined,
                     price: v.price !== undefined ? Number(v.price) : defaultPrice,
@@ -172,14 +187,15 @@ const scrapeWooCommerceBase = async (baseUrl: string): Promise<WooCommerceProduc
         }
       }
 
+      const totalPages = Number(headers["x-wp-totalpages"]);
+      if (products.length < perPage || (totalPages > 0 && page >= totalPages)) break;
+
       await new Promise((r) => setTimeout(r, 500));
       page++; // siguiente página
 
     } catch (err) {
-        console.error(`❌ Error scraping página ${page}:`, err);
-        break
-
-      // break;
+        const message = err instanceof Error ? err.message : String(err);
+        throw new Error(`Error WooCommerce en ${baseUrl}, página ${page}: ${message}`);
     }
   }
   console.log(`✨ Total productos encontrados: ${allProducts.length}`);

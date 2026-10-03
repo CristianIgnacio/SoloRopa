@@ -8,6 +8,8 @@ import { MDF } from "../brands/mdf"
 import { Treinoficial } from "../brands/treinoficial"
 import { Whatup } from "../brands/whatup"
 import { NubeBrand } from "../brands/nubebrand"
+import { JoiaMarket } from "../brands/joiamarket"
+import { Stodak } from "../brands/stodak"
 
 const stores: { [key: string]: any } = {
   freshbrand: Freshbrand,
@@ -19,7 +21,9 @@ const stores: { [key: string]: any } = {
   mdf : MDF,
   treinoficial: Treinoficial,
   whatup: Whatup,
-  nubebrand: NubeBrand
+  nubebrand: NubeBrand,
+  joiamarket: JoiaMarket,
+  stodak: Stodak
 };
 
 export default stores
