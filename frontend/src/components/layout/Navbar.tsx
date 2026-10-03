@@ -67,8 +67,14 @@ export default function Navbar() {
     <header className="fixed top-0 z-50 w-full border-b-4 border-black bg-[#F4F4F0]">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4">
 
-        <Link to="/" className="text-2xl font-black uppercase tracking-tighter hover:text-yellow-500 transition-colors" onClick={() => setIsMobileMenuOpen(false)}>
-          SoloRopa
+        <Link to="/" className="shrink-0" onClick={() => setIsMobileMenuOpen(false)}>
+          <img
+            src="/brand/soloropa-horizontal.png"
+            alt="SoloRopa"
+            width="144"
+            height="48"
+            className="h-11 w-auto sm:h-12"
+          />
         </Link>
 
         <div className="hidden mx-4 md:flex flex-1 md:ml-8" ref={searchContainerRef}>
