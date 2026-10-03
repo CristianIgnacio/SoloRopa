@@ -1,0 +1,149 @@
+{
+  "downloadedAt": "2026-10-03T22:26:12.255Z",
+  "brands": [
+    {
+      "slug": "belowapparel",
+      "name": "Below Apparel",
+      "source": "https://www.belowapparel.com/cdn/shop/files/LOGO_BELOW_07bce012-5dd6-4c78-8da7-d7425a69a067.png?v=1755789612&width=290",
+      "src": "/brands/belowapparel.png",
+      "backgroundColor": "#FFFFFF",
+      "width": 282,
+      "height": 95,
+      "format": "png",
+      "bytes": 1815,
+      "sha256": "7635c2acf5c707f8524b02f186bc13a985f35f38fc58aec457b716e6a8800568"
+    },
+    {
+      "slug": "bvnggvng",
+      "name": "Bvnggvng",
+      "source": "https://bvnggvng.cl/cdn/shop/files/BG_LOGO_2024_WHITE_d1fef4d6-2338-4f8d-ae3f-b94ad71e92a4.png?v=1749676717&width=220",
+      "src": "/brands/bvnggvng.png",
+      "backgroundColor": "#000000",
+      "width": 220,
+      "height": 125,
+      "format": "png",
+      "bytes": 14769,
+      "sha256": "346ecd0ffbaa55630f22ab5223535ef66ed096c8e3ccfbc45f693b42f1286e59"
+    },
+    {
+      "slug": "freshbrand",
+      "name": "Freshbrand",
+      "source": "https://www.freshbrand.cl/cdn/shop/files/logo-png.png",
+      "src": "/brands/freshbrand.png",
+      "backgroundColor": "black",
+      "width": 400,
+      "height": 200,
+      "format": "png",
+      "bytes": 3806,
+      "sha256": "9e9904e2a91eca6272ccedb78c4117a74eed916ce84859b74041ac66d11d1209"
+    },
+    {
+      "slug": "joiamarket",
+      "name": "Joia Market",
+      "source": "https://joiamarket.com/wp-content/uploads/2023/11/logo-wht.svg",
+      "src": "/brands/joiamarket.svg",
+      "backgroundColor": "#000000",
+      "width": 160,
+      "height": 19,
+      "format": "svg",
+      "bytes": 2692,
+      "sha256": "7ed8e6fcf0c46a6a747cb9e603709d719163348250ca245720e0b72e1c3f8830"
+    },
+    {
+      "slug": "mdf",
+      "name": "MDF",
+      "source": "https://ropamdf.cl/cdn/shop/files/logo_df.png?v=1761413134&width=180",
+      "src": "/brands/mdf.png",
+      "backgroundColor": "#FFFFFF",
+      "width": 180,
+      "height": 204,
+      "format": "png",
+      "bytes": 19527,
+      "sha256": "52ea3aabc9e70b6615a665d0d511df60e51eb3f0a05206d87fd0616f234f679c"
+    },
+    {
+      "slug": "moreamor",
+      "name": "Moreamor",
+      "source": "https://moreamor.cl/cdn/shop/files/isologo.png",
+      "src": "/brands/moreamor.png",
+      "backgroundColor": "#FFFFFF",
+      "width": 748,
+      "height": 389,
+      "format": "png",
+      "bytes": 19090,
+      "sha256": "1bc7677c5d0fa6c12d75261afac4428fb8e8154dd4e7949d49e9d529fd102530"
+    },
+    {
+      "slug": "nubebrand",
+      "name": "NubeBrand",
+      "source": "https://www.nubebrand.cl/cdn/shop/files/logo_nube_180x.png?v=1615320851",
+      "src": "/brands/nubebrand.png",
+      "backgroundColor": "#FFFFFF",
+      "width": 180,
+      "height": 53,
+      "format": "png",
+      "bytes": 5986,
+      "sha256": "351813d1a3d241b7702881ea43f7049034cc9d5114dbf81edb219b436e0a7196"
+    },
+    {
+      "slug": "rudeboys",
+      "name": "Rudeboys",
+      "source": "https://www.rudeboys.cl/wp-content/uploads/2021/08/logo_rudeboys_new.png",
+      "src": "/brands/rudeboys.png",
+      "backgroundColor": "black",
+      "width": 500,
+      "height": 500,
+      "format": "png",
+      "bytes": 26433,
+      "sha256": "e29167b7e4a0daf47c989dcb1c5745938b5aab37057253812f6e8fbe5298d0bf"
+    },
+    {
+      "slug": "stodak",
+      "name": "Stodak",
+      "source": "https://www.stodak.com/cdn/shop/files/logo-2025-black.png?v=1741122381&width=500",
+      "src": "/brands/stodak.png",
+      "backgroundColor": "#FFFFFF",
+      "width": 500,
+      "height": 500,
+      "format": "png",
+      "bytes": 25204,
+      "sha256": "239de98e9e7b85a67274f098dba1b81072750a314ad31cd2dd1b28688196ec2e"
+    },
+    {
+      "slug": "subcomplot",
+      "name": "SubComplot",
+      "source": "https://i0.wp.com/subcomplot.cl/wp-content/uploads/2021/07/logo-200x200-1.png?fit=200%2C200&ssl=1",
+      "src": "/brands/subcomplot.png",
+      "backgroundColor": "#FFFFFF",
+      "width": 200,
+      "height": 200,
+      "format": "png",
+      "bytes": 5854,
+      "sha256": "670d11892c2d4b7dc2485bd84f6421144bc2dc688a7a2e5f406a8cbffc242f07"
+    },
+    {
+      "slug": "treinoficial",
+      "name": "Treinoficial",
+      "source": "https://treino.cl/cdn/shop/files/LOGO-OK_190x.gif?v=1777048305",
+      "src": "/brands/treinoficial.gif",
+      "backgroundColor": "#000000",
+      "width": 190,
+      "height": 128,
+      "format": "gif",
+      "bytes": 130967,
+      "sha256": "76140f0849204bcf0cb04b01a93df982f0e6941afa06a2d05ed77f44118f638e"
+    },
+    {
+      "slug": "whatup",
+      "name": "Whatup",
+      "source": "https://www.streetmachine.cl/cdn/shop/collections/WHATUP_9af49086-b6de-44cc-b693-5ad5f462f065.jpg?v=1772633125&width=720",
+      "src": "/brands/whatup.jpg",
+      "backgroundColor": "#FFFFFF",
+      "width": 200,
+      "height": 200,
+      "format": "jpeg",
+      "bytes": 6254,
+      "sha256": "d8938a7f8ca41f7d57167297a49d531f75652937d442bd3fe3692b4af921ac88"
+    }
+  ]
+}
