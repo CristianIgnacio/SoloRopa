@@ -1,5 +1,6 @@
 // src/components/product/ProductCardHover.tsx
 import { useState } from "react"
+import ProductImage from "../ui/ProductImage"
 import FavoriteButton from "../ui/FavoriteButton"
 import SaveButton from "../ui/SaveButton"
 import type { Product } from "../../Types/Types"
@@ -37,10 +38,11 @@ export default function ProductCardHover({ product, onClick, imageMode = "fixed"
             /* Placeholder mientras carga: ocupa un espacio razonable */
             <div className="skeleton-shimmer w-full" style={{ paddingBottom: "125%" }} />
           )}
-          <img
-            src={product.images[0]?.src || "/img/no-image.png"}
+          <ProductImage
+            src={product.images[0]?.src}
             alt={product.images[0]?.alt || ""}
             onLoad={() => setImageLoaded(true)}
+            onError={() => setImageLoaded(true)}
             className={`w-full h-auto block object-cover transition-all duration-300 group-hover:scale-105 img-fade-in ${imageLoaded ? "loaded" : "absolute inset-0 h-full"}`}
             loading="lazy"
           />
@@ -51,10 +53,11 @@ export default function ProductCardHover({ product, onClick, imageMode = "fixed"
           {!imageLoaded && (
             <div className="skeleton-shimmer absolute inset-0 z-10" />
           )}
-          <img
-            src={product.images[0]?.src || "/img/no-image.png"}
+          <ProductImage
+            src={product.images[0]?.src}
             alt={product.images[0]?.alt || ""}
             onLoad={() => setImageLoaded(true)}
+            onError={() => setImageLoaded(true)}
             className={`h-full w-full object-cover transition-all duration-300 group-hover:scale-105 img-fade-in ${imageLoaded ? "loaded" : ""}`}
             loading="lazy"
           />

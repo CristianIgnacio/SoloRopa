@@ -47,6 +47,7 @@ export interface User {
 export interface Brand {
   id : string;
   name : string;
+  slug? : string;
   description? : string;
   website : string;
   logo? : {src: string, alt?: string, backgroundColor?: string};

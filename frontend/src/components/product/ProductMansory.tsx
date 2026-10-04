@@ -17,14 +17,15 @@ type Props = {
   products: Product[]
   /** "natural" → alto libre según la imagen real  |  "fixed" → aspect-ratio 4/5 (default) */
   imageMode?: "natural" | "fixed"
+  mobileColumns?: 1 | 2
   renderItem?: (product: Product, imageMode: "natural" | "fixed") => React.ReactNode
 }
 
 // ── Componente ────────────────────────────────────────────────────────────────
-export default function ProductMasonry({ products, imageMode = "natural", renderItem }: Props) {
+export default function ProductMasonry({ products, imageMode = "natural", mobileColumns = 1, renderItem }: Props) {
   return (
     <Masonry
-      breakpointCols={breakpointColumnsObj}
+      breakpointCols={{ ...breakpointColumnsObj, 500: mobileColumns }}
       className="flex gap-3 md:gap-4"
       columnClassName="flex flex-col gap-3 md:gap-4"
     >

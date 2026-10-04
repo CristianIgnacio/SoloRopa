@@ -1,5 +1,11 @@
 import dotenv from 'dotenv'
-dotenv.config()
+import dns from 'node:dns'
+dotenv.config({ quiet: true })
+
+// Atlas usa consultas SRV. Aplicar sólo al resolvedor de este proceso Node.
+const MONGODB_DNS_SERVERS = (process.env.MONGODB_DNS_SERVERS || '')
+  .split(',').map(server => server.trim()).filter(Boolean)
+if (MONGODB_DNS_SERVERS.length > 0) dns.setServers(MONGODB_DNS_SERVERS)
 
 type SameSitePolicy = 'lax' | 'strict' | 'none'
 
@@ -9,7 +15,7 @@ const HOST = process.env.HOST || 'localhost'
 const MONGODB_URI =
   process.env.NODE_ENV === 'test'
     ? process.env.TEST_MONGODB_URI
-    : process.env.NODE_ENV === 'production'
+    : process.env.NODE_ENV === 'production' || process.env.MONGODB_TARGET === 'production'
       ? process.env.MONGODB_URI
       : process.env.MONGODB_URI_LOCAL
 

@@ -1,4 +1,5 @@
 import { useState, useRef } from "react"
+import ProductImage from "./ProductImage"
 
 type Props = {
   src: string
@@ -26,7 +27,7 @@ export default function HoverImageZoom({ src, alt = "", className = "", zoomScal
 
   return (
     <div className={`relative overflow-hidden ${className}`}>
-      <img
+      <ProductImage
         ref={imageRef}
         src={src}
         alt={alt}

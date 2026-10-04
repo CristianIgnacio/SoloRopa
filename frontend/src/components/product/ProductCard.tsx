@@ -1,5 +1,6 @@
 // src/components/product/ProductCard.tsx
 import type {Product} from "../../Types/Types"
+import ProductImage from "../ui/ProductImage"
 import FavoriteButton from "../ui/FavoriteButton"
 
 const ProductCard = ({product}: {product : Product}) => {
@@ -11,8 +12,8 @@ const ProductCard = ({product}: {product : Product}) => {
       </div>
 
 
-      <img
-        src={product.images?.[0]?.src || ""}
+      <ProductImage
+        src={product.images?.[0]?.src}
         alt={product.title}
         className="w-full object-cover"
         loading="lazy"

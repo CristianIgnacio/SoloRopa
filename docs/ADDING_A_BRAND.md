@@ -25,6 +25,10 @@ Primero, la marca debe existir en la base de datos para que el scraper pueda vin
   ```
 > **Importante:** Recuerda ejecutar el script para que se inserte en la BD.
 
+Desde `backend`, ejecuta `npm run brands -- <slug>` para insertar o actualizar
+solo la nueva marca (por ejemplo, `npm run brands -- joiamarket`). Sin argumentos,
+`npm run brands` procesa todas las marcas.
+
 ## 2. ⚙️ Backend (Scraper)
 ### A. Crear el archivo del scraper
 - **Ruta:** `backend/src/scrapers/brands/[nombre_marca].ts`

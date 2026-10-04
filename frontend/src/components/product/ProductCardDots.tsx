@@ -1,5 +1,6 @@
 // src/components/product/ProductCardDots.tsx
 import { useState } from "react"
+import ProductImage from "../ui/ProductImage"
 import FavoriteButton from "../ui/FavoriteButton"
 import type { Product } from "../../Types/Types"
 import { preloadImage } from "../../utils/image"
@@ -49,8 +50,8 @@ export default function ProductCardDots({ product, onClick }: Props) {
     >
       {/* Imagen */}
       <div className="relative aspect-3/4 bg-slate-100">
-        <img
-          src={images[activeImage]?.src || "/img/no-image.png"}
+        <ProductImage
+          src={images[activeImage]?.src}
           alt={images[activeImage]?.alt || ""}
           className="h-full w-full object-cover transition-opacity duration-300"
           loading="lazy"

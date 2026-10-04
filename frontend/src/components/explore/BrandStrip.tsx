@@ -1,4 +1,5 @@
 import { useRef } from "react"
+import BrandLogo from "../ui/BrandLogo"
 import { useNavigate } from "react-router-dom"
 import type { Brand } from "../../Types/Types"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -67,11 +68,9 @@ export default function BrandCarousel({ brands }: Props) {
                   active:translate-y-0 active:shadow-[2px_2px_0_0_#000]
                 "
               >
-                <img
-                  src={brand.logo?.src}
-                  alt={brand.name}
+                <BrandLogo
+                  brand={brand}
                   className="h-4/5 w-4/5 object-contain"
-                  loading="lazy"
                 />
               </div>
 

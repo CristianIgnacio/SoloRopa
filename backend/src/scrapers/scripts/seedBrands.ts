@@ -4,8 +4,7 @@ import Brand  from "../../models/Brand"
 import mongoose from "mongoose";
 import config from "../../utils/config";
 
-// intrucciones correr este script:
-// npm run any
+// npm run brands -- joiamarket (sin argumentos procesa todas las marcas)
 
 const seedBrands = async () => {
   try {
@@ -112,9 +111,9 @@ const seedBrands = async () => {
       name: "Treinoficial",
       slug: "treinoficial",
       description: "Streetwear 100% confeccionado en Chile",
-      website: "https://www.treinoficial.cl/",
+      website: "https://treino.cl/",
       logo: {
-        src: "https://images.jumpseller.com/store/treino/store/logo/400X272-1,2MB.gif?1641506970",
+        src: "https://treino.cl/cdn/shop/files/LOGO-OK_190x.gif?v=1777048305",
         alt: "Logo Treinoficial",
         backgroundColor: "#000000"
       },
@@ -147,11 +146,45 @@ const seedBrands = async () => {
       isActive: true
     };
 
+    const joiamarket = {
+      name: "Joia Market",
+      slug: "joiamarket",
+      description: "Ropa urbana, bolsos y accesorios JOIA",
+      website: "https://joiamarket.com/",
+      logo: {
+        src: "https://joiamarket.com/wp-content/uploads/2023/11/logo-wht.svg",
+        alt: "Logo Joia Market",
+        backgroundColor: "#000000"
+      },
+      isActive: true
+    };
+
+    const stodak = {
+      name: "Stodak",
+      slug: "stodak",
+      description: "Ropa urbana y accesorios",
+      website: "https://www.stodak.com/",
+      logo: {
+        src: "https://www.stodak.com/cdn/shop/files/logo-2025-black.png?v=1741122381&width=500",
+        alt: "Logo Stodak",
+        backgroundColor: "#FFFFFF"
+      },
+      isActive: true
+    };
+
     // Usar updateOne con upsert para insertar si no existe, o actualizar si ya existe
     // De esta forma solo actualizamos los campos especificados sin borrar otros
-    const brands = [rudeboys, freshbrand, moreamor, subcomplot, belowapparel, bvnggvng, mdf, treinoficial, whatup, nubebrand];
+    const brands = [rudeboys, freshbrand, moreamor, subcomplot, belowapparel, bvnggvng, mdf, treinoficial, whatup, nubebrand, joiamarket, stodak];
+    const requestedSlugs = process.argv.slice(2);
+    const unknownSlugs = requestedSlugs.filter(slug => !brands.some(brand => brand.slug === slug));
+    if (unknownSlugs.length > 0) {
+      throw new Error(`Marcas no registradas: ${unknownSlugs.join(", ")}`);
+    }
+    const selectedBrands = requestedSlugs.length > 0
+      ? brands.filter(brand => requestedSlugs.includes(brand.slug))
+      : brands;
     
-    for (const brand of brands) {
+    for (const brand of selectedBrands) {
       await Brand.updateOne(
         { slug: brand.slug },  // Filtro por slug (único)
         { $set: brand },        // Actualizar con los nuevos datos
@@ -163,6 +196,7 @@ const seedBrands = async () => {
     console.log("✅ Marcas procesadas correctamente");
   } catch (err) {
     console.error("❌ Error:", err);
+    process.exitCode = 1;
   } finally {
     await mongoose.connection.close();
     console.log("🔌 Conexión cerrada");

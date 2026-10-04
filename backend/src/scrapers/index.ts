@@ -19,7 +19,8 @@ const buildSet = (input: UpsertProductInput) => {
   if (input.inStock !== undefined) $set.inStock = input.inStock;
   if (input.isActive !== undefined) $set.isActive = input.isActive;
 
-  if (input.images !== undefined) $set.images = input.images ?? [];
+  // Una extracción incompleta no debe borrar las imágenes ya guardadas.
+  if (input.images?.length) $set.images = input.images;
   if (input.category !== undefined) $set.category = input.category;
   if (input.categoryConfidence !== undefined) $set.categoryConfidence = input.categoryConfidence;
   if (input.gender !== undefined) $set.gender = input.gender;
@@ -52,6 +53,9 @@ const runScraperFor = async (storeKey: string) => {
   if (!store) throw new Error("Store no registrada: " + storeKey);
 
   const scrapedItems  = await store.scrape();
+  if (!scrapedItems.length) {
+    throw new Error(`Catálogo vacío para ${store.name}; no se actualizaron productos`);
+  }
   console.log("Store.name : ", store.name)
   const brand = await BrandModel.findOne({ name: store.name })
   console.log("Brand : " + brand)

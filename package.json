@@ -1,0 +1,10 @@
+{
+  "name": "dev-environment",
+  "private": true,
+  "scripts": {
+    "dev:mongo": "docker compose up -d",
+    "dev:front": "npm --prefix frontend run dev",
+    "dev:back": "npm --prefix backend run dev",
+    "dev": "npm run dev:mongo && npm run dev:back"
+  }
+}

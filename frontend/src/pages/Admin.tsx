@@ -24,6 +24,8 @@ const BRANDS = [
   { key: "treinoficial", label: "Treinoficial",   url: "treinoficial.cl" },
   { key: "whatup",       label: "Whatup",         url: "streetmachine.cl/collections/whatup" },
   { key: "nubebrand",    label: "NubeBrand",      url: "nubebrand.cl" },
+  { key: "joiamarket",   label: "Joia Market",    url: "joiamarket.com" },
+  { key: "stodak",       label: "Stodak",         url: "stodak.com" },
 ]
 
 type BrandStatus = "idle" | "loading" | "success" | "error"
