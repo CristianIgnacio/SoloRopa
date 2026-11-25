@@ -5,9 +5,10 @@ import { faShareNodes, faCheck } from "@fortawesome/free-solid-svg-icons"
 type Props = {
   productId?: string
   url?: string
+  label?: string
 }
 
-export default function ShareButton({ productId, url }: Props) {
+export default function ShareButton({ productId, url, label }: Props) {
   const [copied, setCopied] = useState(false)
 
   const handleShare = async (e: React.MouseEvent) => {
@@ -39,7 +40,9 @@ export default function ShareButton({ productId, url }: Props) {
   return (
     <button
       onClick={handleShare}
-      className="flex h-8 w-8 items-center justify-center rounded-full bg-white/80 shadow backdrop-blur transition hover:scale-110"
+      className={label
+        ? "flex h-10 items-center gap-2 border-2 border-black bg-white px-3 text-xs font-bold uppercase tracking-widest text-black shadow-[2px_2px_0_0_#000] transition-colors hover:bg-yellow-400"
+        : "flex h-8 w-8 items-center justify-center rounded-full bg-white/80 shadow backdrop-blur transition hover:scale-110"}
       aria-label="Compartir enlace"
       title="Compartir enlace"
     >
@@ -48,6 +51,7 @@ export default function ShareButton({ productId, url }: Props) {
       ) : (
         <FontAwesomeIcon icon={faShareNodes} className="h-4 w-4 text-slate-700" />
       )}
+      {label && <span>{label}</span>}
     </button>
   )
 }

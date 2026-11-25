@@ -7,8 +7,9 @@ type Props = {
 
 export default function WishlistCard({ wishlist }: Props) {
 
-  const collageImages = wishlist.items
-    ?.slice(0, 4)
+  const collageImages = [...wishlist.items]
+    .sort((a, b) => new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime())
+    .slice(0, 4)
     .map(item => item.productId?.images?.[0]?.src)
     .filter(Boolean) || [];
 
