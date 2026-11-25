@@ -12,9 +12,12 @@ type Props = {
   /** "natural" → la card crece según el alto real de la imagen (masonry libre)
    *  "fixed"   → aspect-ratio 4/5 fijo (grid uniforme, default) */
   imageMode?: "natural" | "fixed"
+  /** "default" → borde negro + sombra dura (estilo actual)
+   *  "clean"   → sin borde, sombra ni redondeo (estilo editorial) */
+  variant?: "default" | "clean"
 }
 
-export default function ProductCardHover({ product, onClick, imageMode = "fixed" }: Props) {
+export default function ProductCardHover({ product, onClick, imageMode = "fixed", variant = "default" }: Props) {
     const { trackClick } = useProductEvents(product.id)
     const [imageLoaded, setImageLoaded] = useState(false)
 
@@ -24,11 +27,16 @@ export default function ProductCardHover({ product, onClick, imageMode = "fixed"
     }
 
     const isNatural = imageMode === "natural"
+    const isClean = variant === "clean"
 
     return (
         <div
             onClick={handleInternalClick}
-            className="group relative cursor-pointer overflow-hidden rounded-sm border-2 border-black bg-white shadow-none transition-all hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000]"
+            className={
+                isClean
+                    ? "group relative cursor-pointer overflow-hidden bg-white"
+                    : "group relative cursor-pointer overflow-hidden rounded-sm border-2 border-black bg-white shadow-none transition-all hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000]"
+            }
         >
       {/* ── Contenedor de imagen ──────────────────────────────────────────── */}
       {isNatural ? (
@@ -66,15 +74,15 @@ export default function ProductCardHover({ product, onClick, imageMode = "fixed"
 
       {/* Overlay — solo aparece al hacer hover */}
       <div
-        className="
+        className={`
           absolute inset-0
           hidden lg:flex flex-col justify-between
-          bg-black/50
+          ${isClean ? "bg-[linear-gradient(to_bottom,rgba(0,0,0,0.45),transparent_22%,transparent_50%,rgba(0,0,0,0.75))]" : "bg-black/50"}
           p-3
           opacity-0
           transition-opacity duration-200
           group-hover:opacity-100
-        "
+        `}
       >
         {/* Top: marcador izquierda, corazón derecha */}
         <div className="flex justify-between">

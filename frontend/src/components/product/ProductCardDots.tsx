@@ -9,9 +9,13 @@ import { useProductEvents } from "../../Hooks/useProductEvents"
 type Props = {
   product: Product
   onClick?: () => void
+  /** "default" → borde negro + sombra dura (estilo actual)
+   *  "clean"   → sin borde, sombra ni redondeo; info debajo de la imagen */
+  variant?: "default" | "clean"
 }
 
-export default function ProductCardDots({ product, onClick }: Props) {
+export default function ProductCardDots({ product, onClick, variant = "default" }: Props) {
+  const isClean = variant === "clean"
   const [activeImage, setActiveImage] = useState(0)
   const [preloaded, setPreloaded] = useState<Set<number>>(new Set())
   const { trackClick } = useProductEvents(product.id)
@@ -45,11 +49,15 @@ export default function ProductCardDots({ product, onClick }: Props) {
   return (
     <div
       onClick={handleInternalClick}
-      className="group relative cursor-pointer overflow-hidden rounded-sm border-2 border-black bg-white shadow-none transition-all hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000] active:translate-y-0 active:shadow-[2px_2px_0_0_#000]"
+      className={
+        isClean
+          ? "group relative cursor-pointer"
+          : "group relative cursor-pointer overflow-hidden rounded-sm border-2 border-black bg-white shadow-none transition-all hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000] active:translate-y-0 active:shadow-[2px_2px_0_0_#000]"
+      }
       onMouseEnter={onMouseEnterCard}
     >
       {/* Imagen */}
-      <div className="relative aspect-3/4 bg-slate-100">
+      <div className="relative aspect-3/4 overflow-hidden bg-slate-100">
         <ProductImage
           src={images[activeImage]?.src}
           alt={images[activeImage]?.alt || ""}
@@ -59,20 +67,20 @@ export default function ProductCardDots({ product, onClick }: Props) {
 
         {/* Overlay hover */}
         <div
-          className="
+          className={`
             pointer-events-none
             absolute inset-0
-            flex items-start justify-between
+            flex items-start ${isClean ? "justify-end" : "justify-between"}
             p-2
             opacity-100
             sm:opacity-0 sm:group-hover:opacity-100
             transition-opacity
-          "
+          `}
         >
-          {/* Marca */}
-          <span className="border border-black bg-black px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-[2px_2px_0_0_#000]">
+          {/* Marca (en clean va debajo de la imagen) */}
+          {!isClean && <span className="border border-black bg-black px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-[2px_2px_0_0_#000]">
             {product.brand.name}
-          </span>
+          </span>}
 
           {/* Favorito */}
           <div className="pointer-events-auto">
@@ -119,14 +127,28 @@ export default function ProductCardDots({ product, onClick }: Props) {
       </div>
 
       {/* Info siempre visible — altura fija para cards uniformes en el carrusel */}
-      <div className="flex h-[84px] flex-col justify-between border-t-2 border-black bg-white p-2 pb-3">
-        <p className="line-clamp-2 text-xs font-bold leading-tight sm:text-sm">
-          {product.title}
-        </p>
-        <p className="text-sm font-extrabold text-slate-900">
-          ${product.price?.toLocaleString("es-CL")}
-        </p>
-      </div>
+      {isClean ? (
+        <div className="pt-2">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
+            {product.brand.name}
+          </p>
+          <p className="line-clamp-1 text-xs font-bold uppercase tracking-tight text-black sm:text-sm">
+            {product.title}
+          </p>
+          <p className="text-sm font-extrabold text-slate-900">
+            ${product.price?.toLocaleString("es-CL")}
+          </p>
+        </div>
+      ) : (
+        <div className="flex h-[84px] flex-col justify-between border-t-2 border-black bg-white p-2 pb-3">
+          <p className="line-clamp-2 text-xs font-bold leading-tight sm:text-sm">
+            {product.title}
+          </p>
+          <p className="text-sm font-extrabold text-slate-900">
+            ${product.price?.toLocaleString("es-CL")}
+          </p>
+        </div>
+      )}
     </div>
   )
 }
