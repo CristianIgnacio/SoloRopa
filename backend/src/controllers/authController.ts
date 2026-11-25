@@ -10,12 +10,13 @@ import { OAuth2Client } from 'google-auth-library';
 const client = new OAuth2Client(config.GOOGLE_CLIENT_ID);
 
 const cookieSameSite: CookieOptions["sameSite"] = config.COOKIE_SAME_SITE;
+const SESSION_DURATION_SECONDS = 7 * 24 * 60 * 60;
 
 const buildSessionCookieOptions = (): CookieOptions => ({
   httpOnly: true,
   secure: process.env.NODE_ENV === "production" || cookieSameSite === "none",
   sameSite: cookieSameSite,
-  maxAge: 60 * 60 * 1000,
+  maxAge: SESSION_DURATION_SECONDS * 1000,
   path: "/",
 });
 
@@ -40,7 +41,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
           id: user._id,
         };
 
-        const token = jwt.sign(userForToken, config.JWT_SECRET, { expiresIn:  60 * 60 });
+        const token = jwt.sign(userForToken, config.JWT_SECRET, { expiresIn: SESSION_DURATION_SECONDS });
         res.setHeader("X-CSRF-Token", userForToken.csrf);
         res.cookie("token", token, buildSessionCookieOptions());
 
@@ -118,7 +119,7 @@ export const googleLogin = async (req: Request, res: Response, next: NextFunctio
       id: user._id,
     };
 
-    const jwtToken = jwt.sign(userForToken, config.JWT_SECRET, { expiresIn:  60 * 60 });
+    const jwtToken = jwt.sign(userForToken, config.JWT_SECRET, { expiresIn: SESSION_DURATION_SECONDS });
     res.setHeader("X-CSRF-Token", userForToken.csrf);
     res.cookie("token", jwtToken, buildSessionCookieOptions());
 
