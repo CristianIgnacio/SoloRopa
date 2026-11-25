@@ -31,3 +31,10 @@ body {
 .img-fade-in.loaded {
   opacity: 1;
 }
+
+/* ─── Tratamiento de color editorial ───────────────────────────
+   Unifica las fotos de estilo de vida (portada, categorías, looks, marcas)
+   para que se vean como una misma campaña. No usar en fotos de producto. */
+.editorial-photo {
+  filter: saturate(0.78) contrast(1.12) brightness(0.96) sepia(0.06);
+}
