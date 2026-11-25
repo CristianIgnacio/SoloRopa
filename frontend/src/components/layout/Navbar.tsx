@@ -17,6 +17,7 @@ import {
   faShirt,
   faBars,
   faXmark,
+  faLayerGroup,
 } from "@fortawesome/free-solid-svg-icons"
 
 
@@ -64,7 +65,7 @@ export default function Navbar() {
   }
 
   return (
-    <header className="fixed top-0 z-50 w-full border-b-4 border-black bg-[#F4F4F0]">
+    <header className="fixed top-0 z-50 w-full border-b border-black bg-[#F4F4F0]/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4">
 
         <Link to="/" className="shrink-0" onClick={() => setIsMobileMenuOpen(false)}>
@@ -93,11 +94,11 @@ export default function Navbar() {
               onFocus={() => setShowSuggestions(true)}
               autoComplete="off"
               placeholder="Buscar streetwear, dark..."
-              className="w-full border-2 border-black bg-white py-2 pl-4 pr-10 text-sm font-bold shadow-[2px_2px_0_0_#000] placeholder:font-medium placeholder:text-slate-400 transition-all focus:outline-none focus:shadow-[4px_4px_0_0_#000]"
+              className="w-full border border-black bg-white py-2 pl-4 pr-10 text-sm font-bold placeholder:font-medium placeholder:text-slate-400 transition-shadow focus:outline-none focus:ring-2 focus:ring-yellow-400"
             />
             <button
               type="submit"
-              className="absolute right-0 top-0 flex h-full w-10 items-center justify-center border-l-2 border-transparent text-black transition-colors hover:bg-yellow-400 hover:border-black"
+              className="absolute right-0 top-0 flex h-full w-10 items-center justify-center text-black transition-colors hover:bg-yellow-400"
               aria-label="Buscar"
             >
               <FontAwesomeIcon icon={faMagnifyingGlass} className="text-sm" />
@@ -105,7 +106,7 @@ export default function Navbar() {
 
             {/* SUGERENCIAS DE BÚSQUEDA */}
             {showSuggestions && (
-               <div className="absolute top-full left-0 mt-1 w-full border-2 border-black bg-white shadow-[4px_4px_0_0_#000] z-50">
+               <div className="absolute top-full left-0 mt-1 w-full border border-black bg-white z-50">
                   <div className="bg-black text-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest">
                     {searchValue ? "Sugerencias" : "Búsquedas Populares"}
                   </div>
@@ -151,17 +152,21 @@ export default function Navbar() {
         </div>
 
         <nav className="hidden md:flex items-center gap-3">
-          <Link to="/search" className="hidden items-center gap-1.5 px-3 py-1 text-sm font-bold uppercase tracking-wider text-black border-2 border-transparent transition-all hover:border-black hover:bg-yellow-400 md:flex">
+          <Link to="/search" className="hidden items-center gap-1.5 px-3 py-1.5 text-sm font-bold uppercase tracking-wider text-black transition-colors hover:bg-yellow-400 md:flex">
             <FontAwesomeIcon icon={faMagnifyingGlass} className="text-xs" />
             Buscar
           </Link>
+          <Link to="/cards" className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-bold uppercase tracking-wider text-black transition-colors hover:bg-yellow-400">
+            <FontAwesomeIcon icon={faLayerGroup} className="text-xs" />
+            Cards
+          </Link>
           {user ? (
             <>
-              <Link to="/favorites" className="flex items-center gap-1.5 px-3 py-1 text-sm font-bold uppercase tracking-wider text-black border-2 border-transparent transition-all hover:border-black hover:bg-yellow-400">
+              <Link to="/favorites" className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-bold uppercase tracking-wider text-black transition-colors hover:bg-yellow-400">
                 <FontAwesomeIcon icon={faHeart} className="text-xs" />
                 Favoritos
               </Link>
-              <Link to="/explore" className="flex items-center gap-1.5 px-3 py-1 text-sm font-bold uppercase tracking-wider text-black border-2 border-transparent transition-all hover:border-black hover:bg-yellow-400">
+              <Link to="/explore" className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-bold uppercase tracking-wider text-black transition-colors hover:bg-yellow-400">
                 <FontAwesomeIcon icon={faCompass} className="text-xs" />
                 Explorar
               </Link>
@@ -180,9 +185,9 @@ export default function Navbar() {
                 </button>
 
                 {open && (
-                  <div className="absolute right-0 mt-2 w-56 overflow-hidden rounded-none border-2 border-black bg-white p-1 shadow-[4px_4px_0_0_#000]">
+                  <div className="absolute right-0 mt-2 w-56 overflow-hidden border border-black bg-white">
                     {/* Header usuario */}
-                    <div className="flex items-center gap-3 border-b-2 border-black px-4 py-3">
+                    <div className="flex items-center gap-3 border-b border-black px-4 py-3">
                       <Avatar username={user.username} src={user.avatarUrl} size={36} />
                       <div className="min-w-0">
                         <p className="truncate text-sm font-black uppercase tracking-tighter text-black">{user.username}</p>
@@ -214,7 +219,7 @@ export default function Navbar() {
                       <Link
                         to="/admin"
                         onClick={() => setOpen(false)}
-                        className="flex items-center gap-2 border-t-2 border-black px-4 py-3 text-xs font-bold uppercase tracking-widest text-black transition-colors hover:bg-yellow-400"
+                        className="flex items-center gap-2 border-t border-slate-100 px-4 py-3 text-xs font-bold uppercase tracking-widest text-black transition-colors hover:bg-yellow-400"
                       >
                         <FontAwesomeIcon icon={faShieldHalved} className="w-4 text-black" />
                         Admin
@@ -223,7 +228,7 @@ export default function Navbar() {
 
                     <button
                       onClick={handleLogout}
-                      className="flex w-full items-center gap-2 border-t-2 border-black bg-black px-4 py-3 text-left text-xs font-bold uppercase tracking-widest text-white transition-colors hover:bg-red-500"
+                      className="flex w-full items-center gap-2 bg-black px-4 py-3 text-left text-xs font-bold uppercase tracking-widest text-white transition-colors hover:bg-red-500"
                     >
                       <FontAwesomeIcon icon={faRightFromBracket} className="w-4" />
                       Cerrar sesión
@@ -240,7 +245,7 @@ export default function Navbar() {
               </Link>
               <Link
                 to="/register"
-                className="flex items-center gap-1.5 border-2 border-black bg-black px-4 py-2 text-sm font-bold uppercase tracking-wider text-white shadow-[2px_2px_0_0_#000] transition-all hover:bg-yellow-400 hover:text-black active:scale-95"
+                className="flex items-center gap-1.5 bg-black px-4 py-2 text-sm font-bold uppercase tracking-wider text-white transition-colors hover:bg-yellow-400 hover:text-black active:scale-95"
               >
                 <FontAwesomeIcon icon={faUserPlus} className="text-xs" />
                 Crear cuenta
@@ -262,7 +267,7 @@ export default function Navbar() {
 
       {/* Mobile Menu Dropdown */}
       {isMobileMenuOpen && (
-        <div className="absolute top-16 left-0 w-full border-b-4 border-black bg-[#F4F4F0] p-4 md:hidden shadow-[4px_4px_0_0_#000]">
+        <div className="absolute top-16 left-0 w-full border-b border-black bg-[#F4F4F0] p-4 md:hidden">
           <nav className="flex flex-col gap-4">
             <Link 
               to="/search" 
@@ -271,6 +276,14 @@ export default function Navbar() {
             >
               <FontAwesomeIcon icon={faMagnifyingGlass} className="w-5" />
               Buscar
+            </Link>
+            <Link 
+              to="/cards" 
+              className="flex items-center gap-3 text-lg font-bold uppercase tracking-wider text-black transition-colors hover:text-yellow-500"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <FontAwesomeIcon icon={faLayerGroup} className="w-5" />
+              Cards
             </Link>
             {user ? (
               <>

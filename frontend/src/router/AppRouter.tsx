@@ -16,6 +16,7 @@ import ProductDetail from "../pages/ProductDetail"
 import ForgotPassword from "../pages/ForgotPassword"
 import ResetPassword from "../pages/ResetPassword"
 import OutfitBuilder from "../pages/OutfitBuilder"
+import CardsShowcase from "../pages/CardsShowcase"
 
 export default function AppRouter() {
   return (
@@ -38,6 +39,7 @@ export default function AppRouter() {
 
         {/* 🔐 Rutas privadas (admin) */}
         <Route element={<PrivateRoute requireAdmin />}>
+          <Route path="/cards" element={<CardsShowcase />} /> 
           <Route path="/admin" element={<Admin />} />
         </Route>
       </Route>
