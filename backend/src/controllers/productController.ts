@@ -1,6 +1,15 @@
 import Product from "../models/Product";
 import { Response, Request, NextFunction } from "express";
 
+const SIZE_ALIASES: Record<string, string[]> = {
+  XXL: ['XXL', '2XL'],
+  '3XL': ['3XL', 'XXXL'],
+  '4XL': ['4XL', 'XXXXL'],
+  'ÚNICA': ['ÚNICA', 'UNICA', 'OS', 'OSFA', 'ALL', 'STD', 'TU']
+}
+
+const escapeRegex = (value: string) => value.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
+
 // Obtener productos paginados
 const getAllProducts = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -40,10 +49,50 @@ const getAllProducts = async (req: Request, res: Response, next: NextFunction) =
       ]
     }
 
-    if (req.query.minPrice || req.query.maxPrice) {
-      filter.price = {}
-      if (req.query.minPrice) filter.price.$gte = Number(req.query.minPrice)
-      if (req.query.maxPrice) filter.price.$lte = Number(req.query.maxPrice)
+    const minPrice = Number(req.query.minPrice)
+    const maxPrice = Number(req.query.maxPrice)
+    if (req.query.minPrice !== undefined && Number.isFinite(minPrice) && minPrice >= 0) {
+      filter.price = { ...filter.price, $gte: minPrice }
+    }
+    if (req.query.maxPrice !== undefined && Number.isFinite(maxPrice) && maxPrice >= 0) {
+      filter.price = { ...filter.price, $lte: maxPrice }
+    }
+
+    if (req.query.size) {
+      const sizeMatchers = String(req.query.size).split(',').map(size => size.trim()).filter(Boolean).slice(0, 20)
+        .map(size => {
+          const aliases = SIZE_ALIASES[size.toUpperCase()] || [size]
+          return new RegExp('(^|[\\s/-])(?:' + aliases.map(escapeRegex).join('|') + ')(?=$|[\\s/-])', 'i')
+        })
+      if (sizeMatchers.length) {
+        filter.variants = {
+          $elemMatch: {
+            inStock: true,
+            $or: [
+              { size: { $in: sizeMatchers } },
+              { title: { $in: sizeMatchers } }
+            ]
+          }
+        }
+      }
+    }
+
+    if (req.query.onSale === 'true') {
+      filter.$expr = {
+        $anyElementTrue: [{
+          $map: {
+            input: { $ifNull: ['$variants', []] },
+            as: 'variant',
+            in: {
+              $and: [
+                { $isNumber: '$$variant.price' },
+                { $isNumber: '$$variant.comparePrice' },
+                { $gt: ['$$variant.comparePrice', '$$variant.price'] }
+              ]
+            }
+          }
+        }]
+      }
     }
 
     // Filtros sobre canonicalTags (fit, style, color)
