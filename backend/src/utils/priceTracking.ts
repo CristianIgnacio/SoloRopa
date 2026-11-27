@@ -49,3 +49,77 @@ export function hasPriceChanged(previous: TrackedPrice | null, next: TrackedPric
   if (!previous) return true;
   return previous.price !== next.price;
 }
+
+// --- Estadísticas sobre el historial ---
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+export const PRICE_STATS_WINDOW_DAYS = 30;
+
+export type PricePoint = { price: number; recordedAt: Date };
+
+export type PriceStats = {
+  current: number;
+  min30d: number;
+  max30d: number;
+  isLowest30d: boolean;
+  trackedSince: Date;   // primera fila del historial
+  lastChangeAt: Date;   // última fila del historial
+};
+
+const sortByDate = (rows: PricePoint[]) =>
+  [...rows].sort((a, b) => a.recordedAt.getTime() - b.recordedAt.getTime());
+
+/**
+ * Puntos de los últimos `days` días. Como solo guardamos cambios, el precio vigente al inicio
+ * de la ventana es la última fila anterior a ella: se incluye, movida al inicio de la ventana.
+ */
+export function getPriceWindow(rows: PricePoint[], now: Date, days: number): PricePoint[] {
+  const start = new Date(now.getTime() - days * DAY_MS);
+  let before: PricePoint | null = null;
+  const inside: PricePoint[] = [];
+
+  for (const row of sortByDate(rows)) {
+    if (row.recordedAt > now) continue;
+    if (row.recordedAt <= start) before = row;
+    else inside.push(row);
+  }
+
+  return before ? [{ price: before.price, recordedAt: start }, ...inside] : inside;
+}
+
+/**
+ * Resumen de los últimos 30 días. `isLowest30d` solo es true si llevamos 30 días o más
+ * siguiendo el producto, el precio actual es el mínimo de la ventana y hubo uno más alto
+ * en ella (si no, todo producto con precio estable saldría como "el más bajo").
+ */
+export function computePriceStats(rows: PricePoint[], now: Date): PriceStats | null {
+  const history = sortByDate(rows).filter((row) => row.recordedAt <= now);
+  if (!history.length) return null;
+
+  const windowStart = new Date(now.getTime() - PRICE_STATS_WINDOW_DAYS * DAY_MS);
+  const prices = getPriceWindow(history, now, PRICE_STATS_WINDOW_DAYS).map((p) => p.price);
+  const first = history[0];
+  const last = history[history.length - 1];
+
+  const current = last.price;
+  const min30d = Math.min(...prices);
+  const max30d = Math.max(...prices);
+  const trackedLongEnough = first.recordedAt <= windowStart;
+
+  return {
+    current,
+    min30d,
+    max30d,
+    isLowest30d: trackedLongEnough && current <= min30d && max30d > current,
+    trackedSince: first.recordedAt,
+    lastChangeAt: last.recordedAt,
+  };
+}
+
+/** Normaliza el parámetro ?days del endpoint: entero entre 1 y 365, 90 por defecto. */
+export function parseHistoryDays(value: unknown): number {
+  const days = Math.round(Number(value));
+  if (!Number.isFinite(days) || days < 1) return 90;
+  return Math.min(days, 365);
+}

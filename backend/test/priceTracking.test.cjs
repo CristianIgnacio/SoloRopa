@@ -147,3 +147,76 @@ test("los campos que no vienen conservan el precio guardado", async (t) => {
   assert.equal(change, null);
   assert.equal(inserted.length, 0);
 });
+
+// --- getPriceWindow / computePriceStats ---
+
+const { getPriceWindow, computePriceStats, parseHistoryDays } = require("../src/utils/priceTracking");
+
+const d = (iso) => new Date(`${iso}T00:00:00Z`);
+const row = (price, iso) => ({ price, recordedAt: d(iso) });
+// Ejemplo del plan: punto de partida 1-oct, baja el 25-oct y otra vez el 20-nov.
+const history = [row(29990, "2026-10-01"), row(27990, "2026-10-25"), row(24990, "2026-11-20")];
+
+test("la ventana incluye el precio vigente al inicio, movido al borde", () => {
+  const points = getPriceWindow(history, d("2026-11-27"), 30);
+  assert.deepEqual(points, [row(27990, "2026-10-28"), row(24990, "2026-11-20")]);
+});
+
+test("sin filas anteriores a la ventana, devuelve solo las de adentro", () => {
+  const points = getPriceWindow([row(19990, "2026-11-20")], d("2026-11-27"), 30);
+  assert.deepEqual(points, [row(19990, "2026-11-20")]);
+});
+
+test("la ventana ignora filas futuras y no depende del orden", () => {
+  const unsorted = [history[2], row(9990, "2026-12-31"), history[0], history[1]];
+  assert.deepEqual(getPriceWindow(unsorted, d("2026-11-27"), 30), getPriceWindow(history, d("2026-11-27"), 30));
+});
+
+test("precio más bajo en 30 días con el ejemplo del plan", () => {
+  assert.deepEqual(computePriceStats(history, d("2026-11-27")), {
+    current: 24990,
+    min30d: 24990,
+    max30d: 27990,
+    isLowest30d: true,
+    trackedSince: d("2026-10-01"),
+    lastChangeAt: d("2026-11-20"),
+  });
+});
+
+test("no hay etiqueta si llevamos menos de 30 días siguiéndolo", () => {
+  const recent = [row(29990, "2026-11-10"), row(24990, "2026-11-20")];
+  assert.equal(computePriceStats(recent, d("2026-11-27")).isLowest30d, false);
+});
+
+test("no hay etiqueta si el precio no cambió en la ventana", () => {
+  const stable = [row(24990, "2026-09-01")];
+  const stats = computePriceStats(stable, d("2026-11-27"));
+  assert.equal(stats.isLowest30d, false);
+  assert.equal(stats.min30d, stats.max30d);
+});
+
+test("no hay etiqueta si el precio subió", () => {
+  const up = [row(24990, "2026-10-01"), row(29990, "2026-11-20")];
+  assert.equal(computePriceStats(up, d("2026-11-27")).isLowest30d, false);
+});
+
+test("la etiqueta se apaga cuando el precio alto sale de la ventana", () => {
+  // La bajada del 20-nov deja de ser "la más baja en 30 días" 30 días después.
+  assert.equal(computePriceStats(history, d("2026-12-19")).isLowest30d, true);
+  assert.equal(computePriceStats(history, d("2026-12-21")).isLowest30d, false);
+});
+
+test("sin historial no hay estadísticas", () => {
+  assert.equal(computePriceStats([], d("2026-11-27")), null);
+  assert.equal(computePriceStats([row(9990, "2026-12-31")], d("2026-11-27")), null);
+});
+
+test("?days se limita entre 1 y 365 con 90 por defecto", () => {
+  assert.equal(parseHistoryDays(undefined), 90);
+  assert.equal(parseHistoryDays("abc"), 90);
+  assert.equal(parseHistoryDays("0"), 90);
+  assert.equal(parseHistoryDays("-5"), 90);
+  assert.equal(parseHistoryDays("30"), 30);
+  assert.equal(parseHistoryDays("29.6"), 30);
+  assert.equal(parseHistoryDays("1000"), 365);
+});

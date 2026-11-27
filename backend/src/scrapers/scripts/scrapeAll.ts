@@ -8,9 +8,10 @@ import fs from "node:fs";
 import mongoose from "mongoose";
 import config from "../../utils/config";
 import { runAllScrapers, type ScrapeFeedItem } from "..";
+import { refreshRecentPriceStats } from "../../services/priceHistory";
 
 // En GitHub Actions, el resumen aparece en la página de la corrida.
-function writeStepSummary(feed: ScrapeFeedItem[], total: number, seconds: number) {
+function writeStepSummary(feed: ScrapeFeedItem[], total: number, seconds: number, statsRefreshed: number) {
   const summaryPath = process.env.GITHUB_STEP_SUMMARY;
   if (!summaryPath) return;
 
@@ -23,6 +24,8 @@ function writeStepSummary(feed: ScrapeFeedItem[], total: number, seconds: number
     "| Marca | Estado | Productos | Cambios de precio | Error |",
     "|---|---|---|---|---|",
     ...rows,
+    "",
+    `priceStats recalculado en ${statsRefreshed} productos.`,
     "",
   ].join("\n");
 
@@ -37,11 +40,13 @@ async function main() {
 
   const startedAt = Date.now();
   const { total, feed } = await runAllScrapers();
+  // La etiqueta "precio más bajo en 30 días" también cambia con el paso del tiempo, sin scrape.
+  const statsRefreshed = await refreshRecentPriceStats();
   const seconds = Math.round((Date.now() - startedAt) / 1000);
 
   console.table(feed.map(({ brand, success, count, priceChanges, error }) => ({ brand, success, count, priceChanges, error: error ?? "" })));
-  console.log(`Total: ${total} productos en ${seconds}s`);
-  writeStepSummary(feed, total, seconds);
+  console.log(`Total: ${total} productos en ${seconds}s · priceStats recalculado en ${statsRefreshed} productos`);
+  writeStepSummary(feed, total, seconds, statsRefreshed);
 
   const failed = feed.filter((f) => !f.success);
   if (failed.length) {

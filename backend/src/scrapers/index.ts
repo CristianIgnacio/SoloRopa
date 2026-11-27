@@ -8,6 +8,7 @@ import type { UpsertProductInput } from "./types"
 import { getTrackedPrice, hasPriceChanged } from "../utils/priceTracking";
 import { withJobLock } from "../utils/jobLock";
 import logger from "../utils/logger";
+import { refreshPriceStats } from "../services/priceHistory";
 
 export type PriceChange = {
   productId: mongoose.Types.ObjectId;
@@ -174,8 +175,11 @@ const scrapeStore = async (store: any): Promise<ScrapeResult> => {
       raw: item.raw ?? null
     });
 
-    // Solo cuenta productos que ya tenían precio; los nuevos solo abren su historial.
-    if (change && change.previousPrice !== null) priceChanges++;
+    if (change) {
+      await refreshPriceStats(change.productId);
+      // Solo cuenta productos que ya tenían precio; los nuevos solo abren su historial.
+      if (change.previousPrice !== null) priceChanges++;
+    }
     updated++;
   }
 

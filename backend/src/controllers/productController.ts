@@ -1,5 +1,7 @@
 import Product from "../models/Product";
 import { Response, Request, NextFunction } from "express";
+import { getPriceRows } from "../services/priceHistory";
+import { computePriceStats, getPriceWindow, parseHistoryDays } from "../utils/priceTracking";
 
 const SIZE_ALIASES: Record<string, string[]> = {
   XXL: ['XXL', '2XL'],
@@ -292,4 +294,26 @@ const getRelatedProducts = async (req: Request, res: Response, next: NextFunctio
   }
 }
 
-export { getAllProducts, getProductById, getTrendingProducts, getNewestProducts, getRelatedProducts }
+// Historial de precios para el gráfico: GET /api/products/:id/price-history?days=90
+const getPriceHistory = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const days = parseHistoryDays(req.query.days)
+    const rows = await getPriceRows(String(req.params.id)) // id malformado → CastError → 400
+    const now = new Date()
+
+    // Los precios cambian una vez al día (cron), así que una hora de caché basta.
+    res.set('Cache-Control', 'public, max-age=3600')
+    res.json({
+      success: true,
+      data: {
+        days,
+        points: getPriceWindow(rows, now, days),
+        stats: computePriceStats(rows, now),
+      },
+    })
+  } catch (err) {
+    next(err)
+  }
+}
+
+export { getAllProducts, getProductById, getTrendingProducts, getNewestProducts, getRelatedProducts, getPriceHistory }
