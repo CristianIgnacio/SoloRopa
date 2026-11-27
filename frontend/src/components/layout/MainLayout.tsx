@@ -2,14 +2,12 @@ import { Outlet } from "react-router-dom"
 import Navbar from "./Navbar"
 import { useEffect } from "react"
 import loginServices from "../../services/login"
-import { useNavigate } from "react-router-dom"
 import { useUserStore } from "../../Hooks/useStore"
 import { useWishlistStore } from "../../Hooks/useWishlistStore"
 // import Sidebar from "./Sidebar"
 
 export default function MainLayout() {
   const { login, logout } = useUserStore()
-  const navigate = useNavigate()
   const { loadFavorites } = useWishlistStore()
 
   useEffect(() => {
@@ -20,8 +18,9 @@ export default function MainLayout() {
         login(storedUser)
         await loadFavorites()
       } else {
+        // Sin sesión solo limpiamos el estado: las rutas públicas deben
+        // seguir accesibles y PrivateRoute ya redirige a /login cuando toca.
         logout()
-        navigate("/")
       }
     }
 
