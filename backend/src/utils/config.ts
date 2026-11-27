@@ -39,13 +39,25 @@ const COOKIE_SAME_SITE: SameSitePolicy = (
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || ''
 
-export default { 
-  PORT, 
-  MONGODB_URI, 
-  HOST, 
-  JWT_SECRET, 
-  MONGODB_DBNAME, 
-  SCRAPER_MONGODB_URI, 
+// true cuando MONGODB_URI apunta a la base de producción (ver arriba).
+const IS_PRODUCTION_DB = process.env.NODE_ENV === 'production' || process.env.MONGODB_TARGET === 'production'
+
+// Correo (ver utils/mailer y docs/PRICE_ALERTS.md)
+const FRONTEND_URL = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '')
+// URL pública del backend, para el header List-Unsubscribe. Opcional.
+const PUBLIC_API_URL = (process.env.PUBLIC_API_URL || '').replace(/\/$/, '')
+// EMAIL_TOKEN_SECRET (links de desuscripción) se lee en utils/emailTokens.
+
+export default {
+  PORT,
+  MONGODB_URI,
+  HOST,
+  JWT_SECRET,
+  MONGODB_DBNAME,
+  SCRAPER_MONGODB_URI,
   COOKIE_SAME_SITE,
-  GOOGLE_CLIENT_ID
+  GOOGLE_CLIENT_ID,
+  IS_PRODUCTION_DB,
+  FRONTEND_URL,
+  PUBLIC_API_URL
 }

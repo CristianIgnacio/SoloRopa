@@ -65,6 +65,7 @@ export interface User {
   // password : string,
   role : "admin" | "user",
   avatarUrl? : string,
+  notifications?: { priceDrops?: boolean },
 }
 
 export interface Brand {

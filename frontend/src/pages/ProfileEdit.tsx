@@ -3,6 +3,7 @@ import { useState } from "react"
 import userServices from "../services/login"
 import { useUserStore } from "../Hooks/useStore"
 import Avatar from "../components/ui/Avatar"
+import PriceDropNotificationsToggle from "../components/profile/PriceDropNotificationsToggle"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faUpload } from "@fortawesome/free-solid-svg-icons"
 
@@ -94,6 +95,9 @@ export default function ProfileEdit() {
           {loading ? "Guardando..." : "Guardar cambios"}
         </button>
       </form>
+
+      {/* Se guarda al instante, aparte del formulario del avatar */}
+      <PriceDropNotificationsToggle />
     </section>
   )
 }

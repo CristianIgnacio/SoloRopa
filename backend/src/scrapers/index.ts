@@ -9,6 +9,7 @@ import { getTrackedPrice, hasPriceChanged } from "../utils/priceTracking";
 import { withJobLock } from "../utils/jobLock";
 import logger from "../utils/logger";
 import { refreshPriceStats } from "../services/priceHistory";
+import { queuePriceDropAlerts } from "../services/priceAlerts";
 
 export type PriceChange = {
   productId: mongoose.Types.ObjectId;
@@ -150,6 +151,7 @@ const scrapeStore = async (store: any): Promise<ScrapeResult> => {
 
   let updated = 0;
   let priceChanges = 0;
+  let alertsQueued = 0;
   for (const item of scrapedItems) {
     const change = await saveOrUpdateProduct({
       title: item.title,
@@ -178,10 +180,20 @@ const scrapeStore = async (store: any): Promise<ScrapeResult> => {
     if (change) {
       await refreshPriceStats(change.productId);
       // Solo cuenta productos que ya tenían precio; los nuevos solo abren su historial.
-      if (change.previousPrice !== null) priceChanges++;
+      if (change.previousPrice !== null) {
+        priceChanges++;
+        // Un fallo al encolar avisos no debe cortar el scrape de la marca.
+        try {
+          alertsQueued += await queuePriceDropAlerts(change, { isActive: item.isActive, inStock: item.inStock });
+        } catch (err: any) {
+          logger.error(`No se pudieron encolar avisos para ${item.url}: ${err?.message ?? err}`);
+        }
+      }
     }
     updated++;
   }
+
+  if (alertsQueued) logger.info(`${store.name}: ${alertsQueued} avisos de bajada de precio en cola`)
 
   // Puedes optar por upsert por URL; aquí haremos insertMany simple:
   if (updated === 0) return { ok: true, count: 0, priceChanges: 0 };

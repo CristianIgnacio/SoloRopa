@@ -1,11 +1,16 @@
 name: Scraping diario
 
-# Scrapea todas las marcas una vez al día conectándose directo a Atlas.
-# No depende de que el backend en Render esté despierto.
+# Scrapea todas las marcas una vez al día conectándose directo a Atlas y después envía los
+# avisos de bajada de precio. No depende de que el backend en Render esté despierto.
 #
 # Secrets necesarios (Settings → Secrets and variables → Actions):
-#   MONGODB_URI     URI de producción en Atlas
-#   MONGODB_DBNAME  opcional; si no existe se usa "SoloRopa"
+#   MONGODB_URI         URI de producción en Atlas
+#   MONGODB_DBNAME      opcional; si no existe se usa "SoloRopa"
+#   BREVO_API_KEY       API key de Brevo; sin ella los avisos quedan pendientes
+#   MAIL_FROM           remitente verificado en Brevo, ej. "SoloRopa <alertas@...>"
+#   EMAIL_TOKEN_SECRET  el mismo valor que en Render (firma los links para desuscribirse)
+# Variables opcionales (pestaña Variables): FRONTEND_URL y PUBLIC_API_URL.
+# Ver docs/PRICE_ALERTS.md.
 #
 # Atlas debe aceptar conexiones desde las IPs de GitHub (Network Access → 0.0.0.0/0).
 
@@ -42,11 +47,16 @@ jobs:
 
       - run: npm ci
 
-      - name: Scrapear todas las marcas
+      - name: Scrapear todas las marcas y enviar avisos
         run: npm run scrape:all
         env:
           MONGODB_TARGET: production
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           MONGODB_DBNAME: ${{ secrets.MONGODB_DBNAME }}
-          # config.ts exige JWT_SECRET al cargarse, pero el scraper no firma tokens.
+          # config.ts exige JWT_SECRET al cargarse, pero el scraper no firma sesiones.
           JWT_SECRET: not-used-by-the-scraper
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          MAIL_FROM: ${{ secrets.MAIL_FROM }}
+          EMAIL_TOKEN_SECRET: ${{ secrets.EMAIL_TOKEN_SECRET }}
+          FRONTEND_URL: ${{ vars.FRONTEND_URL || 'https://soloropa.vercel.app' }}
+          PUBLIC_API_URL: ${{ vars.PUBLIC_API_URL || 'https://soloropa.onrender.com' }}

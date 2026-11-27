@@ -17,6 +17,7 @@ import ProductDetail from "../pages/ProductDetail"
 import ForgotPassword from "../pages/ForgotPassword"
 import ResetPassword from "../pages/ResetPassword"
 import OutfitBuilder from "../pages/OutfitBuilder"
+import Unsubscribe from "../pages/Unsubscribe"
 
 // Catálogo de cards: herramienta de desarrollo. Solo existe con `npm run dev`;
 // en el build de producción import.meta.env.DEV es false y Vite la deja fuera del bundle.
@@ -56,6 +57,8 @@ export default function AppRouter() {
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:token" element={<ResetPassword />} />
+      {/* Fuera de MainLayout: se abre desde un correo, sin sesión */}
+      <Route path="/desuscribir" element={<Unsubscribe />} />
     </Routes>
   )
 }

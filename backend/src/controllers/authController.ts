@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import config from '../utils/config';
 import crypto from 'crypto';
-import nodemailer from 'nodemailer';
+import { sendEmail } from '../utils/mailer';
 import { OAuth2Client } from 'google-auth-library';
 
 const client = new OAuth2Client(config.GOOGLE_CLIENT_ID);
@@ -147,34 +147,17 @@ export const logout = async (req: Request, res: Response) => {
 };
 
 const sendResetEmail = async (email: string, token: string) => {
-  // Generamos una cuenta de pruebas on-the-fly de Ethereal para evitar
-  // que credenciales antiguas expiren y tiren error 500.
-  const testAccount = await nodemailer.createTestAccount();
+  // Brevo en producción; Ethereal (no llega a nadie) si no hay BREVO_API_KEY. Ver utils/mailer.
+  const resetUrl = `${config.FRONTEND_URL}/reset-password/${token}`;
 
-  const transporter = nodemailer.createTransport({
-    host: 'smtp.ethereal.email',
-    port: 587,
-    secure: false, // true for 465, false for other ports
-    auth: {
-      user: testAccount.user,
-      pass: testAccount.pass
-    }
-  });
-
-  const resetUrl = `${process.env.FRONTEND_URL || "http://localhost:5173"}/reset-password/${token}`;
-
-  const info = await transporter.sendMail({
-    from: '"SoloRopa Soporte" <soporte@soloropa.com>',
+  await sendEmail({
     to: email,
     subject: "Recuperación de contraseña",
-    text: `Solicitaste restablecer tu contraseña. Ingresa al siguiente enlace: ${resetUrl}`,
+    text: `Solicitaste restablecer tu contraseña. Ingresa al siguiente enlace: ${resetUrl}\n\nEste enlace expirará en 1 hora.`,
     html: `<p>Solicitaste restablecer tu contraseña. Ingresa al siguiente enlace para crear una nueva:</p>
            <a href="${resetUrl}">${resetUrl}</a><br/>
            <p>Este enlace expirará en 1 hora.</p>`
   });
-
-  console.log("Mensaje enviado: %s", info.messageId);
-  console.log("URL previsualización del correo: %s", nodemailer.getTestMessageUrl(info));
 };
 
 export const forgotPassword = async (req: Request, res: Response, next: NextFunction) => {

@@ -45,6 +45,9 @@ const WishlistSchema = new mongoose.Schema<IWishlist>({
     timestamps: true
 });
 
+// Avisos de bajada de precio: "¿quién tiene este producto guardado?"
+WishlistSchema.index({ "items.productId": 1 });
+
 // Un usuario no puede tener 2 wishlists con el mismo nombre
 WishlistSchema.index({ userId: 1, name: 1 }, { unique: true });
 
