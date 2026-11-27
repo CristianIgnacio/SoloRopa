@@ -6,6 +6,17 @@ export function useProductVariants(product: Product | null | undefined, active: 
   const [selectedColor, setSelectedColor] = useState<string | null>(null)
   const [selectedSize, setSelectedSize] = useState<string | null>(null)
 
+  // Al pasar a otro producto sin desmontar (p. ej. de un relacionado al detalle), la selección
+  // anterior no sirve: una talla "M" que no existe en el nuevo dejaba pegada la variante (y el
+  // precio) del producto anterior. Se reinicia durante el render para no mostrar el dato viejo.
+  const [selectionProductId, setSelectionProductId] = useState(product?.id)
+  if (product?.id !== selectionProductId) {
+    setSelectionProductId(product?.id)
+    setSelectedVariant(null)
+    setSelectedColor(null)
+    setSelectedSize(null)
+  }
+
   const colors = Array.from(new Set(product?.variants?.map((v: any) => v.color).filter(Boolean) as string[])) || []
   const sizes = Array.from(new Set(product?.variants?.map((v: any) => v.size).filter(Boolean) as string[])) || []
 
