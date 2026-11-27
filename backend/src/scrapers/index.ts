@@ -6,6 +6,8 @@ import PriceHistory from "../models/PriceHistory";
 import stores from "./core/brands"
 import type { UpsertProductInput } from "./types"
 import { getTrackedPrice, hasPriceChanged } from "../utils/priceTracking";
+import { withJobLock } from "../utils/jobLock";
+import logger from "../utils/logger";
 
 export type PriceChange = {
   productId: mongoose.Types.ObjectId;
@@ -95,18 +97,55 @@ export async function saveOrUpdateProduct(input: UpsertProductInput): Promise<Pr
   };
 }
 
-const runScraperFor = async (storeKey: string) => {
+// Si el proceso muere a mitad de un scrape, otro puede tomar la marca pasado este tiempo.
+const SCRAPE_LOCK_TTL_MS = 30 * 60 * 1000;
+
+export type ScrapeResult = { ok: boolean; count: number; priceChanges: number };
+
+export type ScrapeFeedItem = {
+  brand: string;
+  count: number;
+  priceChanges: number;
+  success: boolean;
+  error?: string;
+};
+
+/**
+ * Scrapea una marca. Toma un bloqueo por marca en Mongo, así el botón del admin y el cron
+ * no la procesan a la vez (lanza JobLockedError si ya está en curso).
+ */
+const runScraperFor = async (storeKey: string): Promise<ScrapeResult> => {
   const store = stores[storeKey];
   if (!store) throw new Error("Store no registrada: " + storeKey);
 
+  return withJobLock(`scrape:${storeKey}`, SCRAPE_LOCK_TTL_MS, () => scrapeStore(store));
+}
+
+/** Scrapea todas las marcas en orden. Una marca que falla no detiene a las demás. */
+export async function runAllScrapers(): Promise<{ total: number; feed: ScrapeFeedItem[] }> {
+  const feed: ScrapeFeedItem[] = [];
+
+  for (const key of Object.keys(stores)) {
+    try {
+      const result = await runScraperFor(key);
+      feed.push({ brand: key, count: result.count, priceChanges: result.priceChanges, success: true });
+    } catch (err: any) {
+      feed.push({ brand: key, count: 0, priceChanges: 0, success: false, error: err.message });
+    }
+  }
+
+  const total = feed.reduce((sum, f) => sum + f.count, 0);
+  return { total, feed };
+}
+
+const scrapeStore = async (store: any): Promise<ScrapeResult> => {
   const scrapedItems  = await store.scrape();
   if (!scrapedItems.length) {
     throw new Error(`Catálogo vacío para ${store.name}; no se actualizaron productos`);
   }
-  console.log("Store.name : ", store.name)
   const brand = await BrandModel.findOne({ name: store.name })
-  console.log("Brand : " + brand)
   if (!brand) throw new Error(`Brand no existe en BD: ${store.name}`);
+  logger.info(`${store.name}: ${scrapedItems.length} productos extraídos`)
 
   let updated = 0;
   let priceChanges = 0;

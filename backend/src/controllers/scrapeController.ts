@@ -1,9 +1,9 @@
 // src/routes/scrape.ts
 import { NextFunction, Response, Request } from "express";
-import runScraperFor from "../scrapers";
-import stores from "../scrapers/core/brands";
+import runScraperFor, { runAllScrapers } from "../scrapers";
 import ProductModel from "../models/Product";
 import BrandModel from "../models/Brand";
+import { JobLockedError } from "../utils/jobLock";
 
 
 
@@ -13,6 +13,9 @@ const scrapeBase = (Brand : string) =>  async (req : Request, res : Response, ne
     const result = await runScraperFor(Brand);
     res.json({ success: true, result });
   } catch (err: any) {
+    if (err instanceof JobLockedError) {
+      return res.status(409).json({ success: false, message: "Esta marca ya se está scrapeando (puede ser el cron diario). Intenta en unos minutos." });
+    }
     console.error(err);
     res.status(500).json({ success: false, message: err.message });
   }
@@ -32,20 +35,12 @@ const scrapeJoiaMarket = scrapeBase("joiamarket")
 const scrapeStodak = scrapeBase("stodak")
 
 const scrapeAll = async (req: Request, res: Response, next: NextFunction) => {
-  const brandKeys = Object.keys(stores);
-  const feed: { brand: string; count: number; priceChanges: number; success: boolean; error?: string }[] = [];
-
-  for (const key of brandKeys) {
-    try {
-      const result = await runScraperFor(key);
-      feed.push({ brand: key, count: result.count, priceChanges: result.priceChanges, success: true });
-    } catch (err: any) {
-      feed.push({ brand: key, count: 0, priceChanges: 0, success: false, error: err.message });
-    }
+  try {
+    const { total, feed } = await runAllScrapers();
+    res.json({ success: true, total, feed });
+  } catch (err) {
+    next(err);
   }
-
-  const total = feed.reduce((sum, f) => sum + f.count, 0);
-  res.json({ success: true, total, feed });
 };
 
 const getLastScrapeStats = async (req: Request, res: Response, next: NextFunction) => {

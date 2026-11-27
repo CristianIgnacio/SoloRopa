@@ -1,0 +1,52 @@
+name: Scraping diario
+
+# Scrapea todas las marcas una vez al día conectándose directo a Atlas.
+# No depende de que el backend en Render esté despierto.
+#
+# Secrets necesarios (Settings → Secrets and variables → Actions):
+#   MONGODB_URI     URI de producción en Atlas
+#   MONGODB_DBNAME  opcional; si no existe se usa "SoloRopa"
+#
+# Atlas debe aceptar conexiones desde las IPs de GitHub (Network Access → 0.0.0.0/0).
+
+on:
+  schedule:
+    # GitHub usa UTC: 09:00 UTC son las 06:00 en Chile en horario de verano (05:00 en invierno).
+    # Los schedule solo corren desde la rama por defecto (main).
+    - cron: "0 9 * * *"
+  workflow_dispatch: # botón "Run workflow" en la pestaña Actions
+
+# Nunca dos corridas a la vez; si una se atrasa, la siguiente espera.
+concurrency:
+  group: scrape
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - run: npm ci
+
+      - name: Scrapear todas las marcas
+        run: npm run scrape:all
+        env:
+          MONGODB_TARGET: production
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          MONGODB_DBNAME: ${{ secrets.MONGODB_DBNAME }}
+          # config.ts exige JWT_SECRET al cargarse, pero el scraper no firma tokens.
+          JWT_SECRET: not-used-by-the-scraper
