@@ -22,10 +22,33 @@ export interface Product {
   scrapedAt: Date;
   createdAt: Date;
   updateAt: Date;
+  priceStats?: PriceStats | null; // resumen del historial; null/ausente = sin historial
   raw?: any;          // guarda el JSON/HTML bruto si quieres
 }
 
-interface VariantsProduct { 
+/** Resumen de los últimos 30 días del precio "desde" (el más bajo entre variantes). */
+export interface PriceStats {
+  current: number;
+  min30d: number;
+  max30d: number;
+  isLowest30d: boolean;
+  trackedSince: string;
+  lastChangeAt: string;
+  computedAt?: string;
+}
+
+export interface PricePoint {
+  price: number;
+  recordedAt: string;
+}
+
+export interface PriceHistory {
+  days: number;
+  points: PricePoint[];
+  stats: PriceStats | null;
+}
+
+interface VariantsProduct {
   title: string;
   color?: string;
   size?: string;

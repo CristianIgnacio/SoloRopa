@@ -6,6 +6,8 @@ import FavoriteButton from "../ui/FavoriteButton"
 import { useProductEvents } from "../../Hooks/useProductEvents"
 import { useWishlistStore } from "../../Hooks/useWishlistStore"
 import { getDiscount } from "../../utils/discount"
+import { showsLowest30d } from "../../utils/priceHistory"
+import LowestPriceBadge from "../ui/LowestPriceBadge"
 
 type Props = {
   product: Product
@@ -17,6 +19,7 @@ export default function EditorialProductCard({ product, onClick }: Props) {
   const isFavorite = useWishlistStore((s) => s.favoriteIds.has(product.id))
   const [first, second] = product.images
   const discount = getDiscount(product)
+  const isLowest30d = showsLowest30d(product.priceStats, product.price)
 
   return (
     <div
@@ -50,10 +53,15 @@ export default function EditorialProductCard({ product, onClick }: Props) {
           />
         )}
 
-        {discount && (
-          <span className="absolute left-2 top-2 bg-yellow-400 px-1.5 py-0.5 text-[10px] font-black text-black sm:text-xs">
-            -{discount.percent}%
-          </span>
+        {(discount || isLowest30d) && (
+          <div className="absolute left-2 top-2 flex flex-col items-start gap-1">
+            {discount && (
+              <span className="bg-yellow-400 px-1.5 py-0.5 text-[10px] font-black text-black sm:text-xs">
+                -{discount.percent}%
+              </span>
+            )}
+            {isLowest30d && <LowestPriceBadge />}
+          </div>
         )}
 
         {/* Móvil: siempre visible. Escritorio: aparece con hover/foco, salvo que ya sea favorito */}

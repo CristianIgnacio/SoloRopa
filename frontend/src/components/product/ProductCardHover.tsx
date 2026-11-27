@@ -5,6 +5,8 @@ import FavoriteButton from "../ui/FavoriteButton"
 import SaveButton from "../ui/SaveButton"
 import type { Product } from "../../Types/Types"
 import { useProductEvents } from "../../Hooks/useProductEvents"
+import { showsLowest30d } from "../../utils/priceHistory"
+import LowestPriceBadge from "../ui/LowestPriceBadge"
 
 type Props = {
   product: Product
@@ -70,6 +72,11 @@ export default function ProductCardHover({ product, onClick, imageMode = "fixed"
             loading="lazy"
           />
         </div>
+      )}
+
+      {/* Etiqueta de precio: se oculta con el hover, donde el overlay ocupa la esquina */}
+      {showsLowest30d(product.priceStats, product.price) && (
+        <LowestPriceBadge className="pointer-events-none absolute left-2 top-2 z-10 transition-opacity duration-200 lg:group-hover:opacity-0" />
       )}
 
       {/* Overlay — solo aparece al hacer hover */}

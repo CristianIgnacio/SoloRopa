@@ -13,8 +13,11 @@ import ProductCardHover from "../components/product/ProductCardHover"
 import ProductQuickView from "../components/product/ProductQuickView"
 import ProductDetailSkeleton from "../components/product/ProductDetailSkeleton"
 import ShareButton from "../components/ui/ShareButton"
+import LowestPriceBadge from "../components/ui/LowestPriceBadge"
+import PriceHistoryPanel from "../components/product/PriceHistoryPanel"
+import { showsLowest30d } from "../utils/priceHistory"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faArrowTrendDown, faArrowUpRightFromSquare, faArrowLeft, faTag } from "@fortawesome/free-solid-svg-icons"
+import { faArrowUpRightFromSquare, faArrowLeft, faTag } from "@fortawesome/free-solid-svg-icons"
 
 
 /** Aplana todos los canonicalTags en un array único */
@@ -89,6 +92,7 @@ export default function ProductDetail() {
   }
 
   const images = product.images
+  const displayedPrice = selectedVariant?.price ?? product.price
   const canonicalList = allCanonicalTags(product)
   const displayTags = [...new Set([...(product.tags ?? []), ...canonicalList])].slice(0, 16)
 
@@ -177,14 +181,17 @@ export default function ProductDetail() {
             </div>
           )}
 
-          <div className="mb-8 mt-4 flex items-end gap-3">
+          <div className="mb-8 mt-4 flex flex-wrap items-end gap-3">
             <p className="text-3xl font-bold text-slate-900">
-              ${(selectedVariant?.price ?? product.price)?.toLocaleString("es-CL")}
+              ${displayedPrice?.toLocaleString("es-CL")}
             </p>
             {selectedVariant?.comparePrice && (
               <p className="mb-1 text-lg text-slate-500 line-through">
                 ${selectedVariant.comparePrice.toLocaleString("es-CL")}
               </p>
+            )}
+            {showsLowest30d(product.priceStats, displayedPrice) && (
+              <LowestPriceBadge variant="detail" className="mb-1" />
             )}
           </div>
 
@@ -215,15 +222,7 @@ export default function ProductDetail() {
             </div>
           )}
 
-          <div className="mb-8 border-2 border-black bg-green-400 p-4 shadow-[4px_4px_0_0_#000]">
-            <h4 className="flex items-center gap-2 text-sm font-black uppercase tracking-widest text-black">
-              <FontAwesomeIcon icon={faArrowTrendDown} />
-              Buen precio detectado
-            </h4>
-            <p className="mt-2 text-sm font-bold text-slate-900 text-balance">
-              Este producto tiene un precio competitivo en el mercado actual.
-            </p>
-          </div>
+          <PriceHistoryPanel productId={product.id} displayedPrice={displayedPrice} />
 
           <button
             onClick={() => {

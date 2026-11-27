@@ -1,4 +1,5 @@
 import axios from "axios";
+import type { PriceHistory } from "../Types/Types";
 
 const API_URL = "/api/products";
 
@@ -42,4 +43,9 @@ const getRelatedProducts = async (id: string, limit = 10) => {
   return res.data.data;
 };
 
-export default { getProducts, getTrendingProducts, getNewestProducts, getProductById, getRelatedProducts };
+const getPriceHistory = async (id: string, days = 90): Promise<PriceHistory> => {
+  const res = await axios.get(`${API_URL}/${id}/price-history`, { params: { days } });
+  return res.data.data;
+};
+
+export default { getProducts, getTrendingProducts, getNewestProducts, getProductById, getRelatedProducts, getPriceHistory };
