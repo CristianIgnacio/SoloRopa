@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react"
 import { Routes, Route } from "react-router-dom"
 import MainLayout from "../components/layout/MainLayout"
 
@@ -16,16 +17,20 @@ import ProductDetail from "../pages/ProductDetail"
 import ForgotPassword from "../pages/ForgotPassword"
 import ResetPassword from "../pages/ResetPassword"
 import OutfitBuilder from "../pages/OutfitBuilder"
-import CardsShowcase from "../pages/CardsShowcase"
+
+// Catálogo de cards: herramienta de desarrollo. Solo existe con `npm run dev`;
+// en el build de producción import.meta.env.DEV es false y Vite la deja fuera del bundle.
+const CardsShowcase = import.meta.env.DEV ? lazy(() => import("../pages/CardsShowcase")) : null
 
 export default function AppRouter() {
   return (
     <Routes>
       {/* Rutas con layout */}
       <Route element={<MainLayout />}>
-        <Route path="/" element={<Home />} />
+        {/* "/" es la portada editorial; "/explore" es el feed con todos los productos */}
+        <Route path="/" element={<Explore />} />
         <Route path="/profile/:username" element={<Profile />} />
-        <Route path="/explore" element={<Explore />} />
+        <Route path="/explore" element={<Home />} />
         <Route path="/search" element={<Search />} />
         <Route path="/producto/:id" element={<ProductDetail />} />
 
@@ -39,7 +44,9 @@ export default function AppRouter() {
 
         {/* 🔐 Rutas privadas (admin) */}
         <Route element={<PrivateRoute requireAdmin />}>
-          <Route path="/cards" element={<CardsShowcase />} /> 
+          {CardsShowcase && (
+            <Route path="/cards" element={<Suspense fallback={null}><CardsShowcase /></Suspense>} />
+          )}
           <Route path="/admin" element={<Admin />} />
         </Route>
       </Route>

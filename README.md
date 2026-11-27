@@ -8,13 +8,18 @@ El enfoque principal de SoloRopa es **producto‑céntrico**: facilitar que una 
 
 ## ✨ Características principales
 
-* 🧭 **Explorar productos** desde distintas marcas y tiendas
-* ❤️ **Sistema de favoritos / wishlists** (por defecto y personalizadas)
-* 👤 **Perfiles de usuario** con avatar, nombre y listas públicas o privadas
-* 🔐 **Autenticación con JWT** (login / logout / sesión persistente)
-* 🧱 **Arquitectura full‑stack moderna**
+* 🏠 **Portada editorial** con hero, colecciones, marca de la semana y novedades
+* 🧭 **Feed de productos** a todo el ancho, en masonry y en orden aleatorio en cada visita
+* 🔍 **Búsqueda con filtros** por marca, categoría, talla, precio y productos en oferta
+* ❤️ **Favoritos y wishlists** (por defecto y personalizadas), con opción de compartir
+* 👕 **Outfit Builder** para combinar prendas de distintas marcas
+* 👤 **Perfiles de usuario** con avatar y listas públicas o privadas
+* 🔐 **Autenticación** con email/contraseña o Google, sesión de 7 días y recuperación de contraseña
+* 🛍️ **Scrapers por marca** que importan el catálogo de cada tienda
+* 🧑‍💼 **Panel de administración** (solo admins)
 * 📱 **UI responsive** pensada para desktop y mobile
 
+---
 
 ## 📸 Capturas de pantalla
 
@@ -23,6 +28,28 @@ El enfoque principal de SoloRopa es **producto‑céntrico**: facilitar que una 
 
 ### Vista de Favoritos
 ![Vista de Favoritos](./screenshot/Favoritos.png)
+
+---
+
+## 🗺️ Páginas
+
+| Ruta | Página | Acceso |
+|---|---|---|
+| `/` | Portada editorial (`pages/Explore.tsx`) | Pública |
+| `/explore` | Feed con todos los productos (`pages/Home.tsx`) | Pública |
+| `/search` | Búsqueda con filtros | Pública |
+| `/producto/:id` | Detalle de producto y relacionados | Pública |
+| `/profile/:username` | Perfil público | Pública |
+| `/favorites`, `/favorites/:id` | Favoritos y wishlists | Usuario |
+| `/profile/edit` | Editar perfil | Usuario |
+| `/outfit-builder` | Armar outfits | Usuario |
+| `/admin` | Panel de administración | Admin |
+| `/cards` | Catálogo de componentes de cards | Admin, **solo en desarrollo** |
+
+> Los nombres de archivo `Home.tsx` y `Explore.tsx` quedaron intercambiados respecto a su ruta: la portada vive en `/` y el feed en `/explore`.
+
+`/cards` es una herramienta de desarrollo: solo existe con `npm run dev`, aparece como **Cards (dev)** en el menú de admin y queda fuera del build de producción.
+
 ---
 
 ## 🛠️ Stack tecnológico
@@ -33,53 +60,84 @@ El enfoque principal de SoloRopa es **producto‑céntrico**: facilitar que una 
 * **TypeScript**
 * **Tailwind CSS**
 * React Router
-* State management (store personalizado)
+* Zustand (stores de usuario y wishlist)
+* `react-masonry-css` para los grids de productos
+* Despliegue en Vercel
 
 ### Backend
 
 * **Node.js + Express**
 * **TypeScript**
-* **MongoDB + Mongoose**
-* Autenticación con **JWT**
+* **MongoDB + Mongoose** (local con Docker o MongoDB Atlas)
+* Autenticación con **JWT en cookie** y Google OAuth
 
 ### Infraestructura / Dev
 
-* Docker & Docker Compose (entorno de desarrollo)
+* Docker Compose (MongoDB local)
 * Variables de entorno con `.env`
 
 ---
 
-## 🧩 Funcionalidades en desarrollo / roadmap
+## 🔌 API de productos
 
-* 🔍 Filtros avanzados (marca, precio, categoría)
-* 📊 Seguimiento de precios y notificaciones
-* 🌐 Wishlists públicas y compartibles
-* 🛍️ Integración automática con tiendas (scraping / APIs)
-* ⭐ Recomendaciones personalizadas
-* 🧑‍💼 Panel de administración
+Base: `http://localhost:3001/api/products`
+
+| Endpoint | Descripción |
+|---|---|
+| `GET /` | Listado paginado con filtros |
+| `GET /trending` | Productos con mayor `trendingScore` |
+| `GET /newest` | Productos más recientes |
+| `GET /:id` | Detalle de un producto |
+| `GET /:id/related` | Relacionados (misma categoría, primero la misma marca) |
+
+Parámetros de `GET /`:
+
+| Parámetro | Ejemplo | Descripción |
+|---|---|---|
+| `page`, `limit` | `page=2&limit=20` | Paginación (máx. 100 por página) |
+| `sort`, `order` | `sort=price&order=asc` | `createdAt`, `price`, `trendingScore`, `favoritesCount`, `title` o `random` |
+| `seed` | `sort=random&seed=42` | Semilla del orden aleatorio: la misma semilla da el mismo orden, así las páginas no se repiten |
+| `brand`, `category`, `gender` | `brand=id1,id2` | Uno o varios valores separados por coma |
+| `q` | `q=polerón` | Texto en título, tags o categoría |
+| `minPrice`, `maxPrice` | `minPrice=10000` | Rango de precio |
+| `size` | `size=M,XL` | Tallas con stock (reconoce alias como `XXL`/`2XL`) |
+| `onSale` | `onSale=true` | Solo productos con descuento |
+| `fit`, `style`, `color` | `color=negro` | Filtros sobre `canonicalTags` |
+| `inStock` | `inStock=true` | Solo productos con stock |
+
+Los listados solo devuelven productos **activos y con al menos una imagen**. Los productos retirados o sin imagen siguen accesibles por ID y desde favoritos.
+
+Otras rutas: `/api/auth`, `/api/users`, `/api/brands`, `/api/wishlist`, `/api/product-events` y `/api/scrape` (scrapers por marca).
 
 ---
 
 ## 🗂️ Estructura general del proyecto
 
 ```text
-soloropa/
+SoloRopa/
 │
-├── frontend/        # React + Vite + Tailwind
+├── frontend/              # React + Vite + Tailwind
+│   └── src/
+│       ├── components/    # layout, product, explore, ui, wishlist…
+│       ├── pages/
+│       ├── router/        # AppRouter, PrivateRoute, ScrollToTop
+│       ├── services/      # llamadas a la API
+│       ├── Hooks/         # stores (Zustand) y hooks
+│       └── Types/
+│
+├── backend/               # Node + Express + MongoDB
 │   ├── src/
-│   ├── components/
-│   ├── pages/
-│   ├── services/
-│   └── store/
+│   │   ├── controllers/
+│   │   ├── models/
+│   │   ├── routes/
+│   │   ├── middleware/
+│   │   ├── scrapers/      # adaptadores por plataforma y marca
+│   │   └── utils/         # config, logger
+│   └── test/
 │
-├── backend/         # Node + Express + MongoDB
-│   ├── src/
-│   ├── models/
-│   ├── routes/
-│   ├── controllers/
-│   └── middlewares/
-│
-└── docker-compose.yml
+├── docs/                  # guías (marcas, logos, MongoDB, Google Auth…)
+├── docker-compose.yml     # MongoDB local
+└── start.ps1              # abre backend y frontend en Windows Terminal
 ```
 
 ---
@@ -89,44 +147,96 @@ soloropa/
 ### Requisitos
 
 * Node.js >= 18
-* Docker & Docker Compose
-* MongoDB (o contenedor)
+* Docker (para MongoDB local) o una base en MongoDB Atlas
 
 ### Clonar repositorio
 
 ```bash
-git clone https://github.com/tu-usuario/soloropa.git
-cd soloropa
+git clone git@github.com:CristianIgnacio/SoloRopa.git
+cd SoloRopa
+npm install --prefix backend
+npm install --prefix frontend
 ```
 
 ### Variables de entorno
 
-Crear archivos `.env` en frontend y backend según corresponda:
+`backend/.env`:
 
 ```env
 PORT=3001
-MONGO_URI=mongodb://localhost:27017/soloropa
-JWT_SECRET=supersecret
+JWT_SECRET=un-secreto-largo
+
+# Base local (por defecto en desarrollo)
+MONGODB_URI_LOCAL=mongodb://localhost:27017/SoloRopa
+# Base de producción (Atlas); se usa con NODE_ENV=production o MONGODB_TARGET=production
+MONGODB_URI=mongodb+srv://usuario:password@cluster/...
+MONGODB_DBNAME=SoloRopa
+# MONGODB_TARGET=production
+# MONGODB_DNS_SERVERS=1.1.1.1,8.8.8.8   # útil si falla la resolución SRV de Atlas
+
+GOOGLE_CLIENT_ID=...
+# COOKIE_SAME_SITE=lax                  # lax | strict | none
 ```
+
+`frontend/.env`:
+
+```env
+VITE_GOOGLE_CLIENT_ID=...
+# VITE_API_URL=https://api.ejemplo.com  # solo en producción; en dev Vite hace proxy de /api a localhost:3001
+```
+
+> ⚠️ Si `MONGODB_TARGET=production`, el backend local trabaja sobre la base de producción.
+
+Más detalle en [`docs/MONGODB_DEVELOPMENT.md`](./docs/MONGODB_DEVELOPMENT.md) y [`docs/GOOGLE_AUTH_PRODUCTION.md`](./docs/GOOGLE_AUTH_PRODUCTION.md).
 
 ### Levantar entorno
 
 ```bash
-docker-compose up --build
+npm run dev:mongo    # MongoDB local con Docker
+npm run dev:back     # backend en http://localhost:3001
+npm run dev:front    # frontend en http://localhost:5173
 ```
+
+En Windows, `./start.ps1` abre el backend y el frontend en pestañas de Windows Terminal.
 
 Frontend: `http://localhost:5173`
 
 Backend API: `http://localhost:3001/api`
 
+### Otros comandos
+
+```bash
+npm run lint --prefix frontend     # ESLint
+npm run build --prefix frontend    # build de producción
+npm run brands --prefix backend    # seed de marcas
+```
+
 ---
 
 ## 🔐 Autenticación
 
-* Login basado en JWT
-* Manejo de expiración de token
-* Cierre automático de sesión al expirar
-* Rutas protegidas en frontend y backend
+* Login con email/contraseña o con Google
+* JWT guardado en cookie, con sesión de 7 días
+* Recuperación de contraseña por email (por ahora con una cuenta de prueba de nodemailer/Ethereal, no envía correos reales)
+* Rutas protegidas en frontend (`PrivateRoute`, con rol admin) y backend
+
+---
+
+## 🧩 Roadmap
+
+* 📊 Seguimiento de precios y notificaciones
+* ⭐ Recomendaciones personalizadas
+* 🔁 Scraping programado y detección de imágenes rotas al importar
+
+---
+
+## 📚 Documentación adicional
+
+* [Agregar una marca](./docs/ADDING_A_BRAND.md)
+* [Logos de marcas locales](./docs/LOCAL_BRAND_LOGOS.md)
+* [MongoDB en desarrollo](./docs/MONGODB_DEVELOPMENT.md)
+* [Google Auth en producción](./docs/GOOGLE_AUTH_PRODUCTION.md)
+* [Migración Treino](./docs/TREINO_MIGRATION.md)
 
 ---
 
@@ -171,8 +281,3 @@ Este proyecto es de uso académico y personal. Licencia a definir.
 **Cristian Fuentes**
 Ingeniería Civil en Computación
 Proyecto personal – SoloRopa
-
-
-
-
-

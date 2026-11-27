@@ -1,4 +1,5 @@
 import AppRouter from "./router/AppRouter"
+import ScrollToTop from "./router/ScrollToTop"
 import { useEffect } from "react"
 import loginServices from "./services/login"
 import { useUserStore } from "./Hooks/useStore"
@@ -19,7 +20,12 @@ function App() {
     }
   }, []) // Solo se ejecuta una vez al montar la app
 
-  return <AppRouter />
+  return (
+    <>
+      <ScrollToTop />
+      <AppRouter />
+    </>
+  )
 }
 
 export default App

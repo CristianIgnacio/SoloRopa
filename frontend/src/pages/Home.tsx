@@ -1,16 +1,22 @@
 import { useEffect, useState, useCallback, useRef } from "react"
 import productsServices from "../services/products"
 import type { Product } from "../Types/Types"
-import ProductMasonry from "../components/product/ProductMansory"
+import ProductMasonry, { ProductMasonrySkeleton } from "../components/product/ProductMansory"
 // import { productsMock } from "../mocks/products.mocks"
 import { useInfiniteScroll } from "../Hooks/useInfiniteScroll"
 import ProductQuickView from "../components/product/ProductQuickView"
 // import ProductCardDots from "../components/product/ProductCardDots"
 import ProductCardHover from "../components/product/ProductCardHover"
-import ProductCardSkeleton from "../components/product/ProductCardSkeleton"
 // import ProductCard from "../components/product/ProductCard"
 
 const PAGE_SIZE = 20
+
+// Home ocupa todo el ancho: más columnas en pantallas grandes para que las cards no crezcan demasiado
+const HOME_COLUMNS = { default: 6, 1920: 6, 1536: 5, 1280: 4, 1024: 3, 768: 2 }
+
+// Orden aleatorio: una semilla por visita al Home. El backend la usa para barajar
+// siempre igual, así las páginas del scroll infinito no repiten ni saltan productos.
+const newSeed = () => Math.floor(Math.random() * 2 ** 31)
 
 const Home = () => {
     const [products, setProducts] = useState<Product[]>([])
@@ -18,6 +24,7 @@ const Home = () => {
     const [hasMore, setHasMore] = useState(true)
     const [loading, setLoading] = useState(false)
     const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null)
+    const [seed] = useState(newSeed)
 
     // Evitar peticiones duplicadas simultáneas
     const loadingRef = useRef(false)
@@ -29,7 +36,7 @@ const Home = () => {
         setLoading(true)
 
         try {
-            const result = await productsServices.getProducts({ page: pageNum, limit: PAGE_SIZE })
+            const result = await productsServices.getProducts({ page: pageNum, limit: PAGE_SIZE, sort: "random", seed })
 
             setProducts((prev) =>
                 pageNum === 1 ? result.data : [...prev, ...result.data]
@@ -39,7 +46,7 @@ const Home = () => {
             setLoading(false)
             loadingRef.current = false
         }
-    }, [])
+    }, [seed])
 
     // Carga inicial
     useEffect(() => {
@@ -59,16 +66,10 @@ const Home = () => {
 
     return (
         <>
-        <section className="mx-auto max-w-7xl px-4 py-6">
+        <section className="w-full px-3 py-6 md:px-6">
             {/* Carga Inicial */}
             {loading && products.length === 0 && (
-                <div className="columns-2 gap-4 sm:columns-3 md:columns-4 lg:columns-5 space-y-4">
-                    {Array.from({ length: 15 }).map((_, i) => (
-                        <div key={i} className="break-inside-avoid">
-                            <ProductCardSkeleton />
-                        </div>
-                    ))}
-                </div>
+                <ProductMasonrySkeleton count={18} mobileColumns={2} breakpointCols={HOME_COLUMNS} variant="clean" />
             )}
 
             {/* Grid Principal */}
@@ -77,8 +78,9 @@ const Home = () => {
                     products={products}
                     imageMode="natural"
                     mobileColumns={2}
+                    breakpointCols={HOME_COLUMNS}
                     renderItem={(product, imageMode) => (
-                        <ProductCardHover key={product.id} product={product} imageMode={imageMode} onClick={() => setQuickViewProduct(product)}/>
+                        <ProductCardHover key={product.id} product={product} imageMode={imageMode} variant="clean" onClick={() => setQuickViewProduct(product)}/>
                     )}
                 />
             )}
