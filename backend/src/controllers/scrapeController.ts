@@ -33,14 +33,14 @@ const scrapeStodak = scrapeBase("stodak")
 
 const scrapeAll = async (req: Request, res: Response, next: NextFunction) => {
   const brandKeys = Object.keys(stores);
-  const feed: { brand: string; count: number; success: boolean; error?: string }[] = [];
+  const feed: { brand: string; count: number; priceChanges: number; success: boolean; error?: string }[] = [];
 
   for (const key of brandKeys) {
     try {
       const result = await runScraperFor(key);
-      feed.push({ brand: key, count: result.count, success: true });
+      feed.push({ brand: key, count: result.count, priceChanges: result.priceChanges, success: true });
     } catch (err: any) {
-      feed.push({ brand: key, count: 0, success: false, error: err.message });
+      feed.push({ brand: key, count: 0, priceChanges: 0, success: false, error: err.message });
     }
   }
 
