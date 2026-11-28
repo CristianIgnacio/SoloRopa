@@ -49,6 +49,11 @@ const userSchema = new mongoose.Schema({
     select: false
   },
 
+  // Preferencias de correo. Los usuarios antiguos no tienen el campo: cuenta como activado.
+  notifications: {
+    priceDrops: { type: Boolean, default: true },
+  },
+
 }, {
   timestamps: true, // crea createdAt y updatedAt
 });

@@ -98,6 +98,9 @@ export default function FavoritesDetail() {
 
   const isOwner = user?.id === ownerId;
   const isPublic = wishlist.visibility === "public"
+  const newestItemsFirst = [...wishlist.items].sort(
+    (a, b) => new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime()
+  )
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-6">
@@ -140,10 +143,7 @@ export default function FavoritesDetail() {
             )}
             
             {(isOwner || isPublic) && (
-              <div className="flex items-center gap-2 border-2 border-black bg-white p-1 shadow-[2px_2px_0_0_#000]">
-                <ShareButton url={window.location.href} />
-                <span className="pr-2 text-xs font-bold uppercase tracking-widest text-black">Compartir</span>
-              </div>
+              <ShareButton url={window.location.href} label="Compartir" />
             )}
 
             {isOwner && (
@@ -189,7 +189,7 @@ export default function FavoritesDetail() {
         <p className="text-sm font-bold uppercase tracking-widest text-slate-500">No hay productos aún.</p>
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-          {wishlist.items.map((item: WishlistItem) => (
+          {newestItemsFirst.map((item: WishlistItem) => (
             <FavoriteItemCard
               key={item.productId.id}
               item={item.productId}

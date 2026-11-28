@@ -2,6 +2,7 @@ import mongoose, { model, Schema, Document } from "mongoose"
 import { ProductCategory, PRODUCT_CATEGORIES } from "../constants/productCategories";
 import { Gender } from "../scrapers/domain/enums";
 import type {CanonicalTags} from "../scrapers/domain/Tag"
+import type { PriceStats } from "../utils/priceTracking";
 
 export interface IProduct extends Document {
   // info
@@ -29,6 +30,10 @@ export interface IProduct extends Document {
 
   // variacion (tallas, color)
   variants?: { title: string; color?: string; size?: string; sku?: string; price?: number; comparePrice? : number ; inStock?: boolean }[];
+
+  // Resumen del historial de precios (services/priceHistory). La fuente de verdad es PriceHistory.
+  // null = sin historial todavía (producto sin precio válido).
+  priceStats?: (PriceStats & { computedAt: Date }) | null;
 
   // Metricas de tendencia
   viewsCount : number,
@@ -76,6 +81,18 @@ const ProductSchema = new Schema<IProduct>({
     comparePrice: { type: Number, required: false },
     inStock: { type: Boolean, required: false }
   }],
+  priceStats: {
+    type: new Schema({
+      current: { type: Number, required: true },
+      min30d: { type: Number, required: true },
+      max30d: { type: Number, required: true },
+      isLowest30d: { type: Boolean, required: true },
+      trackedSince: { type: Date, required: true },
+      lastChangeAt: { type: Date, required: true },
+      computedAt: { type: Date, required: true },
+    }, { _id: false }),
+    required: false,
+  },
   viewsCount : { type : Number, default : 0, required : true},
   favoritesCount : { type : Number, default : 0, required : true},
   clicksCount : { type : Number, default : 0, required : true},

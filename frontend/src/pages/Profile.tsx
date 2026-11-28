@@ -109,10 +109,7 @@ export default function Profile() {
         </div>
         
         <div className="mt-4 sm:mt-0 self-center sm:self-start">
-          <div className="flex items-center gap-2 border-2 border-black bg-white p-1 shadow-[2px_2px_0_0_#000]">
-            <ShareButton url={window.location.href} />
-            <span className="pr-2 text-xs font-bold uppercase tracking-widest text-black">Compartir</span>
-          </div>
+          <ShareButton url={window.location.href} label="Compartir" />
         </div>
       </div>
 

@@ -1,5 +1,45 @@
 import Product from "../models/Product";
 import { Response, Request, NextFunction } from "express";
+import { getPriceRows } from "../services/priceHistory";
+import { computePriceStats, getPriceWindow, parseHistoryDays } from "../utils/priceTracking";
+
+const SIZE_ALIASES: Record<string, string[]> = {
+  XXL: ['XXL', '2XL'],
+  '3XL': ['3XL', 'XXXL'],
+  '4XL': ['4XL', 'XXXXL'],
+  'ÚNICA': ['ÚNICA', 'UNICA', 'OS', 'OSFA', 'ALL', 'STD', 'TU']
+}
+
+const escapeRegex = (value: string) => value.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
+
+// Productos que se muestran en los listados: activos y con al menos una imagen.
+// Los retirados o sin imagen siguen accesibles por ID y desde favoritos.
+const LISTABLE_FILTER = {
+  isActive: { $ne: false },
+  // Ojo: $nin con null sobre una ruta de array ("images.0.src") descarta todo.
+  'images.0.src': { $type: 'string', $gt: '' }
+}
+
+// PRNG determinístico (mulberry32): misma semilla → misma secuencia
+const seededRandom = (seed: number) => () => {
+  seed = (seed + 0x6D2B79F5) | 0
+  let t = seed
+  t = Math.imul(t ^ (t >>> 15), t | 1)
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+}
+
+// Baraja (Fisher-Yates) con semilla: la misma semilla da el mismo orden,
+// así la paginación del orden aleatorio es estable entre páginas.
+const seededShuffle = <T>(items: T[], seed: number): T[] => {
+  const rand = seededRandom(seed)
+  const result = [...items]
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1))
+    ;[result[i], result[j]] = [result[j], result[i]]
+  }
+  return result
+}
 
 // Obtener productos paginados
 const getAllProducts = async (req: Request, res: Response, next: NextFunction) => {
@@ -14,8 +54,7 @@ const getAllProducts = async (req: Request, res: Response, next: NextFunction) =
     const allowedSortFields = ['createdAt', 'price', 'trendingScore', 'favoritesCount', 'title']
     const sortField = allowedSortFields.includes(sort) ? sort : 'createdAt'
 
-    // Los productos retirados siguen accesibles por ID y desde favoritos.
-    const filter: any = { isActive: { $ne: false } }
+    const filter: any = { ...LISTABLE_FILTER }
     if (req.query.brand) {
       const brands = String(req.query.brand).split(',')
       filter.brand = brands.length > 1 ? { $in: brands } : brands[0]
@@ -40,10 +79,50 @@ const getAllProducts = async (req: Request, res: Response, next: NextFunction) =
       ]
     }
 
-    if (req.query.minPrice || req.query.maxPrice) {
-      filter.price = {}
-      if (req.query.minPrice) filter.price.$gte = Number(req.query.minPrice)
-      if (req.query.maxPrice) filter.price.$lte = Number(req.query.maxPrice)
+    const minPrice = Number(req.query.minPrice)
+    const maxPrice = Number(req.query.maxPrice)
+    if (req.query.minPrice !== undefined && Number.isFinite(minPrice) && minPrice >= 0) {
+      filter.price = { ...filter.price, $gte: minPrice }
+    }
+    if (req.query.maxPrice !== undefined && Number.isFinite(maxPrice) && maxPrice >= 0) {
+      filter.price = { ...filter.price, $lte: maxPrice }
+    }
+
+    if (req.query.size) {
+      const sizeMatchers = String(req.query.size).split(',').map(size => size.trim()).filter(Boolean).slice(0, 20)
+        .map(size => {
+          const aliases = SIZE_ALIASES[size.toUpperCase()] || [size]
+          return new RegExp('(^|[\\s/-])(?:' + aliases.map(escapeRegex).join('|') + ')(?=$|[\\s/-])', 'i')
+        })
+      if (sizeMatchers.length) {
+        filter.variants = {
+          $elemMatch: {
+            inStock: true,
+            $or: [
+              { size: { $in: sizeMatchers } },
+              { title: { $in: sizeMatchers } }
+            ]
+          }
+        }
+      }
+    }
+
+    if (req.query.onSale === 'true') {
+      filter.$expr = {
+        $anyElementTrue: [{
+          $map: {
+            input: { $ifNull: ['$variants', []] },
+            as: 'variant',
+            in: {
+              $and: [
+                { $isNumber: '$$variant.price' },
+                { $isNumber: '$$variant.comparePrice' },
+                { $gt: ['$$variant.comparePrice', '$$variant.price'] }
+              ]
+            }
+          }
+        }]
+      }
     }
 
     // Filtros sobre canonicalTags (fit, style, color)
@@ -61,6 +140,24 @@ const getAllProducts = async (req: Request, res: Response, next: NextFunction) =
 
     if (req.query.inStock === 'true') {
       filter.inStock = true
+    }
+
+    if (sort === 'random') {
+      const parsedSeed = Number(req.query.seed)
+      const seed = Number.isInteger(parsedSeed) ? parsedSeed : Math.floor(Math.random() * 2 ** 31)
+
+      // Solo IDs (liviano) en orden fijo, luego se barajan con la semilla
+      const ids = await Product.find(filter).sort({ _id: 1 }).select('_id').lean()
+      const shuffled = seededShuffle(ids.map(doc => String(doc._id)), seed)
+      const pageIds = shuffled.slice(skip, skip + limit)
+
+      const docs = await Product.find({ _id: { $in: pageIds } }).populate('brand')
+      const byId = new Map(docs.map(doc => [String(doc._id), doc]))
+      const products = pageIds.map(id => byId.get(id)).filter(Boolean)
+
+      const total = shuffled.length
+      const pages = Math.ceil(total / limit)
+      return res.status(200).json({ success: true, data: products, total, page, pages, hasMore: page < pages, seed })
     }
 
     const [products, total] = await Promise.all([
@@ -130,7 +227,7 @@ const getTrendingProducts = async (req: Request, res: Response, next: NextFuncti
   try {
     const limit = Math.min(50, Number(req.query.limit) || 20)
 
-    const products = await Product.find({ isActive: { $ne: false } })
+    const products = await Product.find(LISTABLE_FILTER)
       .sort({ trendingScore: -1 })
       .limit(limit)
       .populate("brand")
@@ -147,7 +244,7 @@ const getNewestProducts = async (req: Request, res: Response, next: NextFunction
   try {
     const limit = Math.min(50, Number(req.query.limit) || 15)
 
-    const products = await Product.find({ isActive: { $ne: false } })
+    const products = await Product.find(LISTABLE_FILTER)
       .sort({ createdAt: -1 })
       .limit(limit)
       .populate("brand")
@@ -170,7 +267,7 @@ const getRelatedProducts = async (req: Request, res: Response, next: NextFunctio
 
     // Misma marca misma categoría (excluye el propio)
     const sameBrandSameCategory = await Product.find({
-      isActive: { $ne: false },
+      ...LISTABLE_FILTER,
       _id: { $ne: product._id },
       brand: product.brand,
       category: product.category
@@ -183,7 +280,7 @@ const getRelatedProducts = async (req: Request, res: Response, next: NextFunctio
 
     const otherCategory = remaining > 0
       ? await Product.find({
-          isActive: { $ne: false },
+          ...LISTABLE_FILTER,
           _id: { $nin: extraIds },
           category: product.category
         }).limit(remaining).populate('brand')
@@ -197,4 +294,26 @@ const getRelatedProducts = async (req: Request, res: Response, next: NextFunctio
   }
 }
 
-export { getAllProducts, getProductById, getTrendingProducts, getNewestProducts, getRelatedProducts }
+// Historial de precios para el gráfico: GET /api/products/:id/price-history?days=90
+const getPriceHistory = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const days = parseHistoryDays(req.query.days)
+    const rows = await getPriceRows(String(req.params.id)) // id malformado → CastError → 400
+    const now = new Date()
+
+    // Los precios cambian una vez al día (cron), así que una hora de caché basta.
+    res.set('Cache-Control', 'public, max-age=3600')
+    res.json({
+      success: true,
+      data: {
+        days,
+        points: getPriceWindow(rows, now, days),
+        stats: computePriceStats(rows, now),
+      },
+    })
+  } catch (err) {
+    next(err)
+  }
+}
+
+export { getAllProducts, getProductById, getTrendingProducts, getNewestProducts, getRelatedProducts, getPriceHistory }

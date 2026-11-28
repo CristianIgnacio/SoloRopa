@@ -11,6 +11,7 @@ import { useProductVariants } from "../../Hooks/useProductVariants"
 import VariantSelector from "./VariantSelector"
 import type { Product } from "../../Types/Types"
 import { useProductEvents } from "../../Hooks/useProductEvents"
+import { showsLowest30d } from "../../utils/priceHistory"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faXmark, faArrowTrendDown, faArrowUpRightFromSquare, faTag } from "@fortawesome/free-solid-svg-icons"
 
@@ -183,11 +184,12 @@ export default function ProductQuickView({ product, open, onClose }: Props) {
                     </div>
                 )}
 
-            {/* Placeholder comparador */}
-            <p className="text-sm text-green-600 mb-2">
-                <FontAwesomeIcon icon={faArrowTrendDown} className="mr-1" />
-                Buen precio detectado
-            </p>
+            {showsLowest30d(product.priceStats, selectedVariant?.price ?? product.price) && (
+                <p className="mb-2 text-sm font-bold text-green-700">
+                    <FontAwesomeIcon icon={faArrowTrendDown} className="mr-1" />
+                    Precio más bajo en 30 días
+                </p>
+            )}
 
             <div className="mt-2 flex flex-col gap-3 sm:flex-row">
                 <button

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useCallback, useRef } from "react"
 import { useSearchParams } from "react-router-dom"
 import productsServices from "../services/products"
 import brandsServices from "../services/brands"
@@ -16,6 +16,16 @@ const GENDERS    = ["hombre", "mujer", "unisex"]
 const FITS    = ["oversize", "boxy", "slim", "baggy", "relaxed", "cropped", "regular"]
 const STYLES  = ["streetwear", "dark", "vintage", "skate", "y2k", "urbano", "minimal", "workwear", "goth", "outdoor"]
 const COLORS  = ["negro", "blanco", "gris", "azul", "rojo", "verde", "cafe", "beige", "naranja", "morado", "rosado", "stone"]
+const LETTER_SIZES = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "3XL", "4XL", "Única"]
+const NUMBER_SIZES = ["4", "6", "8", "10", "16", "18", "20", "22", "28", "30", "32", "34", "36", "38", "40", "42", "44", "46", "48", "50", "54", "56", "58", "60"]
+const PRICE_SLIDER_STEPS = 1000
+const DEFAULT_MAX_PRICE = 200000
+
+const sliderToPrice = (position: number, maxPrice: number) =>
+  Math.round(maxPrice * Math.pow(position / PRICE_SLIDER_STEPS, 2.5) / 1000) * 1000
+
+const priceToSlider = (price: number, maxPrice: number) =>
+  Math.round(Math.pow(Math.min(Math.max(price, 0), maxPrice) / maxPrice, 1 / 2.5) * PRICE_SLIDER_STEPS)
 
 export default function Search() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -24,22 +34,36 @@ export default function Search() {
   const initialQ          = searchParams.get("q") || ""
   const initialCategories = searchParams.get("category")?.split(",").filter(Boolean) || []
   const initialGenders    = searchParams.get("gender")?.split(",").filter(Boolean) || []
-  const initialBrand      = searchParams.get("brand") || ""
-  const initialSort       = searchParams.get("sort") || "createdAt"
+  const initialBrands     = searchParams.get("brand")?.split(",").filter(Boolean) || []
+  const sortParam         = searchParams.get("sort")
+  const initialSort       = sortParam === "price"
+    ? searchParams.get("order") === "desc" ? "price-desc" : "price-asc"
+    : sortParam || "createdAt"
   const initialFit        = searchParams.get("fit")?.split(",").filter(Boolean) || []
   const initialStyle      = searchParams.get("style")?.split(",").filter(Boolean) || []
   const initialColor      = searchParams.get("color")?.split(",").filter(Boolean) || []
+  const initialSizes      = searchParams.get("size")?.split(",").filter(Boolean) || []
+  const initialMinPrice   = searchParams.get("minPrice") || ""
+  const initialMaxPrice   = searchParams.get("maxPrice") || ""
+  const initialOnSale     = searchParams.get("onSale") === "true"
   const initialInStock    = searchParams.get("inStock") === "true"
-  const initialPage       = parseInt(searchParams.get("page") || "1", 10)
+  const initialPage       = Math.max(1, parseInt(searchParams.get("page") || "1", 10) || 1)
 
   const [q, setQ]                   = useState(initialQ)
   const [categories, setCategories] = useState<string[]>(initialCategories)
   const [genders, setGenders]       = useState<string[]>(initialGenders)
-  const [brand, setBrand]           = useState(initialBrand)
+  const [selectedBrands, setSelectedBrands] = useState<string[]>(initialBrands)
   const [sort, setSort]             = useState(initialSort)
   const [fits, setFits]             = useState<string[]>(initialFit)
   const [styles, setStyles]         = useState<string[]>(initialStyle)
   const [colors, setColors]         = useState<string[]>(initialColor)
+  const [sizes, setSizes]           = useState<string[]>(initialSizes)
+  const [showNumericSizes, setShowNumericSizes] = useState(initialSizes.some((size) => NUMBER_SIZES.includes(size)))
+  const [minPrice, setMinPrice]     = useState(initialMinPrice)
+  const [maxPrice, setMaxPrice]     = useState(initialMaxPrice)
+  const [catalogMaxPrice, setCatalogMaxPrice] = useState(DEFAULT_MAX_PRICE)
+  const [sliderDraft, setSliderDraft] = useState<{ min: number; max: number } | null>(null)
+  const [onSale, setOnSale]         = useState(initialOnSale)
   const [inStock, setInStock]       = useState(initialInStock)
   const [page, setPage]             = useState(initialPage)
 
@@ -49,6 +73,8 @@ export default function Search() {
   const [total, setTotal]       = useState(0)
   const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading]   = useState(false)
+  const latestRequest = useRef(0)
+  const appliedFilterQuery = useRef<string | null>(null)
 
   // UI States
   const [showFiltersMobile, setShowFiltersMobile] = useState(false)
@@ -64,18 +90,62 @@ export default function Search() {
     brandsServices.getAllBrands().then(setBrands)
   }, [])
 
+  useEffect(() => {
+    let active = true
+    productsServices.getProducts({ page: 1, limit: 1, sort: "price", order: "desc", minPrice: 0 })
+      .then((result) => {
+        const highestPrice = Number(result.data[0]?.price)
+        if (active && Number.isFinite(highestPrice) && highestPrice > 0) {
+          setCatalogMaxPrice(Math.ceil(highestPrice / 1000) * 1000)
+        }
+      })
+      .catch(() => {})
+    return () => { active = false }
+  }, [])
+
+  const sliderMaxPrice = Math.max(catalogMaxPrice, Number(minPrice) || 0, Number(maxPrice) || 0)
+  const appliedMinPosition = minPrice ? priceToSlider(Number(minPrice), sliderMaxPrice) : 0
+  const appliedMaxPosition = maxPrice ? priceToSlider(Number(maxPrice), sliderMaxPrice) : PRICE_SLIDER_STEPS
+  const sliderMinPosition = sliderDraft?.min ?? appliedMinPosition
+  const sliderMaxPosition = sliderDraft?.max ?? Math.max(appliedMinPosition, appliedMaxPosition)
+
+  const commitSliderPrice = (thumb: "min" | "max", position: number) => {
+    const boundedPosition = thumb === "min"
+      ? Math.min(position, sliderMaxPosition)
+      : Math.max(position, sliderMinPosition)
+    const price = sliderToPrice(boundedPosition, sliderMaxPrice)
+    if (thumb === "min") setMinPrice(price === 0 ? "" : String(price))
+    else setMaxPrice(boundedPosition === PRICE_SLIDER_STEPS ? "" : String(price))
+    setSliderDraft(null)
+  }
+
+  const moveSliderThumb = (thumb: "min" | "max", position: number) => {
+    setSliderDraft({
+      min: thumb === "min" ? Math.min(position, sliderMaxPosition) : sliderMinPosition,
+      max: thumb === "max" ? Math.max(position, sliderMinPosition) : sliderMaxPosition,
+    })
+  }
+
+  const formatPrice = (price: number) => `$${price.toLocaleString("es-CL")}`
+
   // Buscar productos
   const fetchProducts = useCallback(async (pageNum: number) => {
+    const requestId = ++latestRequest.current
     setLoading(true)
     try {
-      const params: Record<string, any> = {
+      const params: Record<string, string | number | undefined> = {
         page: pageNum,
         limit: PAGE_SIZE,
         q: q || undefined,
         category: categories.length ? categories.join(",") : undefined,
         gender: genders.length ? genders.join(",") : undefined,
-        brand: brand || undefined,
-        sort: sort || undefined,
+        brand: selectedBrands.length ? selectedBrands.join(",") : undefined,
+        sort: sort.startsWith("price-") ? "price" : sort,
+        order: sort === "price-asc" ? "asc" : "desc",
+        minPrice: minPrice || undefined,
+        maxPrice: maxPrice || undefined,
+        size: sizes.length ? sizes.join(",") : undefined,
+        onSale: onSale ? "true" : undefined,
         fit:   fits.length   ? fits.join(",")   : undefined,
         style: styles.length ? styles.join(",") : undefined,
         color: colors.length ? colors.join(",") : undefined,
@@ -84,32 +154,43 @@ export default function Search() {
 
       const res = await productsServices.getProducts(params)
 
+      if (requestId !== latestRequest.current) return
       setProducts(res.data)
       setTotal(res.total)
       setTotalPages(res.pages ?? Math.ceil(res.total / PAGE_SIZE))
     } finally {
-      setLoading(false)
+      if (requestId === latestRequest.current) setLoading(false)
     }
-  }, [q, categories, genders, brand, sort, fits, styles, colors, inStock])
+  }, [q, categories, genders, selectedBrands, sort, fits, styles, colors, sizes, minPrice, maxPrice, onSale, inStock])
 
-  // Sync URL → estado cuando los filtros cambian (resetea a página 1)
+  // Reiniciar la página solo cuando cambian los filtros, conservando la página inicial de la URL.
   useEffect(() => {
     const params = new URLSearchParams()
     if (q)                       params.set("q", q)
     if (categories.length)       params.set("category", categories.join(","))
     if (genders.length)          params.set("gender", genders.join(","))
-    if (brand)                   params.set("brand", brand)
-    if (sort !== "createdAt")    params.set("sort", sort)
+    if (selectedBrands.length)   params.set("brand", selectedBrands.join(","))
+    if (sort !== "createdAt")    params.set("sort", sort.startsWith("price-") ? "price" : sort)
+    if (sort.startsWith("price-")) params.set("order", sort === "price-asc" ? "asc" : "desc")
     if (fits.length)             params.set("fit",   fits.join(","))
     if (styles.length)           params.set("style", styles.join(","))
     if (colors.length)           params.set("color", colors.join(","))
+    if (sizes.length)            params.set("size", sizes.join(","))
+    if (minPrice)                params.set("minPrice", minPrice)
+    if (maxPrice)                params.set("maxPrice", maxPrice)
+    if (onSale)                  params.set("onSale", "true")
     if (inStock)                 params.set("inStock", "true")
-    params.set("page", "1")
+    const filterQuery = params.toString()
+    if (appliedFilterQuery.current === filterQuery) return
+
+    const nextPage = appliedFilterQuery.current === null ? page : 1
+    appliedFilterQuery.current = filterQuery
+    params.set("page", String(nextPage))
 
     setSearchParams(params, { replace: true })
-    setPage(1)
-    fetchProducts(1)
-  }, [q, categories, genders, brand, sort, fits, styles, colors, inStock])
+    setPage(nextPage)
+    fetchProducts(nextPage)
+  }, [q, categories, genders, selectedBrands, sort, fits, styles, colors, sizes, minPrice, maxPrice, onSale, inStock, page, fetchProducts, setSearchParams])
 
   // Cambio de página explícito
   const goToPage = (p: number) => {
@@ -136,7 +217,7 @@ export default function Search() {
     return range
   }
 
-  const hasActiveFilters = categories.length > 0 || genders.length > 0 || fits.length > 0 || styles.length > 0 || colors.length > 0 || inStock || brand
+  const hasActiveFilters = categories.length > 0 || genders.length > 0 || fits.length > 0 || styles.length > 0 || colors.length > 0 || sizes.length > 0 || selectedBrands.length > 0 || minPrice !== "" || maxPrice !== "" || onSale || inStock
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
@@ -196,9 +277,111 @@ export default function Search() {
               >
                 <option value="createdAt">Más Nuevos</option>
                 <option value="trendingScore">Populares</option>
-                <option value="price">Precio (Menor a Mayor)</option>
+                <option value="price-asc">Precio (Menor a Mayor)</option>
+                <option value="price-desc">Precio (Mayor a Menor)</option>
               </select>
             </div>
+
+            {/* PRECIO */}
+            <div>
+              <h3 className="mb-3 text-sm font-black uppercase tracking-widest text-black">Precio (CLP)</h3>
+              <div className="mb-2 flex items-center justify-between gap-2 text-xs font-bold text-black">
+                <span>{sliderDraft ? formatPrice(sliderToPrice(sliderMinPosition, sliderMaxPrice)) : formatPrice(Number(minPrice) || 0)}</span>
+                <span>{sliderDraft
+                  ? sliderMaxPosition === PRICE_SLIDER_STEPS ? "Sin límite" : formatPrice(sliderToPrice(sliderMaxPosition, sliderMaxPrice))
+                  : maxPrice ? formatPrice(Number(maxPrice)) : "Sin límite"}</span>
+              </div>
+              <div className="relative mb-3 h-7" role="group" aria-label="Rango de precios">
+                <div
+                  className="absolute inset-x-[10px] top-[11px] h-1.5 cursor-pointer bg-slate-300"
+                  onPointerDown={(event) => {
+                    const bounds = event.currentTarget.getBoundingClientRect()
+                    const position = Math.round(Math.min(Math.max((event.clientX - bounds.left) / bounds.width, 0), 1) * PRICE_SLIDER_STEPS)
+                    const thumb = sliderMinPosition === sliderMaxPosition
+                      ? position < sliderMinPosition ? "min" : "max"
+                      : Math.abs(position - sliderMinPosition) <= Math.abs(position - sliderMaxPosition) ? "min" : "max"
+                    commitSliderPrice(thumb, position)
+                  }}
+                />
+                <div
+                  className="pointer-events-none absolute top-[11px] h-1.5 bg-yellow-400"
+                  style={{
+                    left: `calc(10px + (100% - 20px) * ${sliderMinPosition / PRICE_SLIDER_STEPS})`,
+                    right: `calc(10px + (100% - 20px) * ${(PRICE_SLIDER_STEPS - sliderMaxPosition) / PRICE_SLIDER_STEPS})`,
+                  }}
+                />
+                <input
+                  type="range"
+                  min="0"
+                  max={PRICE_SLIDER_STEPS}
+                  step="1"
+                  value={sliderMinPosition}
+                  onChange={(event) => moveSliderThumb("min", Number(event.target.value))}
+                  onPointerUp={(event) => commitSliderPrice("min", Number(event.currentTarget.value))}
+                  onKeyUp={(event) => commitSliderPrice("min", Number(event.currentTarget.value))}
+                  onBlur={(event) => { if (sliderDraft) commitSliderPrice("min", Number(event.currentTarget.value)) }}
+                  className="price-range-input z-10"
+                  aria-label="Precio mínimo"
+                  aria-valuetext={formatPrice(sliderDraft ? sliderToPrice(sliderMinPosition, sliderMaxPrice) : Number(minPrice) || 0)}
+                />
+                <input
+                  type="range"
+                  min="0"
+                  max={PRICE_SLIDER_STEPS}
+                  step="1"
+                  value={sliderMaxPosition}
+                  onChange={(event) => moveSliderThumb("max", Number(event.target.value))}
+                  onPointerUp={(event) => commitSliderPrice("max", Number(event.currentTarget.value))}
+                  onKeyUp={(event) => commitSliderPrice("max", Number(event.currentTarget.value))}
+                  onBlur={(event) => { if (sliderDraft) commitSliderPrice("max", Number(event.currentTarget.value)) }}
+                  className="price-range-input z-20"
+                  aria-label="Precio máximo"
+                  aria-valuetext={sliderMaxPosition === PRICE_SLIDER_STEPS ? "Sin límite" : formatPrice(sliderDraft ? sliderToPrice(sliderMaxPosition, sliderMaxPrice) : Number(maxPrice))}
+                />
+              </div>
+              <div className="mb-3 flex justify-between text-[10px] font-bold text-slate-500">
+                <span>$0</span>
+                <span>{formatPrice(sliderMaxPrice)}</span>
+              </div>
+              <div className="flex gap-2">
+                <label className="min-w-0 flex-1 text-xs font-bold text-slate-700">
+                  Desde
+                  <input
+                    type="number"
+                    min="0"
+                    step="1000"
+                    inputMode="numeric"
+                    value={minPrice}
+                    onChange={(e) => setMinPrice(e.target.value)}
+                    className="mt-1 w-full min-w-0 border-2 border-black bg-white px-2 py-2 text-sm text-black"
+                    placeholder="0"
+                  />
+                </label>
+                <label className="min-w-0 flex-1 text-xs font-bold text-slate-700">
+                  Hasta
+                  <input
+                    type="number"
+                    min="0"
+                    step="1000"
+                    inputMode="numeric"
+                    value={maxPrice}
+                    onChange={(e) => setMaxPrice(e.target.value)}
+                    className="mt-1 w-full min-w-0 border-2 border-black bg-white px-2 py-2 text-sm text-black"
+                    placeholder="Sin límite"
+                  />
+                </label>
+              </div>
+            </div>
+
+            <label className="flex cursor-pointer items-center gap-3 border-2 border-black p-3">
+              <input
+                type="checkbox"
+                checked={onSale}
+                onChange={(e) => setOnSale(e.target.checked)}
+                className="h-4 w-4 accent-black"
+              />
+              <span className="text-sm font-black uppercase text-black">En oferta</span>
+            </label>
 
             {/* CATEGORÍAS — multiselección */}
             <div>
@@ -236,27 +419,59 @@ export default function Search() {
               </div>
             </div>
 
+            {/* TALLAS DISPONIBLES */}
+            <div>
+              <h3 className="mb-3 text-sm font-black uppercase tracking-widest text-black">Talla disponible</h3>
+              <div className="flex flex-wrap gap-2">
+                {LETTER_SIZES.map((size) => (
+                  <button
+                    key={size}
+                    type="button"
+                    onClick={() => toggleItem(setSizes, size)}
+                    aria-pressed={sizes.includes(size)}
+                    className={`border-2 border-black px-3 py-1 text-xs font-black uppercase transition-colors
+                      ${sizes.includes(size) ? "bg-black text-white" : "bg-white text-black hover:bg-yellow-400"}`}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+              <button
+                type="button"
+                aria-expanded={showNumericSizes}
+                onClick={() => setShowNumericSizes((open) => !open)}
+                className="mt-3 text-xs font-bold uppercase text-slate-700 underline underline-offset-2"
+              >
+                Tallas numéricas {showNumericSizes ? "−" : "+"}
+              </button>
+              {showNumericSizes && (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {NUMBER_SIZES.map((size) => (
+                    <button
+                      key={size}
+                      type="button"
+                      onClick={() => toggleItem(setSizes, size)}
+                      aria-pressed={sizes.includes(size)}
+                      className={`border-2 border-black px-3 py-1 text-xs font-black uppercase transition-colors
+                        ${sizes.includes(size) ? "bg-black text-white" : "bg-white text-black hover:bg-yellow-400"}`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {/* MARCAS */}
             <div>
               <h3 className="mb-3 text-sm font-black uppercase tracking-widest text-black">Marca</h3>
               <div className="flex flex-col gap-2">
-                <label className="flex cursor-pointer items-center gap-3">
-                  <input
-                    type="radio"
-                    name="brand"
-                    checked={brand === ""}
-                    onChange={() => setBrand("")}
-                    className="h-4 w-4 accent-black"
-                  />
-                  <span className="font-bold uppercase text-slate-800">Cualquier Marca</span>
-                </label>
                 {brands.map(b => (
                   <label key={b.id} className="flex cursor-pointer items-center gap-3">
                     <input
-                      type="radio"
-                      name="brand"
-                      checked={brand === b.id}
-                      onChange={() => setBrand(b.id)}
+                      type="checkbox"
+                      checked={selectedBrands.includes(b.id)}
+                      onChange={() => toggleItem(setSelectedBrands, b.id)}
                       className="h-4 w-4 accent-black"
                     />
                     <span className="font-bold uppercase text-slate-800">{b.name}</span>
@@ -334,7 +549,7 @@ export default function Search() {
             {hasActiveFilters && (
               <button
                 type="button"
-                onClick={() => { setCategories([]); setGenders([]); setFits([]); setStyles([]); setColors([]); setInStock(false); setBrand(""); }}
+                onClick={() => { setCategories([]); setGenders([]); setFits([]); setStyles([]); setColors([]); setSizes([]); setSelectedBrands([]); setMinPrice(""); setMaxPrice(""); setOnSale(false); setInStock(false); }}
                 className="w-full border-2 border-black py-2 text-xs font-black uppercase text-black hover:bg-red-500 hover:text-white transition-colors"
               >
                 ✕ Limpiar todos los filtros

@@ -12,7 +12,9 @@
     "dev": "ts-node-dev src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "detectPlatform": "ts-node src/scrapers/scripts/detectPlatform.ts",
-    "brands": "ts-node src/scrapers/scripts/seedBrands.ts"
+    "brands": "ts-node src/scrapers/scripts/seedBrands.ts",
+    "price-history:seed": "ts-node src/scrapers/scripts/seedPriceHistory.ts",
+    "scrape:all": "ts-node src/scrapers/scripts/scrapeAll.ts"
   },
   "devDependencies": {
     "ts-node-dev": "^2.0.0",

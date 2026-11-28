@@ -156,19 +156,15 @@ export default function Navbar() {
             <FontAwesomeIcon icon={faMagnifyingGlass} className="text-xs" />
             Buscar
           </Link>
-          <Link to="/cards" className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-bold uppercase tracking-wider text-black transition-colors hover:bg-yellow-400">
-            <FontAwesomeIcon icon={faLayerGroup} className="text-xs" />
-            Cards
+          <Link to="/explore" className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-bold uppercase tracking-wider text-black transition-colors hover:bg-yellow-400">
+            <FontAwesomeIcon icon={faCompass} className="text-xs" />
+            Explorar
           </Link>
           {user ? (
             <>
               <Link to="/favorites" className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-bold uppercase tracking-wider text-black transition-colors hover:bg-yellow-400">
                 <FontAwesomeIcon icon={faHeart} className="text-xs" />
                 Favoritos
-              </Link>
-              <Link to="/explore" className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-bold uppercase tracking-wider text-black transition-colors hover:bg-yellow-400">
-                <FontAwesomeIcon icon={faCompass} className="text-xs" />
-                Explorar
               </Link>
               {/* Avatar dropdown */}
               <div ref={dropdownRef} className="relative">
@@ -226,6 +222,18 @@ export default function Navbar() {
                       </Link>
                     )}
 
+                    {/* Catálogo de cards: solo admins y solo en desarrollo */}
+                    {user.role === "admin" && import.meta.env.DEV && (
+                      <Link
+                        to="/cards"
+                        onClick={() => setOpen(false)}
+                        className="flex items-center gap-2 border-t border-slate-100 px-4 py-3 text-xs font-bold uppercase tracking-widest text-black transition-colors hover:bg-yellow-400"
+                      >
+                        <FontAwesomeIcon icon={faLayerGroup} className="w-4 text-black" />
+                        Cards (dev)
+                      </Link>
+                    )}
+
                     <button
                       onClick={handleLogout}
                       className="flex w-full items-center gap-2 bg-black px-4 py-3 text-left text-xs font-bold uppercase tracking-widest text-white transition-colors hover:bg-red-500"
@@ -278,12 +286,12 @@ export default function Navbar() {
               Buscar
             </Link>
             <Link 
-              to="/cards" 
+              to="/explore" 
               className="flex items-center gap-3 text-lg font-bold uppercase tracking-wider text-black transition-colors hover:text-yellow-500"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              <FontAwesomeIcon icon={faLayerGroup} className="w-5" />
-              Cards
+              <FontAwesomeIcon icon={faCompass} className="w-5" />
+              Explorar
             </Link>
             {user ? (
               <>
@@ -294,14 +302,6 @@ export default function Navbar() {
                 >
                   <FontAwesomeIcon icon={faHeart} className="w-5" />
                   Favoritos
-                </Link>
-                <Link 
-                  to="/explore" 
-                  className="flex items-center gap-3 text-lg font-bold uppercase tracking-wider text-black transition-colors hover:text-yellow-500"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <FontAwesomeIcon icon={faCompass} className="w-5" />
-                  Explorar
                 </Link>
                 <Link 
                   to={`/profile/${user.username}`} 
@@ -327,6 +327,16 @@ export default function Navbar() {
                   >
                     <FontAwesomeIcon icon={faShieldHalved} className="w-5" />
                     Admin
+                  </Link>
+                )}
+                {user.role === "admin" && import.meta.env.DEV && (
+                  <Link 
+                    to="/cards" 
+                    className="flex items-center gap-3 text-lg font-bold uppercase tracking-wider text-black transition-colors hover:text-yellow-500"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <FontAwesomeIcon icon={faLayerGroup} className="w-5" />
+                    Cards (dev)
                   </Link>
                 )}
                 <button 
