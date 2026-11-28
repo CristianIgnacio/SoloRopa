@@ -34,10 +34,8 @@ Los valores están en `backend/src/utils/priceAlerts.ts`.
 Render gratis bloquea SMTP (puertos 25, 465 y 587), así que los correos salen por la API HTTPS
 de Brevo (`backend/src/utils/mailer.ts`). El plan gratis permite 300 correos al día.
 
-1. Crear una cuenta en [brevo.com](https://www.brevo.com).
-2. En **Senders, domains & dedicated IPs → Senders**, agregar y verificar el correo remitente.
-   Con un dominio propio verificado los correos llegan mejor.
-3. En **SMTP & API → API keys**, crear una API key.
+Paso a paso (cuenta, remitente, API key, IPs autorizadas, variables y pruebas):
+**[BREVO_SETUP.md](./BREVO_SETUP.md)**.
 
 Sin `BREVO_API_KEY`, el mailer usa [Ethereal](https://ethereal.email): los correos no llegan a
 nadie y la consola muestra un link para verlos. Con la base de producción, los avisos no se envían
