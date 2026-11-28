@@ -23,11 +23,17 @@ El enfoque principal de SoloRopa es **producto‑céntrico**: facilitar que una 
 
 ## 📸 Capturas de pantalla
 
-### Vista de Home
-![Mapa de Home](./screenshot/Home.png)
+### Portada
+![Portada editorial con hero y secciones](./screenshot/Portada.png)
 
-### Vista de Favoritos
-![Vista de Favoritos](./screenshot/Favoritos.png)
+### Explorar
+![Feed de productos en masonry a todo el ancho](./screenshot/Explorar.png)
+
+### Búsqueda con filtros
+![Explorador avanzado con filtros de precio, oferta y categoría](./screenshot/Buscar.png)
+
+### Detalle de producto
+![Detalle de producto con galería, tallas y precio](./screenshot/Producto.png)
 
 ---
 
